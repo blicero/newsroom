@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 02. 2021 by Benjamin Walkenhorst
 // (c) 2021 Benjamin Walkenhorst
-// Time-stamp: <2026-03-04 16:35:38 krylon>
+// Time-stamp: <2026-03-09 13:12:10 krylon>
 
 //go:build ignore
 
@@ -58,25 +58,17 @@ var candidates = map[string][]string{
 	"generate": {
 		"common",
 		"logdomain",
-		"database/query",
 	},
 	"vet": {
 		"logdomain",
 		"common",
-		"model",
-		"database",
-		"database/query",
 	},
 	"lint": {
 		"logdomain",
 		"common",
 		"model",
-		"database",
-		"database/query",
 	},
-	"test": {
-		"database",
-	},
+	"test": {},
 }
 
 // During the clean step, all files and folders that match any of these
