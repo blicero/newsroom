@@ -1,8 +1,8 @@
-// /home/krylon/go/src/github.com/blicero/guangng/database/00_database_test.go
+// /home/krylon/go/src/github.com/blicero/newsroom/database/00_database_test.go
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 01. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 14:16:10 krylon>
+// Time-stamp: <2026-03-09 15:01:25 krylon>
 
 package database
 
@@ -19,7 +19,7 @@ func TestMain(m *testing.M) {
 	var (
 		err     error
 		result  int
-		baseDir = time.Now().Format("/tmp/guangng_db_test_20060102_150405")
+		baseDir = time.Now().Format("/tmp/newsroom_db_test_20060102_150405")
 	)
 
 	if err = common.SetBaseDir(baseDir); err != nil {

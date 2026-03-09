@@ -1,8 +1,8 @@
-// /home/krylon/go/src/github.com/blicero/guangng/database/01_database_create_test.go
+// /home/krylon/go/src/github.com/blicero/newsroom/database/01_database_create_test.go
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 01. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 14:16:19 krylon>
+// Time-stamp: <2026-03-09 15:01:04 krylon>
 
 package database
 

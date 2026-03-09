@@ -1,8 +1,8 @@
-// /home/krylon/go/src/github.com/blicero/guangng/database/pool.go
+// /home/krylon/go/src/github.com/blicero/newsroom/database/pool.go
 // -*- mode: go; coding: utf-8; -*-
 // Created on 21. 01. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 14:16:38 krylon>
+// Time-stamp: <2026-03-09 15:00:24 krylon>
 
 package database
 
