@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 13:26:50 krylon>
+// Time-stamp: <2026-03-09 13:51:16 krylon>
 
 // Package model defines data types that are used throughout the application.
 package model
@@ -10,6 +10,8 @@ package model
 import (
 	"net/url"
 	"time"
+
+	"github.com/blicero/newsroom/model/rating"
 )
 
 // Feed is an RSS feed we can subscribe to.
@@ -35,6 +37,7 @@ type Item struct {
 	FeedID    int64
 	Title     string
 	URL       *url.URL
+	Rating    rating.Rating
 	Timestamp time.Time
 	Body      string
 }
