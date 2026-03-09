@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-03-09 13:07:56 krylon>
+# Time-stamp: <2026-03-09 14:55:17 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,10 +14,15 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-03-09 Mo 13:04]
-   | Headline     | Time   |
-   |--------------+--------|
-   | *Total time* | *0:00* |
+   #+CAPTION: Clock summary at [2026-03-09 Mo 14:55]
+   | Headline               | Time   |        |      |
+   |------------------------+--------+--------+------|
+   | *Total time*           | *1:34* |        |      |
+   |------------------------+--------+--------+------|
+   | *Newsroom [0/0]*       | *1:34* |        |      |
+   | \_  /Components [0/0]/ |        | /1:34/ |      |
+   | \_    Model [0/0]      |        |        | 0:35 |
+   | \_    Database [0/0]   |        |        | 0:59 |
    #+END:
 ** Components [0/0]
    :PROPERTIES:
@@ -29,10 +34,17 @@
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
     :END:
+    :LOGBOOK:
+    CLOCK: [2026-03-09 Mo 13:15]--[2026-03-09 Mo 13:50] =>  0:35
+    :END:
 *** Database [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
+    :END:
+    :LOGBOOK:
+    CLOCK: [2026-03-09 Mo 14:13]--[2026-03-09 Mo 14:55] =>  0:42
+    CLOCK: [2026-03-09 Mo 13:50]--[2026-03-09 Mo 14:07] =>  0:17
     :END:
 *** Engine [0/0]
     :PROPERTIES:
