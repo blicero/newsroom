@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 13:11:30 krylon>
+// Time-stamp: <2026-03-09 13:46:02 krylon>
 
 package logdomain
 
@@ -12,7 +12,7 @@ package logdomain
 type ID uint8
 
 const (
-	Database
+	Database ID = iota
 	Engine
 	Classifier
 	UI
