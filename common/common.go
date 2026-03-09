@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 13:09:18 krylon>
+// Time-stamp: <2026-03-09 13:16:32 krylon>
 
 package common
 
@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/blicero/krylib"
+	"github.com/blicero/newsroom/logdomain"
 	"github.com/google/uuid"
 	"github.com/hashicorp/logutils"
 )
@@ -33,7 +34,7 @@ import (
 // TimestampFormat is the default format for timestamp used throughout the
 // application.
 const (
-	AppName                  = "Spiderpig"
+	AppName                  = "Newsroom"
 	Version                  = "0.0.1"
 	Debug                    = true
 	TimestampFormatMinute    = "2006-01-02 15:04"
