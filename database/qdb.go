@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 14:53:13 krylon>
+// Time-stamp: <2026-03-10 13:10:01 krylon>
 
 package database
 
@@ -53,8 +53,9 @@ SELECT
 FROM feed
 WHERE id = ?
 `,
-	query.FeedSetInterval: "UPDATE feed SET refresh_interval = ? WHERE id = ?",
-	query.FeedSetPause:    "UPDATE feed SET paused = ? WHERE id = ?",
+	query.FeedSetInterval:    "UPDATE feed SET refresh_interval = ? WHERE id = ?",
+	query.FeedSetLastRefresh: "UPDATE feed SET last_refresh = ? WHERE id = ?",
+	query.FeedSetPause:       "UPDATE feed SET paused = ? WHERE id = ?",
 	query.ItemAdd: `
 INSERT INTO item (feed_id, title, url, timestamp, body)
           VALUES (      ?,     ?,   ?,         ?,    ?)

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 13:56:32 krylon>
+// Time-stamp: <2026-03-10 13:09:34 krylon>
 
 // Package query defines symbolic constants to identify database queries.
 package query
@@ -18,6 +18,7 @@ const (
 	FeedGetDue
 	FeedGetAll
 	FeedSetInterval
+	FeedSetLastRefresh
 	FeedSetPause
 	FeedDelete
 	ItemAdd
