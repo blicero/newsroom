@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-10 13:10:01 krylon>
+// Time-stamp: <2026-03-11 14:50:30 krylon>
 
 package database
 
@@ -60,6 +60,17 @@ WHERE id = ?
 INSERT INTO item (feed_id, title, url, timestamp, body)
           VALUES (      ?,     ?,   ?,         ?,    ?)
 RETURNING id
+`,
+	query.ItemGetByURL: `
+SELECT
+    id,
+    feed_id,
+    title,
+    rating,
+    timestamp,
+    body
+FROM item
+WHERE url = ?
 `,
 	query.ItemGetAll: `
 SELECT

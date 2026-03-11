@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 10. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-10 13:43:36 krylon>
+// Time-stamp: <2026-03-11 14:56:12 krylon>
 
 package database
 
@@ -77,6 +77,60 @@ EXEC_QUERY:
 		return nil
 	}
 } // func (db *Database) ItemAdd(item *model.Item) error
+
+// ItemGetByURL looks up an Item by its URL.
+func (db *Database) ItemGetByURL(u *url.URL) (*model.Item, error) {
+	const qid query.ID = query.ItemGetByURL
+	var (
+		err  error
+		stmt *sql.Stmt
+	)
+
+	if stmt, err = db.getQuery(qid); err != nil {
+		db.log.Printf("[ERROR] Cannot prepare query %s: %s\n",
+			qid,
+			err.Error())
+		return nil, err
+	} else if db.tx != nil {
+		stmt = db.tx.Stmt(stmt)
+	}
+
+	var rows *sql.Rows
+
+EXEC_QUERY:
+	if rows, err = stmt.Query(u.String()); err != nil {
+		if worthARetry(err) {
+			waitForRetry()
+			goto EXEC_QUERY
+		}
+
+		return nil, err
+	}
+
+	defer rows.Close() // nolint: errcheck,gosec
+
+	if rows.Next() {
+		var (
+			timestamp, irating int64
+			item               = &model.Item{
+				URL: u,
+			}
+		)
+
+		if err = rows.Scan(&item.ID, &item.FeedID, &item.Title, &irating, &timestamp, &item.Body); err != nil {
+			var ex = fmt.Errorf("failed to scan row: %w", err)
+			db.log.Printf("[ERROR] %s\n", ex.Error())
+			return nil, ex
+		}
+
+		item.Timestamp = time.Unix(timestamp, 0)
+		item.Rating = rating.Rating(irating)
+
+		return item, nil
+	}
+
+	return nil, nil
+} // func (db *Database) ItemGetByURL(u *url.URL) (*model.Item, error)
 
 // ItemGetAll loads up to <limit> news Items from the Database, in reverse order
 // of age, skipping the first <offset> Items.
