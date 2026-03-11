@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 02. 2021 by Benjamin Walkenhorst
 // (c) 2021 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 15:00:58 krylon>
+// Time-stamp: <2026-03-11 15:43:45 krylon>
 
 //go:build ignore
 
@@ -50,6 +50,7 @@ var orderedSteps = []string{
 	"generate",
 	"vet",
 	"lint",
+	"nilaway",
 	"test",
 	"build",
 }
@@ -76,6 +77,12 @@ var candidates = map[string][]string{
 		"model",
 		"database/query",
 		"database",
+	},
+	"nilaway": {
+		"common",
+		"database",
+		"engine",
+		"model",
 	},
 	"test": {
 		"database",
@@ -381,6 +388,8 @@ func worker(n int, op string, pkgq <-chan string, errq chan<- error, wg *sync.Wa
 			} else {
 				cmd = exec.Command("go", op, "-v", "-timeout", "30m", "-race", pkg)
 			}
+		case "nilaway":
+			cmd = exec.Command(op, "-include-pkgs=github.com/blicero/newsroom", pkg)
 		default:
 			cmd = exec.Command("go", op, "-v", pkg)
 		}
