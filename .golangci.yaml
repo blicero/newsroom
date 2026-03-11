@@ -1,5 +1,5 @@
 # -*- mode: yaml; -*-
-# Time-stamp: <2026-03-11 15:19:05 krylon>
+# Time-stamp: <2026-03-11 15:35:46 krylon>
 version: "2"
 linters:
   # Default set of linters.
@@ -81,6 +81,7 @@ linters:
     - musttag
     - nakedret
     - nestif
+    # - nilaway
     - nilerr
     - nilnesserr
     - nilnil
@@ -129,8 +130,12 @@ linters:
     - wsl
   # All available settings of specific linters.
   settings:
-    # See the dedicated "linters.settings" documentation section.
-    option: value
+    # custom:
+    #   nilaway:
+    #     type: module
+    #     description: Static analysis tool to detect potential nil panics in Go code.
+    #     settings:
+    #       include-pkgs: "github.com/blicero"
   # Defines a set of rules to ignore issues.
   # It does not skip the analysis, and so does not ignore "typecheck" errors.
   exclusions:

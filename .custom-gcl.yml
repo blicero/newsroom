@@ -1,0 +1,7 @@
+# Time-stamp: <2026-03-11 15:27:49 krylon>
+# This has to be >= v1.57.0 for module plugin system support.
+version: v1.57.0
+plugins:
+  - module: "go.uber.org/nilaway"
+    import: "go.uber.org/nilaway/cmd/gclplugin"
+    version: latest # Or a fixed version for reproducible builds.
