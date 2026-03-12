@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 14:19:26 krylon>
+// Time-stamp: <2026-03-12 14:17:19 krylon>
 
 package logdomain
 
@@ -16,7 +16,7 @@ const (
 	DBPool
 	Engine
 	Classifier
-	UI
+	Web
 	Main
 )
 
@@ -27,7 +27,7 @@ func All() []ID {
 		DBPool,
 		Engine,
 		Classifier,
-		UI,
+		Web,
 		Main,
 	}
 } // func All() []ID
