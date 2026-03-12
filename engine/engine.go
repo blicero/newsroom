@@ -187,10 +187,24 @@ func (eng *Engine) refreshWorker(id int, feedQ <-chan *model.Feed, itemQ chan<- 
 			feed.Name)
 
 		for _, gitem := range gfeed.Items {
+			var timestamp time.Time
+
+			if gitem.UpdatedParsed != nil {
+				timestamp = *gitem.UpdatedParsed
+			} else if gitem.PublishedParsed != nil {
+				timestamp = *gitem.PublishedParsed
+			} else {
+				eng.log.Printf("[DEBUG] Item %s: Updated = %q, Published = %q\n",
+					gitem.Link,
+					gitem.Updated,
+					gitem.Published)
+				timestamp = time.Now()
+			}
+
 			var item = &model.Item{
 				FeedID:    feed.ID,
 				Title:     gitem.Title,
-				Timestamp: *gitem.UpdatedParsed,
+				Timestamp: timestamp,
 				Body:      gitem.Description,
 			}
 
