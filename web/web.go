@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-12 14:24:10 krylon>
+// Time-stamp: <2026-03-12 14:36:43 krylon>
 
 package web
 
@@ -10,6 +10,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"log"
 	"net/http"
@@ -18,6 +19,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"text/template"
+	"time"
 
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/database"
@@ -122,18 +124,8 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc("/favicon.ico", srv.handleFavIco)
 	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
 	srv.router.HandleFunc("/{index:(?i:index|main|start)$}", srv.handleMain)
-	srv.router.HandleFunc("/by_port", srv.handleByPort)
 
 	// AJAX Handlers
-	srv.router.HandleFunc(
-		"/ajax/worker_count",
-		srv.handleLoadWorkerCount)
-	srv.router.HandleFunc(
-		"/ajax/spawn_worker/{subsys:(?:\\d+)}/{cnt:(?:\\d+)$}",
-		srv.handleSpawnWorker)
-	srv.router.HandleFunc(
-		"/ajax/stop_worker/{subsys:(?:\\d+)}/{cnt:(?:\\d+)$}",
-		srv.handleStopWorker)
 
 	srv.router.HandleFunc(
 		"/ajax/beacon",
@@ -178,3 +170,143 @@ func (srv *Server) Run() {
 //////////////////////////////////////////////////////////////////////////////
 /// Handle requests //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
+
+func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+} // func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request)
+
+//////////////////////////////////////////////////////////////////////////////
+/// Handle AJAX //////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
+	// It doesn't bother me enough to do anything about it other
+	// than writing this comment, but this method is probably
+	// grossly inefficient re memory.
+	var timestamp = time.Now().Format(common.TimestampFormat)
+	const appName = common.AppName + " " + common.Version
+	var jstr = fmt.Sprintf(`{ "Status": true, "Message": "%s", "Timestamp": "%s", "Hostname": "%s" }`,
+		appName,
+		timestamp,
+		hostname())
+	var response = []byte(jstr)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(response) // nolint: errcheck,gosec
+} // func (srv *WebFrontend) handleBeacon(w http.ResponseWriter, r *http.Request)
+
+//////////////////////////////////////////////////////////////////////////////
+/// Handle static assets /////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+func (srv *Server) handleFavIco(w http.ResponseWriter, request *http.Request) {
+	srv.log.Printf("[TRACE] Handle request for %s\n",
+		request.URL.EscapedPath())
+
+	const (
+		filename = "assets/static/favicon.ico"
+		mimeType = "image/vnd.microsoft.icon"
+	)
+
+	w.Header().Set("Content-Type", mimeType)
+
+	if !common.Debug {
+		w.Header().Set("Cache-Control", cacheControl)
+	} else {
+		w.Header().Set("Cache-Control", noCache)
+	}
+
+	var (
+		err error
+		fh  fs.File
+	)
+
+	if fh, err = assets.Open(filename); err != nil {
+		msg := fmt.Sprintf("ERROR - cannot find file %s", filename)
+		srv.sendErrorMessage(w, msg)
+	} else {
+		defer fh.Close() // nolint: errcheck
+		w.WriteHeader(200)
+		io.Copy(w, fh) // nolint: errcheck
+	}
+} // func (srv *Server) handleFavIco(w http.ResponseWriter, request *http.Request)
+
+func (srv *Server) handleStaticFile(w http.ResponseWriter, request *http.Request) {
+	// srv.log.Printf("[TRACE] Handle request for %s\n",
+	// 	request.URL.EscapedPath())
+
+	// Since we controll what static files the server has available, we
+	// can easily map MIME type to slice. Soon.
+
+	vars := mux.Vars(request)
+	filename := vars["file"]
+	path := filepath.Join("assets", "static", filename)
+
+	var mimeType string
+
+	srv.log.Printf("[TRACE] Delivering static file %s to client %s\n",
+		filename,
+		request.RemoteAddr)
+
+	var match []string
+
+	if match = common.SuffixPattern.FindStringSubmatch(filename); match == nil {
+		mimeType = "text/plain"
+	} else if mime, ok := srv.mimeTypes[match[1]]; ok {
+		mimeType = mime
+	} else {
+		srv.log.Printf("[ERROR] Did not find MIME type for %s\n", filename)
+	}
+
+	w.Header().Set("Content-Type", mimeType)
+
+	if common.Debug {
+		w.Header().Set("Cache-Control", noCache)
+	} else {
+		w.Header().Set("Cache-Control", cacheControl)
+	}
+
+	var (
+		err error
+		fh  fs.File
+	)
+
+	if fh, err = assets.Open(path); err != nil {
+		msg := fmt.Sprintf("ERROR - cannot find file %s", path)
+		srv.sendErrorMessage(w, msg)
+	} else {
+		defer fh.Close() // nolint: errcheck
+		w.WriteHeader(200)
+		io.Copy(w, fh) // nolint: errcheck
+	}
+} // func (srv *Server) handleStaticFile(w http.ResponseWriter, request *http.Request)
+
+func (srv *Server) sendErrorMessage(w http.ResponseWriter, msg string) {
+	html := `
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Internal Error</title>
+  </head>
+  <body>
+    <h1>Internal Error</h1>
+    <hr />
+    We are sorry to inform you an internal application error has occured:<br />
+    %s
+    <p>
+    Back to <a href="/index">Homepage</a>
+    <hr />
+    &copy; 2026 <a href="mailto:krylon@gmx.net">Benjamin Walkenhorst</a>
+  </body>
+</html>
+`
+
+	w.Header().Set("Cache-Control", noCache)
+	srv.log.Printf("[ERROR] %s\n", msg)
+
+	output := fmt.Sprintf(html, msg)
+	w.WriteHeader(500)
+	_, _ = w.Write([]byte(output)) // nolint: gosec
+} // func (srv *Server) sendErrorMessage(w http.ResponseWriter, msg string)
