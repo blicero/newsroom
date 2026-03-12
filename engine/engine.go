@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 10. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-11 15:08:18 krylon>
+// Time-stamp: <2026-03-12 13:29:59 krylon>
 
 // Package engine defines the Engine that manages the subscriptions.
 package engine
@@ -27,10 +27,11 @@ const checkRefreshInterval = time.Minute
 // Engine implements the handling of subcriptions, regularly updating Feeds and
 // storing new Items in the Database.
 type Engine struct {
-	log       *log.Logger
-	pool      *database.Pool
-	active    atomic.Bool
-	workerCnt int
+	log        *log.Logger
+	pool       *database.Pool
+	active     atomic.Bool
+	refreshing atomic.Bool
+	workerCnt  int
 }
 
 // Create creates and returns a new Engine.
@@ -103,6 +104,13 @@ func (eng *Engine) performRefresh() {
 		db    *database.Database
 		feeds []*model.Feed
 	)
+
+	if !eng.refreshing.CompareAndSwap(false, true) {
+		eng.log.Printf("[TRACE] Refresh is already going on, I'm quitting.\n")
+		return
+	}
+
+	defer eng.refreshing.Store(false)
 
 	eng.log.Printf("[INFO] Check Feeds for refresh.\n")
 
