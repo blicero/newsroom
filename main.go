@@ -2,11 +2,12 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-11 16:07:46 krylon>
+// Time-stamp: <2026-03-12 14:58:54 krylon>
 
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -16,13 +17,16 @@ import (
 
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/engine"
+	"github.com/blicero/newsroom/web"
 )
 
 func main() {
 	var (
 		err    error
 		eng    *engine.Engine
+		srv    *web.Server
 		ticker *time.Ticker
+		addr   string
 		sigQ   = make(chan os.Signal, 1)
 	)
 
@@ -31,7 +35,8 @@ func main() {
 		common.Version,
 		common.BuildStamp.Format(common.TimestampFormat))
 
-	fmt.Println("Nothing to see here (yet), move along!")
+	flag.StringVar(&addr, "addr", fmt.Sprintf("[::1]:%d", common.WebPort), "The IP address for the web UI to listen on")
+	flag.Parse()
 
 	if eng, err = engine.Create(runtime.NumCPU()); err != nil {
 		fmt.Fprintf(
@@ -39,9 +44,16 @@ func main() {
 			"Failed to create Engine: %s\n",
 			err.Error())
 		os.Exit(1)
+	} else if srv, err = web.Create(addr); err != nil {
+		fmt.Fprint(
+			os.Stderr,
+			"Failed to create web server: %s\n",
+			err.Error())
+		os.Exit(1)
 	}
 
 	eng.Start()
+	go srv.Run()
 
 	ticker = time.NewTicker(common.ActiveTimeout)
 	defer ticker.Stop()
