@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 10. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-12 13:29:59 krylon>
+// Time-stamp: <2026-03-12 14:03:23 krylon>
 
 // Package engine defines the Engine that manages the subscriptions.
 package engine
@@ -219,8 +219,31 @@ func (eng *Engine) refreshWorker(id int, feedQ <-chan *model.Feed, itemQ chan<- 
 
 			itemQ <- item
 		}
+
+		go eng.markFeedRefresh(feed)
 	}
 } // func (eng *Engine) refreshWorker(id int)
+
+func (eng *Engine) markFeedRefresh(feed *model.Feed) {
+	var (
+		err       error
+		db        *database.Database
+		timestamp = time.Now()
+	)
+
+	db = eng.pool.Get()
+	defer eng.pool.Put(db)
+
+	if err = db.FeedSetLastRefresh(feed, timestamp); err != nil {
+		eng.log.Printf("[ERROR] Failed to mark LastRefresh for Feed %s: %s\n",
+			feed.Name,
+			err.Error())
+	} else {
+		eng.log.Printf("[TRACE] Marked Feed %s LastRefresh as %s\n",
+			feed.Name,
+			timestamp.Format(common.TimestampFormat))
+	}
+} // func (eng *Engine) markFeedRefresh(feed *model.Feed)
 
 func (eng *Engine) itemWorker(itemQ <-chan *model.Item) {
 	eng.log.Printf("[TRACE] itemWorker starting up.\n")
