@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-12 15:22:37 krylon>
+// Time-stamp: <2026-03-12 17:09:50 krylon>
 
 package web
 
@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"sync"
 	"sync/atomic"
 	"text/template"
@@ -24,6 +25,7 @@ import (
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/database"
 	"github.com/blicero/newsroom/logdomain"
+	"github.com/blicero/newsroom/model"
 	"github.com/gorilla/mux"
 )
 
@@ -124,6 +126,7 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc("/favicon.ico", srv.handleFavIco)
 	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
 	srv.router.HandleFunc("/{index:(?i:index|main|start)$}", srv.handleMain)
+	srv.router.HandleFunc("/news/{pageno:(?:\\d+)}/{cnt:(?:\\d+)$}", srv.handleNews)
 
 	// AJAX Handlers
 
@@ -215,6 +218,82 @@ func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
 		srv.sendErrorMessage(w, msg)
 	}
 } // func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	const tmplName = "news"
+
+	var (
+		err   error
+		msg   string
+		db    *database.Database
+		tmpl  *template.Template
+		feeds []*model.Feed
+		vars  map[string]string
+		data  = tmplDataNews{
+			tmplDataBase: tmplDataBase{
+				Title: "News",
+				Debug: common.Debug,
+				URL:   r.URL.String(),
+			},
+		}
+	)
+
+	vars = mux.Vars(r)
+
+	if data.PageNo, err = strconv.ParseInt(vars["pageno"], 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse offset %q: %s",
+			vars["offset"],
+			err.Error())
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if data.Count, err = strconv.ParseInt(vars["cnt"], 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse item count %q: %s",
+			vars["cnt"],
+			err.Error())
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Could not find template %q", tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if feeds, err = db.FeedGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load Feeds from Database: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if data.Items, err = db.ItemGetAll(data.Count, data.Count*data.PageNo); err != nil {
+		msg = fmt.Sprintf("Failed to load %d recent Items: %s",
+			data.Count,
+			err.Error())
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	data.Feeds = make(map[int64]*model.Feed, len(feeds))
+
+	for _, feed := range feeds {
+		data.Feeds[feed.ID] = feed
+	}
+
+	w.Header().Set("Cache-Control", noCache)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////////////////////////////
 /// Handle AJAX //////////////////////////////////////////////////////////////

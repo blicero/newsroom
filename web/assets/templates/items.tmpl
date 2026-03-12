@@ -1,0 +1,30 @@
+{{ define "items" }}
+{{/* Created on 12. 03. 2026 */}}
+{{/* Time-stamp: <2026-03-12 17:23:33 krylon> */}}
+{{ $feeds := .Feeds }}
+{{ range .Items }}
+<tr id="item_row_{{ .ID }}">
+    <td>{{ fmt_time_minute .Timestamp }}</td>
+    <td>
+        <a href="/feed/{{ .FeedID }}">
+            {{ (index $feeds .FeedID).Name }}
+        </a>
+    </td>
+    <td>{{ .Title }}</td>
+    <td> &nbsp; </td>
+    <td> &nbsp; </td>
+    <td>
+        <button class="btn btn-primary"
+                data-bs-toggle="collapse"
+                href="#collapse_item_{{ .ID }}"
+                aria-expanded="false"
+                aria-controls="#collapse_item_{{ .ID }}">
+            Description
+        </button>
+        <div class="collapse" id="collapse_item_{{ .ID }}">
+            {{ .Body }}
+        </div>
+    </td>
+</tr>
+{{ end }}
+{{ end }}
