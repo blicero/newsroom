@@ -1,6 +1,6 @@
 {{ define "main" }}
 {{/* Created on 10. 06. 2024 */}}
-{{/* Time-stamp: <2026-03-12 14:21:29 krylon> */}}
+{{/* Time-stamp: <2026-03-12 15:31:43 krylon> */}}
 <!DOCTYPE html>
 <html>
     {{ template "head" . }}
@@ -9,7 +9,27 @@
         {{ template "intro" . }}
 
         <div>
-            Nothing to see here, move along!
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Last Refresh</th>
+                        <th>Paused?</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {{ range .Feeds }}
+                    <tr>
+                        <td>{{ .ID }}</td>
+                        <td>{{ .Name }}</td>
+                        <td>{{ fmt_time .LastRefresh }}</td>
+                        <td>{{ if .Paused }}Yes{{ else }}No{{ end }}</td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
         </div>
 
         {{ template "footer" . }}
