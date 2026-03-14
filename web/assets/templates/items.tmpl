@@ -1,18 +1,42 @@
 {{ define "items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-03-12 17:23:33 krylon> */}}
+{{/* Time-stamp: <2026-03-14 14:42:28 krylon> */}}
 {{ $feeds := .Feeds }}
 {{ range .Items }}
-<tr id="item_row_{{ .ID }}">
+<tr id="item_row_{{ .ID }}"
+    {{- if .IsBoring }}class="boring"{{ end }}>
     <td>{{ fmt_time_minute .Timestamp }}</td>
     <td>
         <a href="/feed/{{ .FeedID }}">
             {{ (index $feeds .FeedID).Name }}
         </a>
     </td>
-    <td>{{ .Title }}</td>
-    <td> &nbsp; </td>
-    <td> &nbsp; </td>
+    <td>
+        <a href="{{ .URL }}" target="_blank">
+            {{ .Title }}
+        </a>
+    </td>
+    <td> {{/* Rating */}}
+        {{ if (not .IsRated) }}
+        <button type="button"
+                class="btn btn-primary btn-sm"
+                onclick="rate_item({{ .ID }}, 1);">
+            Interesting
+        </button>
+        <button type="button"
+                class="btn btn-secondary btn-sm"
+                onclick="rate_item({{ .ID }}, 0);">
+            Boring
+        </button>
+        {{ else if .IsBoring }}
+        <img src="/static/face-tired.png" onclick="unrate_item({{ .ID }});" />
+        {{ else }}
+        <img src="/static/face-glasses.png" onclick="unrate_item({{ .ID }});" />
+        {{ end }}
+    </td>
+    <td> {{/* Tags */}}
+        &nbsp;
+    </td>
     <td>
         <button class="btn btn-primary"
                 data-bs-toggle="collapse"

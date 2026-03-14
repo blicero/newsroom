@@ -2,12 +2,13 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-14 12:37:15 krylon>
+// Time-stamp: <2026-03-14 14:31:51 krylon>
 
 package web
 
 import (
 	"embed"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -26,6 +27,7 @@ import (
 	"github.com/blicero/newsroom/database"
 	"github.com/blicero/newsroom/logdomain"
 	"github.com/blicero/newsroom/model"
+	"github.com/blicero/newsroom/model/rating"
 	"github.com/gorilla/mux"
 )
 
@@ -133,6 +135,10 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc(
 		"/ajax/beacon",
 		srv.handleBeacon)
+	srv.router.HandleFunc(
+		"/ajax/rate_item/{id:(?:\\d+)/{rating:(?:\\d+)$}",
+		srv.handleAjaxRateItem,
+	)
 
 	return srv, nil
 } // func Create(addr string, nx *nexus.Nexus) (*Server, error)
@@ -306,22 +312,113 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 /// Handle AJAX //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+func (srv *Server) handleAjaxRateItem(w http.ResponseWriter, r *http.Request) {
+	var (
+		err              error
+		vars             map[string]string
+		msg, idstr, rstr string
+		id, rint         int64
+		item             *model.Item
+		db               *database.Database
+		buf              []byte
+		data             = ajaxResponseRateItem{
+			ajaxData: ajaxData{
+				Timestamp: time.Now(),
+			},
+		}
+	)
+
+	vars = mux.Vars(r)
+
+	idstr = vars["id"]
+	rstr = vars["rating"]
+
+	if id, err = strconv.ParseInt(idstr, 10, 64); err != nil {
+		msg = fmt.Sprintf("Failed to parse Item ID %q: %s",
+			idstr,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if rint, err = strconv.ParseInt(rstr, 10, 64); err != nil {
+		msg = fmt.Sprintf("Failed to parse Rating %q: %s",
+			rstr,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if item, err = db.ItemGetByID(id); err != nil {
+		msg = fmt.Sprintf("Failed to look up Item #%d: %s",
+			id,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if item == nil {
+		msg = fmt.Sprintf("Item #%d does not exist", id)
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if err = db.ItemSetRating(item, rating.Rating(rint)); err != nil {
+		msg = fmt.Sprintf("Failed to rate Item %d (%s) as %s: %s",
+			item.ID,
+			item.Title,
+			rating.Rating(rint),
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	data.Status = true
+	data.Message = fmt.Sprintf("Item %d was rated as %s",
+		id,
+		rating.Rating(rint))
+
+	if buf, err = json.Marshal(&data); err != nil {
+		var msg = fmt.Sprintf("Failed to serialize payload for AJAX response: %s",
+			err.Error())
+		srv.log.Printf("[CANTHAPPEN] %s\n", msg)
+		buf = errJSON(msg)
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleRateItem(w http.ResponseWriter, r *http.Request)
+
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
-	// It doesn't bother me enough to do anything about it other
-	// than writing this comment, but this method is probably
-	// grossly inefficient re memory.
-	var timestamp = time.Now().Format(common.TimestampFormat)
-	const appName = common.AppName + " " + common.Version
-	var jstr = fmt.Sprintf(`{ "Status": true, "Message": "%s", "Timestamp": "%s", "Hostname": "%s" }`,
-		appName,
-		timestamp,
-		hostname())
-	var response = []byte(jstr)
+	var (
+		err  error
+		buf  []byte
+		data = ajaxBeaconData{
+			ajaxData: ajaxData{
+				Status:    true,
+				Timestamp: time.Now(),
+				Message:   common.AppName + " " + common.Version,
+			},
+			Hostname: hostname(),
+		}
+	)
+
+	if buf, err = json.Marshal(&data); err != nil {
+		var msg = fmt.Sprintf("Failed to serialize payload for AJAX response: %s",
+			err.Error())
+		srv.log.Printf("[CANTHAPPEN] %s\n", msg)
+		buf = errJSON(msg)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", noCache)
 	w.WriteHeader(200)
-	w.Write(response) // nolint: errcheck,gosec
+	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *WebFrontend) handleBeacon(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////////////////////////////
