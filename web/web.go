@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-14 14:31:51 krylon>
+// Time-stamp: <2026-03-14 17:37:42 krylon>
 
 package web
 
@@ -393,6 +393,31 @@ SEND:
 	w.WriteHeader(200)
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Server) handleRateItem(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxUnrateItem(w http.ResponseWriter, r *http.Request) {
+	var (
+		err              error
+		vars             map[string]string
+		msg, idstr, rstr string
+		id, rint         int64
+		item             *model.Item
+		db               *database.Database
+		buf              []byte
+		data             = ajaxResponseRateItem{
+			ajaxData: ajaxData{
+				Timestamp: time.Now(),
+			},
+		}
+	)
+
+	goto SEND
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxUnrateItem(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
 	var (
