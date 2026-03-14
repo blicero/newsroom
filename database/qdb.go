@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-11 14:50:30 krylon>
+// Time-stamp: <2026-03-14 12:22:01 krylon>
 
 package database
 
@@ -97,6 +97,7 @@ FROM item
 WHERE feed_id = ?
 ORDER BY timestamp DESC
 `,
+	query.ItemCount: "SELECT COUNT(id) FROM item",
 	query.TagAdd: `
 INSERT INTO tag (name)
          VALUES (   ?)

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 10. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-11 14:56:12 krylon>
+// Time-stamp: <2026-03-14 12:44:51 krylon>
 
 package database
 
@@ -293,3 +293,61 @@ EXEC_QUERY:
 
 	return items, nil
 } // func (db *Database) ItemGetByFeed(feed *model.Feed) ([]*model.Item, error)
+
+// ItemCount returns the total number of Items in the Database.
+func (db *Database) ItemCount() (int64, error) {
+	const qid query.ID = query.ItemCount
+	var (
+		err  error
+		msg  string
+		stmt *sql.Stmt
+	)
+
+GET_QUERY:
+	if stmt, err = db.getQuery(qid); err != nil {
+		if worthARetry(err) {
+			time.Sleep(retryDelay)
+			goto GET_QUERY
+		} else {
+			db.log.Printf("[ERROR] Error getting query %s: %s",
+				qid,
+				err.Error())
+			return 0, err
+		}
+	} else if db.tx != nil {
+		stmt = db.tx.Stmt(stmt)
+	}
+
+	var rows *sql.Rows
+
+EXEC_QUERY:
+	if rows, err = stmt.Query(); err != nil {
+		if worthARetry(err) {
+			time.Sleep(retryDelay)
+			goto EXEC_QUERY
+		} else {
+			msg = fmt.Sprintf("Error querying total number of Items: %s",
+				err.Error())
+			db.log.Println(msg)
+			return 0, errors.New(msg)
+		}
+	} else {
+		defer rows.Close() // nolint: errcheck
+	}
+
+	if rows.Next() {
+		var cnt int64
+
+		if err = rows.Scan(&cnt); err != nil {
+			msg = fmt.Sprintf("error scanning row: %s", err.Error())
+			db.log.Printf("[ERROR] %s\n", msg)
+			return 0, errors.New(msg)
+		}
+
+		return cnt, nil
+	}
+
+	err = fmt.Errorf("query %s did not return a value", qid)
+	db.log.Printf("[CANTHAPPEN] %s\n", err.Error())
+	return 0, err
+} // func (db *Database) ItemCount() (int64, error)
