@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 03. 11. 2022 by Benjamin Walkenhorst
 // (c) 2022 Benjamin Walkenhorst
-// Time-stamp: <2026-03-12 14:25:28 krylon>
+// Time-stamp: <2026-03-14 13:10:01 krylon>
 
 package web
 
@@ -16,15 +16,11 @@ type ajaxData struct {
 	Timestamp time.Time
 }
 
-type ajaxCtlResponse struct {
+type ajaxBeaconData struct {
 	ajaxData
-	NewCnt int
+	Hostname string
 }
 
-type ajaxWorkerCnt struct {
+type ajaxResponseRateItem struct {
 	ajaxData
-	GeneratorAddress int
-	GeneratorName    int
-	XFR              int
-	Scanner          int
 }
