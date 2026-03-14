@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-14 12:22:01 krylon>
+// Time-stamp: <2026-03-14 13:23:54 krylon>
 
 package database
 
@@ -61,6 +61,17 @@ INSERT INTO item (feed_id, title, url, timestamp, body)
           VALUES (      ?,     ?,   ?,         ?,    ?)
 RETURNING id
 `,
+	query.ItemGetByID: `
+SELECT
+    feed_id,
+    url,
+    title,
+    rating,
+    timestamp,
+    body
+FROM item
+WHERE id = ?
+`,
 	query.ItemGetByURL: `
 SELECT
     id,
@@ -97,7 +108,8 @@ FROM item
 WHERE feed_id = ?
 ORDER BY timestamp DESC
 `,
-	query.ItemCount: "SELECT COUNT(id) FROM item",
+	query.ItemCount:     "SELECT COUNT(id) FROM item",
+	query.ItemSetRating: "UPDATE item SET rating = ? WHERE id = ?",
 	query.TagAdd: `
 INSERT INTO tag (name)
          VALUES (   ?)

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 10. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-14 12:44:51 krylon>
+// Time-stamp: <2026-03-14 13:40:51 krylon>
 
 package database
 
@@ -77,6 +77,66 @@ EXEC_QUERY:
 		return nil
 	}
 } // func (db *Database) ItemAdd(item *model.Item) error
+
+// ItemGetByID looks up an Item by its ID.
+func (db *Database) ItemGetByID(id int64) (*model.Item, error) {
+	const qid query.ID = query.ItemGetByID
+	var (
+		err  error
+		stmt *sql.Stmt
+	)
+
+	if stmt, err = db.getQuery(qid); err != nil {
+		db.log.Printf("[ERROR] Cannot prepare query %s: %s\n",
+			qid,
+			err.Error())
+		return nil, err
+	} else if db.tx != nil {
+		stmt = db.tx.Stmt(stmt)
+	}
+
+	var rows *sql.Rows
+
+EXEC_QUERY:
+	if rows, err = stmt.Query(id); err != nil {
+		if worthARetry(err) {
+			waitForRetry()
+			goto EXEC_QUERY
+		}
+
+		return nil, err
+	}
+
+	defer rows.Close() // nolint: errcheck,gosec
+
+	if rows.Next() {
+		var (
+			timestamp, irating int64
+			ustr               string
+			item               = &model.Item{
+				ID: id,
+			}
+		)
+
+		if err = rows.Scan(&item.FeedID, &ustr, &item.Title, &irating, &timestamp, &item.Body); err != nil {
+			var ex = fmt.Errorf("failed to scan row: %w", err)
+			db.log.Printf("[ERROR] %s\n", ex.Error())
+			return nil, ex
+		} else if item.URL, err = url.Parse(ustr); err != nil {
+			var ex = fmt.Errorf("failed to parse URL %q: %w",
+				ustr,
+				err)
+			return nil, ex
+		}
+
+		item.Timestamp = time.Unix(timestamp, 0)
+		item.Rating = rating.Rating(irating)
+
+		return item, nil
+	}
+
+	return nil, nil
+} // func (db *Database) ItemGetByID(id int64) (*model.Item, error)
 
 // ItemGetByURL looks up an Item by its URL.
 func (db *Database) ItemGetByURL(u *url.URL) (*model.Item, error) {
@@ -351,3 +411,53 @@ EXEC_QUERY:
 	db.log.Printf("[CANTHAPPEN] %s\n", err.Error())
 	return 0, err
 } // func (db *Database) ItemCount() (int64, error)
+
+// ItemSetRating sets an Item's Rating.
+func (db *Database) ItemSetRating(item *model.Item, r rating.Rating) error {
+	const qid query.ID = query.ItemSetRating
+	var (
+		err, ex error
+		stmt    *sql.Stmt
+		res     sql.Result
+		cnt     int64
+	)
+
+	if stmt, err = db.getQuery(qid); err != nil {
+		db.log.Printf("[ERROR] Failed to prepare query %s: %s\n",
+			qid,
+			err.Error())
+		panic(err)
+	} else if db.tx != nil {
+		stmt = db.tx.Stmt(stmt)
+	}
+
+EXEC_QUERY:
+	if res, err = stmt.Exec(r, item.ID); err != nil {
+		if worthARetry(err) {
+			waitForRetry()
+			goto EXEC_QUERY
+		} else {
+			ex = fmt.Errorf("cannot set Rating of Item %d (%s) to %s : %w",
+				item.ID,
+				item.Title,
+				r,
+				err)
+			db.log.Printf("[ERROR] %s\n", ex.Error())
+			return ex
+		}
+	} else if cnt, err = res.RowsAffected(); err != nil {
+		ex = fmt.Errorf("failed to get number of affected rows: %w",
+			err)
+		db.log.Printf("[ERROR] %s\n", ex.Error())
+		return ex
+	} else if cnt != 1 {
+		ex = fmt.Errorf("unexpected number of affected rows for %s: %d (expected 1)",
+			qid,
+			cnt)
+		db.log.Printf("[CRITICAL] %s\n", ex.Error())
+		return ex
+	}
+
+	item.Rating = r
+	return nil
+} // func (db *Database) ItemSetRating(item *model.Item, r rating.Rating) error
