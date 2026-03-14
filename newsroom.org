@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-03-14 12:49:16 krylon>
+# Time-stamp: <2026-03-14 14:48:55 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,17 +14,18 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-03-14 Sa 12:49]
-   | Headline               | Time    |         |      |
-   |------------------------+---------+---------+------|
-   | *Total time*           | *11:40* |         |      |
-   |------------------------+---------+---------+------|
-   | *Newsroom [1/2]*       | *11:40* |         |      |
-   | \_  /Components [1/2]/ |         | /11:40/ |      |
-   | \_    Model [0/0]      |         |         | 0:35 |
-   | \_    Database [0/0]   |         |         | 3:22 |
-   | \_    Engine [1/1]     |         |         | 4:16 |
-   | \_    Web [0/1]        |         |         | 3:27 |
+   #+CAPTION: Clock summary at [2026-03-14 Sa 14:48]
+   | Headline               | Time    |         |      |      |
+   |------------------------+---------+---------+------+------|
+   | *Total time*           | *13:20* |         |      |      |
+   |------------------------+---------+---------+------+------|
+   | *Newsroom [1/2]*       | *13:20* |         |      |      |
+   | \_  /Components [1/2]/ |         | /13:20/ |      |      |
+   | \_    Model [0/0]      |         |         | 0:35 |      |
+   | \_    Database [0/0]   |         |         | 3:43 |      |
+   | \_    Engine [1/1]     |         |         | 4:16 |      |
+   | \_    Web [0/2]        |         |         | 4:46 |      |
+   | \_      Rate Items     |         |         |      | 0:25 |
    #+END:
 ** Components [1/2]
    :PROPERTIES:
@@ -45,6 +46,7 @@
     :VISIBILITY: all
     :END:
     :LOGBOOK:
+    CLOCK: [2026-03-14 Sa 13:24]--[2026-03-14 Sa 13:45] =>  0:21
     CLOCK: [2026-03-10 Di 13:25]--[2026-03-10 Di 13:44] =>  0:19
     CLOCK: [2026-03-10 Di 12:39]--[2026-03-10 Di 13:23] =>  0:44
     CLOCK: [2026-03-10 Di 08:28]--[2026-03-10 Di 09:00] =>  0:32
@@ -71,17 +73,22 @@
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
     :END:
-*** Web [0/1]
+*** Web [0/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
     :END:
     :LOGBOOK:
+    CLOCK: [2026-03-14 Sa 13:50]--[2026-03-14 Sa 14:44] =>  0:54
     CLOCK: [2026-03-14 Sa 12:21]--[2026-03-14 Sa 12:48] =>  0:27
     CLOCK: [2026-03-12 Do 14:50]--[2026-03-12 Do 17:26] =>  2:36
     CLOCK: [2026-03-12 Do 14:16]--[2026-03-12 Do 14:40] =>  0:24
     :END:
-**** TODO Dark Mode?
+**** TODO Rate Items
+     :LOGBOOK:
+     CLOCK: [2026-03-14 Sa 12:59]--[2026-03-14 Sa 13:24] =>  0:25
+     :END:
+**** TODO [#F] Dark Mode?
      I switched my desktop to a dark theme the other day, after frowning upon
      those for a long time. And I gotta admit, I kind of like it. 
 *** Main [0/0]
@@ -94,6 +101,8 @@
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
    :END:
+*** Rating
+*** Tagging
 *** Analysis paralysis
     One thing that just popped up in my mind is that I could attempt to
     analyze the headlines, e.g. the frequency of certain words per day, week
