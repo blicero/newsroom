@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 13:54:20 krylon>
+// Time-stamp: <2026-03-14 14:12:40 krylon>
 
 // Package model defines data types that are used throughout the application.
 package model
@@ -41,6 +41,16 @@ type Item struct {
 	Timestamp time.Time
 	Body      string
 }
+
+// IsRated returns true if the Item has been rated.
+func (i *Item) IsRated() bool {
+	return i.Rating != rating.Unrated
+} // func (i *Item) IsRated() bool
+
+// IsBoring returns true if the Item has been rated as Boring.
+func (i *Item) IsBoring() bool {
+	return i.Rating == rating.Boring
+} // func (i *Item) IsBoring() bool
 
 // Tag is a descriptive bit of text we can attach to Items.
 type Tag struct {
