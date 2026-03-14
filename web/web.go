@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-12 17:09:50 krylon>
+// Time-stamp: <2026-03-14 12:37:15 krylon>
 
 package web
 
@@ -278,8 +278,15 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 		srv.log.Println("[CRITICAL] " + msg)
 		srv.sendErrorMessage(w, msg)
 		return
+	} else if data.TotalCount, err = db.ItemCount(); err != nil {
+		msg = fmt.Sprintf("Failed to query total count of Items: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
 	}
 
+	data.MaxPage = data.TotalCount / data.Count
 	data.Feeds = make(map[int64]*model.Feed, len(feeds))
 
 	for _, feed := range feeds {
