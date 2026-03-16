@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-14 14:12:40 krylon>
+// Time-stamp: <2026-03-16 16:46:25 krylon>
 
 // Package model defines data types that are used throughout the application.
 package model
@@ -33,13 +33,14 @@ func (f *Feed) IsDue() bool {
 
 // Item is a news article, blog post, etc.
 type Item struct {
-	ID        int64
-	FeedID    int64
-	Title     string
-	URL       *url.URL
-	Rating    rating.Rating
-	Timestamp time.Time
-	Body      string
+	ID            int64
+	FeedID        int64
+	Title         string
+	URL           *url.URL
+	Rating        rating.Rating
+	GuessedRating rating.Rating
+	Timestamp     time.Time
+	Body          string
 }
 
 // IsRated returns true if the Item has been rated.
@@ -51,6 +52,16 @@ func (i *Item) IsRated() bool {
 func (i *Item) IsBoring() bool {
 	return i.Rating == rating.Boring
 } // func (i *Item) IsBoring() bool
+
+// EffectiveRating returns an Item's guessed Rating if it is unrated,
+// otherwise the Item's Rating.
+func (i *Item) EffectiveRating() rating.Rating {
+	if i.Rating == rating.Unrated {
+		return i.GuessedRating
+	}
+
+	return i.Rating
+} // func (i *Item) EffectiveRating() rating.Rating
 
 // Tag is a descriptive bit of text we can attach to Items.
 type Tag struct {
