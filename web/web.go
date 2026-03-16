@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-14 17:37:42 krylon>
+// Time-stamp: <2026-03-16 14:19:47 krylon>
 
 package web
 
@@ -138,6 +138,10 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc(
 		"/ajax/rate_item/{id:(?:\\d+)/{rating:(?:\\d+)$}",
 		srv.handleAjaxRateItem,
+	)
+	srv.router.HandleFunc(
+		"/ajax/unrate_item/{id:(?:\\d+)$}",
+		srv.handleAjaxUnrateItem,
 	)
 
 	return srv, nil
@@ -395,22 +399,68 @@ SEND:
 } // func (srv *Server) handleRateItem(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleAjaxUnrateItem(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
 	var (
-		err              error
-		vars             map[string]string
-		msg, idstr, rstr string
-		id, rint         int64
-		item             *model.Item
-		db               *database.Database
-		buf              []byte
-		data             = ajaxResponseRateItem{
+		err        error
+		vars       map[string]string
+		msg, idstr string
+		id         int64
+		item       *model.Item
+		db         *database.Database
+		buf        []byte
+		data       = ajaxResponseRateItem{
 			ajaxData: ajaxData{
 				Timestamp: time.Now(),
 			},
 		}
 	)
 
-	goto SEND
+	vars = mux.Vars(r)
+	idstr = vars["id"]
+
+	if id, err = strconv.ParseInt(idstr, 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse ID %q: %s",
+			idstr,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if item, err = db.ItemGetByID(id); err != nil {
+		msg = fmt.Sprintf("Failed to load Item #%d: %s",
+			id,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if item == nil {
+		msg = fmt.Sprintf("Item #%d was not found in Database", id)
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if err = db.ItemSetRating(item, rating.Unrated); err != nil {
+		msg = fmt.Sprintf("Failed to unrate Item %d: %s",
+			id,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	data.Status = true
+	data.Message = "Success!"
+
+	if buf, err = json.Marshal(&data); err != nil {
+		msg = fmt.Sprintf("Failed to convert data to JSON: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
 
 SEND:
 	w.Header().Set("Content-Type", "application/json")
