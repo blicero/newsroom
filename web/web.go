@@ -125,22 +125,22 @@ func Create(addr string) (*Server, error) {
 	srv.web.Handler = srv.router
 
 	// Register URL handlers
+	srv.router.NotFoundHandler = http.HandlerFunc(srv.handleNotFound)
 	srv.router.HandleFunc("/favicon.ico", srv.handleFavIco)
 	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
 	srv.router.HandleFunc("/{index:(?i:index|main|start)$}", srv.handleMain)
 	srv.router.HandleFunc("/news/{pageno:(?:\\d+)}/{cnt:(?:\\d+)$}", srv.handleNews)
 
 	// AJAX Handlers
-
 	srv.router.HandleFunc(
 		"/ajax/beacon",
 		srv.handleBeacon)
 	srv.router.HandleFunc(
-		"/ajax/rate_item/{id:(?:\\d+)/{rating:(?:\\d+)$}",
+		"/ajax/item_rate/{id:(?:\\d+)}/{rating:(?:\\d+)$}",
 		srv.handleAjaxRateItem,
 	)
 	srv.router.HandleFunc(
-		"/ajax/unrate_item/{id:(?:\\d+)$}",
+		"/ajax/item_unrate/{id:(?:\\d+)$}",
 		srv.handleAjaxUnrateItem,
 	)
 
@@ -183,6 +183,17 @@ func (srv *Server) Run() {
 //////////////////////////////////////////////////////////////////////////////
 /// Handle requests //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
+
+func (srv *Server) handleNotFound(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	srv.log.Printf("[ERROR] 404 - %s\n", r.RequestURI)
+
+	srv.sendErrorMessage(
+		w,
+		fmt.Sprintf(
+			"No Handler was found for %s",
+			r.RequestURI))
+} // func (srv *Server) handleNotFound(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
 	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
