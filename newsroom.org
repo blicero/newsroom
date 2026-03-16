@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-03-16 15:36:53 krylon>
+# Time-stamp: <2026-03-16 22:00:05 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,18 +14,19 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-03-16 Mo 15:36]
-   | Headline               | Time    |         |      |      |
-   |------------------------+---------+---------+------+------|
-   | *Total time*           | *17:47* |         |      |      |
-   |------------------------+---------+---------+------+------|
-   | *Newsroom [1/2]*       | *17:47* |         |      |      |
-   | \_  /Components [1/2]/ |         | /17:47/ |      |      |
-   | \_    Model [0/0]      |         |         | 0:35 |      |
-   | \_    Database [0/0]   |         |         | 3:43 |      |
-   | \_    Engine [1/1]     |         |         | 4:16 |      |
-   | \_    Web [0/2]        |         |         | 9:13 |      |
-   | \_      Rate Items     |         |         |      | 4:52 |
+   #+CAPTION: Clock summary at [2026-03-16 Mo 22:00]
+   | Headline                              | Time    |         |      |      |
+   |---------------------------------------+---------+---------+------+------|
+   | *Total time*                          | *20:01* |         |      |      |
+   |---------------------------------------+---------+---------+------+------|
+   | *Newsroom [1/2]*                      | *20:01* |         |      |      |
+   | \_  /Components [1/2]/                |         | /20:01/ |      |      |
+   | \_    Model [0/0]                     |         |         | 0:35 |      |
+   | \_    Database [0/0]                  |         |         | 3:43 |      |
+   | \_    Engine [1/1]                    |         |         | 4:16 |      |
+   | \_    Rating Guesser aka Critic [0/0] |         |         | 2:14 |      |
+   | \_    Web [0/2]                       |         |         | 9:13 |      |
+   | \_      Rate Items                    |         |         |      | 4:52 |
    #+END:
 ** Components [1/2]
    :PROPERTIES:
@@ -72,6 +73,14 @@
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
+    :END:
+*** Rating Guesser aka Critic [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
+    :LOGBOOK:
+    CLOCK: [2026-03-16 Mo 16:56]--[2026-03-16 Mo 19:10] =>  2:14
     :END:
 *** Web [0/2]
     :PROPERTIES:
