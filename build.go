@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 02. 2021 by Benjamin Walkenhorst
 // (c) 2021 Benjamin Walkenhorst
-// Time-stamp: <2026-03-12 14:30:08 krylon>
+// Time-stamp: <2026-03-16 14:56:35 krylon>
 
 //go:build ignore
 
@@ -107,7 +107,7 @@ var cleanPatterns = []*regexp.Regexp{
 }
 
 var errDone = errors.New("Done")
-var verbose bool
+var verbose, skipNil bool
 var dbg *log.Logger
 
 // nolint: gocyclo
@@ -131,6 +131,7 @@ func main() {
 	flag.IntVar(&workerCnt, "parallel", runtime.NumCPU(), "Number of concurrent build processes")
 	flag.BoolVar(&verbose, "verbose", false, "Emit additional messages to aid in debugging")
 	flag.BoolVar(&race, "race", false, "Enable to the go race condition detector")
+	flag.BoolVar(&skipNil, "skipnil", false, "Skip nilaway")
 	flag.StringVar(&minLevel, "loglevel", "DEBUG", fmt.Sprintf(`Log messages with a lower priority than this will be discarded.
 Valid log levels are: %s
 This flag is not case-sensitive.`, strings.Join(lvlString, ", ")))
@@ -276,6 +277,8 @@ This flag is not case-sensitive.`, strings.Join(orderedSteps, ", ")))
 // nolint: gocyclo
 func dispatch(op string, workers int) error {
 	if l := len(candidates[op]); l == 0 {
+		return nil
+	} else if op == "nilaway" && skipNil {
 		return nil
 	} else if l < workers {
 		workers = l
