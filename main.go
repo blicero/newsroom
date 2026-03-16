@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-12 14:58:54 krylon>
+// Time-stamp: <2026-03-16 23:07:47 krylon>
 
 package main
 
@@ -45,7 +45,7 @@ func main() {
 			err.Error())
 		os.Exit(1)
 	} else if srv, err = web.Create(addr); err != nil {
-		fmt.Fprint(
+		fmt.Fprintf(
 			os.Stderr,
 			"Failed to create web server: %s\n",
 			err.Error())
