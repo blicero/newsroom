@@ -1,6 +1,6 @@
 {{ define "items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-03-14 14:42:28 krylon> */}}
+{{/* Time-stamp: <2026-03-16 15:31:02 krylon> */}}
 {{ $feeds := .Feeds }}
 {{ range .Items }}
 <tr id="item_row_{{ .ID }}"
@@ -16,16 +16,16 @@
             {{ .Title }}
         </a>
     </td>
-    <td> {{/* Rating */}}
+    <td id="item_rating_{{ .ID }}"> {{/* Rating */}}
         {{ if (not .IsRated) }}
         <button type="button"
                 class="btn btn-primary btn-sm"
-                onclick="rate_item({{ .ID }}, 1);">
+                onclick="rate_item({{ .ID }}, 2);">
             Interesting
         </button>
         <button type="button"
                 class="btn btn-secondary btn-sm"
-                onclick="rate_item({{ .ID }}, 0);">
+                onclick="rate_item({{ .ID }}, 1);">
             Boring
         </button>
         {{ else if .IsBoring }}

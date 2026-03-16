@@ -1,4 +1,4 @@
-// Time-stamp: <2025-12-04 15:50:37 krylon>
+// Time-stamp: <2026-03-16 15:25:58 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -67,13 +67,13 @@ function beaconLoop() {
                               function (response) {
                                   let status = ''
 
-                                  if (response.Status) {
+                                  if (response.status) {
                                       status = 
-                                          response.Message +
+                                          response.message +
                                           ' running on ' +
-                                          response.Hostname +
+                                          response.hostname +
                                           ' is alive at ' +
-                                          response.Timestamp
+                                          response.timestamp
                                   } else {
                                       status = 'Server is not responding'
                                   }
@@ -231,17 +231,18 @@ function rate_item(item_id, rating) {
                            if (res.status) {
                                var icon = '';
                                switch (rating) {
-                               case 0:
+                               case 1:
                                    icon = 'face-tired'
                                    const row_id = `#item_row_${item_id}`
                                    const row = $(row_id)[0]
                                    row.classList.add("boring")
                                    break
-                               case 1:
+                               case 2:
                                    icon = 'face-glasses'
                                    break
                                default:
                                    const msg = `Invalid rating: ${rating}`
+                                   msg_add(msg)
                                    console.log(msg)
                                    alert(msg)
                                    return
@@ -251,6 +252,7 @@ function rate_item(item_id, rating) {
                                const cell = $(`#item_rating_${item_id}`)[0]
 
                                cell.innerHTML = `<img src="${src}" onclick="unrate_item(${item_id});" />`
+                               msg_add(res.message)
                            } else {
                                msg_add(res.message)
                            }

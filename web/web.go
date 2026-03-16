@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-16 14:19:47 krylon>
+// Time-stamp: <2026-03-16 15:35:13 krylon>
 
 package web
 
@@ -328,6 +328,7 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 //////////////////////////////////////////////////////////////////////////////
 
 func (srv *Server) handleAjaxRateItem(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
 	var (
 		err              error
 		vars             map[string]string
@@ -464,6 +465,20 @@ func (srv *Server) handleAjaxUnrateItem(w http.ResponseWriter, r *http.Request) 
 
 	data.Status = true
 	data.Message = "Success!"
+	data.Content = fmt.Sprintf(`
+        <button type="button"
+                class="btn btn-primary btn-sm"
+                onclick="rate_item(%d, 2);">
+            Interesting
+        </button>
+        <button type="button"
+                class="btn btn-secondary btn-sm"
+                onclick="rate_item(%d, 1);">
+            Boring
+        </button>
+`,
+		id,
+		id)
 
 	if buf, err = json.Marshal(&data); err != nil {
 		msg = fmt.Sprintf("Failed to convert data to JSON: %s",

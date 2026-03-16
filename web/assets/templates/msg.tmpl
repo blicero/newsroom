@@ -1,0 +1,21 @@
+{{ define "msg" }}
+{{/* Created on 29. 10. 2024 */}}
+{{/* Time-stamp: <2024-10-30 19:34:46 krylon> */}}
+<div class="messages">
+  <table class="tbl tbl-striped">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Level</th>
+        <th>Message</th>
+        <th>
+          <input type="button" class="btn btn-warning" onclick="msg_clear();" value="Delete" />
+        </th>
+      </tr>
+    </thead>
+    <tbody id="msg_tbl">
+      
+    </tbody>
+  </table>
+</div>
+{{ end }}
