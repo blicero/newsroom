@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-03-16 22:00:05 krylon>
+# Time-stamp: <2026-03-18 14:35:51 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,17 +14,18 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-03-16 Mo 22:00]
+   #+CAPTION: Clock summary at [2026-03-18 Mi 14:34]
    | Headline                              | Time    |         |      |      |
    |---------------------------------------+---------+---------+------+------|
-   | *Total time*                          | *20:01* |         |      |      |
+   | *Total time*                          | *21:52* |         |      |      |
    |---------------------------------------+---------+---------+------+------|
-   | *Newsroom [1/2]*                      | *20:01* |         |      |      |
-   | \_  /Components [1/2]/                |         | /20:01/ |      |      |
+   | *Newsroom [1/2]*                      | *21:52* |         |      |      |
+   | \_  /Components [1/2]/                |         | /21:52/ |      |      |
    | \_    Model [0/0]                     |         |         | 0:35 |      |
    | \_    Database [0/0]                  |         |         | 3:43 |      |
    | \_    Engine [1/1]                    |         |         | 4:16 |      |
-   | \_    Rating Guesser aka Critic [0/0] |         |         | 2:14 |      |
+   | \_    Cache [0/0]                     |         |         | 1:44 |      |
+   | \_    Rating Guesser aka Critic [0/0] |         |         | 2:21 |      |
    | \_    Web [0/2]                       |         |         | 9:13 |      |
    | \_      Rate Items                    |         |         |      | 4:52 |
    #+END:
@@ -69,6 +70,17 @@
 **** DONE Parse RSS/Atom
      CLOSED: [2026-03-12 Do 14:15]
      https://github.com/mmcdole/gofeed
+*** Cache [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
+    :LOGBOOK:
+    CLOCK: [2026-03-18 Mi 12:50]--[2026-03-18 Mi 14:34] =>  1:44
+    :END:
+    I am trying to use Go generics so I can use the same code for several
+    purposes. But I have very little experience with Go generics, so I expect
+    some trouble.
 *** Classifier [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
@@ -80,6 +92,7 @@
     :VISIBILITY: all
     :END:
     :LOGBOOK:
+    CLOCK: [2026-03-18 Mi 12:33]--[2026-03-18 Mi 12:40] =>  0:07
     CLOCK: [2026-03-16 Mo 16:56]--[2026-03-16 Mo 19:10] =>  2:14
     :END:
 *** Web [0/2]
