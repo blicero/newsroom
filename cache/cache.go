@@ -2,12 +2,13 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 18. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-18 13:21:03 krylon>
+// Time-stamp: <2026-03-18 14:30:25 krylon>
 
 package cache
 
 import (
-	"encoding/json"
+	"bytes"
+	"encoding/gob"
 	"io/fs"
 	"log"
 	"path/filepath"
@@ -21,9 +22,9 @@ import (
 const timeout = time.Minute * 120
 
 type cacheItem[T any] struct {
-	key     string
-	val     *T
-	expires time.Time
+	Key     string
+	Val     *T
+	Expires time.Time
 }
 
 // Cache stores data.
@@ -62,21 +63,41 @@ func New[T any](name string) (*Cache[T], error) {
 func (c *Cache[T]) Store(key string, val *T) error {
 	var (
 		err            error
-		item           cacheItem[T]
-		valbuf, keybuf []byte
+		citem          cacheItem[T]
+		encbuf         bytes.Buffer
+		enc            = gob.NewEncoder(&encbuf)
+		keybuf, valbuf []byte
 	)
 
-	item = cacheItem[T]{
-		key:     key,
-		val:     val,
-		expires: time.Now().Add(timeout),
+	citem = cacheItem[T]{
+		Key:     key,
+		Val:     val,
+		Expires: time.Now().Add(timeout),
 	}
+
 	keybuf = []byte(key)
-	if valbuf, err = json.Marshal(&item); err != nil {
-		c.log.Printf("[ERROR] Failed to serialize Item to JSON: %s\n",
+
+	// if valbuf, err = json.Marshal(&citem); err != nil {
+	// 	c.log.Printf("[ERROR] Failed to serialize Item to JSON: %s\n",
+	// 		err.Error())
+	// 	return err
+	// }
+	if err = enc.Encode(&citem); err != nil {
+		c.log.Printf("[ERROR] Failed to serialize Item: %s\n",
 			err.Error())
 		return err
 	}
+
+	valbuf = encbuf.Bytes()
+
+	// if common.Debug {
+	// 	c.log.Printf("[DEBUG] Raw data:\nKey: %s\nValue: %#v\n\n",
+	// 		key,
+	// 		val)
+	// 	c.log.Printf("[DEBUG] Serialized data:\nKey: %s\nValue: %#v\n\n",
+	// 		keybuf,
+	// 		valbuf)
+	// }
 
 	err = c.store.Update(func(tx *bbolt.Tx) error {
 		var (
@@ -107,6 +128,8 @@ func (c *Cache[T]) Load(key string) (*T, error) {
 	var (
 		err            error
 		keybuf, valbuf []byte
+		decbuf         *bytes.Buffer
+		dec            *gob.Decoder
 		value          *cacheItem[T]
 	)
 
@@ -133,17 +156,31 @@ func (c *Cache[T]) Load(key string) (*T, error) {
 		return nil, err
 	} else if valbuf == nil {
 		return nil, nil
-	}
+	} /*else if common.Debug {
+		c.log.Printf("[DEBUG] Retrieved JSON data for key %s:\n%s\n\n",
+			key,
+			valbuf)
+	}*/
+
+	decbuf = bytes.NewBuffer(valbuf)
+	dec = gob.NewDecoder(decbuf)
 
 	value = new(cacheItem[T])
-
-	if err = json.Unmarshal(valbuf, value); err != nil {
-		c.log.Printf("[ERROR] Failed to deserialize value from JSON: %s\n",
+	if err = dec.Decode(value); err != nil {
+		c.log.Printf("[ERROR] Failed to decode value for key %s: %s\n",
+			key,
 			err.Error())
-		return nil, err
-	} else if value.expires.Before(time.Now()) {
+	}
+
+	// if err = json.Unmarshal(valbuf, value); err != nil {
+	// 	c.log.Printf("[ERROR] Failed to deserialize value from JSON: %s\n",
+	// 		err.Error())
+	// 	return nil, err
+	// } else
+
+	if value.Expires.Before(time.Now()) {
 		return nil, nil
 	}
 
-	return value.val, nil
+	return value.Val, nil
 } // func (c *Cache[T]) Load(key string) (*T, error)
