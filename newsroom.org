@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-03-18 14:35:51 krylon>
+# Time-stamp: <2026-03-18 17:58:10 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -70,7 +70,7 @@
 **** DONE Parse RSS/Atom
      CLOSED: [2026-03-12 Do 14:15]
      https://github.com/mmcdole/gofeed
-*** Cache [0/0]
+*** Cache [0/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -81,6 +81,8 @@
     I am trying to use Go generics so I can use the same code for several
     purposes. But I have very little experience with Go generics, so I expect
     some trouble.
+**** TODO Variable TTL
+**** TODO Evict expired values
 *** Classifier [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
