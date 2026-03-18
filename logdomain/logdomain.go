@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-12 14:17:19 krylon>
+// Time-stamp: <2026-03-18 12:41:09 krylon>
 
 package logdomain
 
@@ -15,6 +15,8 @@ const (
 	Database ID = iota
 	DBPool
 	Engine
+	Cache
+	Critic
 	Classifier
 	Web
 	Main
@@ -26,6 +28,8 @@ func All() []ID {
 		Database,
 		DBPool,
 		Engine,
+		Cache,
+		Critic,
 		Classifier,
 		Web,
 		Main,
