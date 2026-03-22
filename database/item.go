@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 10. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-14 13:40:51 krylon>
+// Time-stamp: <2026-03-22 16:53:58 krylon>
 
 package database
 
@@ -353,6 +353,86 @@ EXEC_QUERY:
 
 	return items, nil
 } // func (db *Database) ItemGetByFeed(feed *model.Feed) ([]*model.Item, error)
+
+// ItemGetRated loads all rated Items from the Database.
+func (db *Database) ItemGetRated() ([]*model.Item, error) {
+	const qid query.ID = query.ItemGetRated
+	var (
+		err   error
+		msg   string
+		stmt  *sql.Stmt
+		items []*model.Item
+	)
+
+GET_QUERY:
+	if stmt, err = db.getQuery(qid); err != nil {
+		if worthARetry(err) {
+			time.Sleep(retryDelay)
+			goto GET_QUERY
+		} else {
+			db.log.Printf("[ERROR] Error getting query %s: %s",
+				qid,
+				err.Error())
+			return nil, err
+		}
+	} else if db.tx != nil {
+		stmt = db.tx.Stmt(stmt)
+	}
+
+	var rows *sql.Rows
+
+EXEC_QUERY:
+	if rows, err = stmt.Query(); err != nil {
+		if worthARetry(err) {
+			time.Sleep(retryDelay)
+			goto EXEC_QUERY
+		} else {
+			msg = fmt.Sprintf("Error querying all Feeds: %s",
+				err.Error())
+			db.log.Println(msg)
+			return nil, errors.New(msg)
+		}
+	} else {
+		defer rows.Close() // nolint: errcheck
+	}
+
+	items = make([]*model.Item, 0, 32)
+
+	for rows.Next() {
+		var (
+			ex                 error
+			ustr               string
+			timestamp, irating int64
+			item               = new(model.Item)
+		)
+
+		if err = rows.Scan(
+			&item.ID,
+			&item.FeedID,
+			&item.Title,
+			&ustr,
+			&irating,
+			&timestamp,
+			&item.Body,
+		); err != nil {
+			msg = fmt.Sprintf("error scanning row: %s", err.Error())
+			db.log.Printf("[ERROR] %s\n", msg)
+			return nil, errors.New(msg)
+		} else if item.URL, err = url.Parse(ustr); err != nil {
+			ex = fmt.Errorf("cannot parse URL %q: %w",
+				ustr,
+				err)
+			db.log.Printf("[ERROR] %s\n", ex.Error())
+			return nil, ex
+		}
+
+		item.Rating = rating.Rating(irating)
+		item.Timestamp = time.Unix(timestamp, 0)
+		items = append(items, item)
+	}
+
+	return items, nil
+} // func (db *Database) ItemGetRated() ([]*model.Item, error)
 
 // ItemCount returns the total number of Items in the Database.
 func (db *Database) ItemCount() (int64, error) {

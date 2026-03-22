@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-14 13:23:54 krylon>
+// Time-stamp: <2026-03-22 16:50:24 krylon>
 
 package database
 
@@ -107,6 +107,18 @@ SELECT
 FROM item
 WHERE feed_id = ?
 ORDER BY timestamp DESC
+`,
+	query.ItemGetRated: `
+SELECT
+    id,
+    feed_id,
+    title,
+    url,
+    rating,
+    timestamp,
+    body
+FROM item
+WHERE rating <> 0
 `,
 	query.ItemCount:     "SELECT COUNT(id) FROM item",
 	query.ItemSetRating: "UPDATE item SET rating = ? WHERE id = ?",
