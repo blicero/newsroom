@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-03-22 17:44:45 krylon>
+# Time-stamp: <2026-03-23 18:28:55 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,18 +14,19 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-03-22 So 17:44]
+   #+CAPTION: Clock summary at [2026-03-23 Mo 18:28]
    | Headline                              | Time      |           |      |      |
    |---------------------------------------+-----------+-----------+------+------|
-   | *Total time*                          | *1d 0:25* |           |      |      |
+   | *Total time*                          | *1d 3:44* |           |      |      |
    |---------------------------------------+-----------+-----------+------+------|
-   | *Newsroom [1/2]*                      | *1d 0:25* |           |      |      |
-   | \_  /Components [1/2]/                |           | /1d 0:25/ |      |      |
-   | \_    Model [0/2]                     |           |           | 0:35 |      |
+   | *Newsroom [1/2]*                      | *1d 3:44* |           |      |      |
+   | \_  /Components [1/2]/                |           | /1d 3:44/ |      |      |
+   | \_    Model [0/2]                     |           |           | 2:32 |      |
+   | \_      Strip HTML                    |           |           |      | 1:57 |
    | \_    Database [0/0]                  |           |           | 3:43 |      |
    | \_    Engine [1/1]                    |           |           | 4:16 |      |
-   | \_    Cache [0/2]                     |           |           | 1:44 |      |
-   | \_    Rating Guesser aka Critic [0/0] |           |           | 4:54 |      |
+   | \_    Cache [0/2]                     |           |           | 2:53 |      |
+   | \_    Rating Guesser aka Critic [0/0] |           |           | 5:07 |      |
    | \_    Web [0/2]                       |           |           | 9:13 |      |
    | \_      Rate Items                    |           |           |      | 4:52 |
    #+END:
@@ -42,7 +43,11 @@
     :LOGBOOK:
     CLOCK: [2026-03-09 Mo 13:15]--[2026-03-09 Mo 13:50] =>  0:35
     :END:
-**** TODO Tokenizer
+**** TODO Strip HTML
+     :LOGBOOK:
+     CLOCK: [2026-03-23 Mo 17:44]--[2026-03-23 Mo 18:03] =>  0:19
+     CLOCK: [2026-03-23 Mo 14:55]--[2026-03-23 Mo 16:33] =>  1:38
+     :END:
      In order to work with the Items in Rating and Tagging, I need to clean
      the up - strip all the HTML at the very least. Remove stopwords, stem the
      rest, etc.
@@ -84,6 +89,7 @@
     :VISIBILITY: all
     :END:
     :LOGBOOK:
+    CLOCK: [2026-03-23 Mo 16:33]--[2026-03-23 Mo 17:42] =>  1:09
     CLOCK: [2026-03-18 Mi 12:50]--[2026-03-18 Mi 14:34] =>  1:44
     :END:
     I am trying to use Go generics so I can use the same code for several
@@ -102,6 +108,8 @@
     :VISIBILITY: all
     :END:
     :LOGBOOK:
+    CLOCK: [2026-03-23 Mo 18:17]--[2026-03-23 Mo 18:28] =>  0:11
+    CLOCK: [2026-03-23 Mo 14:53]--[2026-03-23 Mo 14:55] =>  0:02
     CLOCK: [2026-03-22 So 16:37]--[2026-03-22 So 17:17] =>  0:40
     CLOCK: [2026-03-21 Sa 16:27]--[2026-03-21 Sa 16:54] =>  0:27
     CLOCK: [2026-03-19 Do 17:02]--[2026-03-19 Do 18:05] =>  1:03
