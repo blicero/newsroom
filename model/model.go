@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-16 16:46:25 krylon>
+// Time-stamp: <2026-03-23 15:07:28 krylon>
 
 // Package model defines data types that are used throughout the application.
 package model
@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/blicero/newsroom/model/rating"
+	"github.com/darkoatanasovski/htmltags"
 )
 
 // Feed is an RSS feed we can subscribe to.
@@ -41,6 +42,7 @@ type Item struct {
 	GuessedRating rating.Rating
 	Timestamp     time.Time
 	Body          string
+	stripped      string
 }
 
 // IsRated returns true if the Item has been rated.
@@ -62,6 +64,31 @@ func (i *Item) EffectiveRating() rating.Rating {
 
 	return i.Rating
 } // func (i *Item) EffectiveRating() rating.Rating
+
+// Strip returns the Item's Title + Body, stripped of all HTML elements.
+// The result is cached, subsequent calls return the cached value.
+//
+// CAVEAT: Caching is result per Item only at this point.
+func (i *Item) Strip() string {
+	if i.stripped != "" {
+		return i.stripped
+	}
+
+	var (
+		err   error
+		long  string
+		nodes htmltags.Nodes
+	)
+
+	long = i.Title + " " + i.Body
+
+	if nodes, err = htmltags.Strip(long, nil, true); err != nil {
+		panic(err)
+	}
+
+	i.stripped = nodes.ToString()
+	return i.stripped
+} // func (i *Item) Strip() string
 
 // Tag is a descriptive bit of text we can attach to Items.
 type Tag struct {
