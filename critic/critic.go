@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 16. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-22 17:17:03 krylon>
+// Time-stamp: <2026-03-23 18:21:55 krylon>
 
 // Package critic deals with guessing the most probable rating for Items.
 // Like a spam filter for news.
@@ -15,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/blicero/krylib"
 	"github.com/blicero/newsroom/cache"
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/database"
@@ -119,25 +120,40 @@ func (c *Critic) Retrain() error {
 		return err
 	}
 
-	// for lng, s := range c.critics {
-	// 	c.log.Printf("[TRACE] Resetting Shield for %s\n",
-	// 		lng)
-	// 	if err = s.Reset(); err != nil {
-	// 		c.log.Printf("[ERROR] Failed to reset Shield for %s: %s\n",
-	// 			lng,
-	// 			err.Error())
-	// 		return err
-	// 	}
-	// }
+	for lng, s := range c.critics {
+		c.log.Printf("[TRACE] Resetting Shield for %s\n",
+			lng)
+		if err = s.Reset(); err != nil {
+			c.log.Printf("[ERROR] Failed to reset Shield for %s: %s\n",
+				lng,
+				err.Error())
+			return err
+		}
+	}
 
-	// for _, item := range items {
-	// 	var (
-	// 		lng = lngMap[item.FeedID]
-	// 		s   = c.critics[lng]
-	// 	)
+	// nolint: nilaway
+	for _, item := range items {
+		var (
+			lng = lngMap[item.FeedID]
+			s   = c.critics[lng]
+		)
 
-	// 	//if err = s.Learn(item.Rating.String(),
-	// }
+		if item == nil {
+			continue
+		} else if err = s.Learn(item.Rating.String(), item.Strip()); err != nil {
+			c.log.Printf("[ERROR] Failed to learn about Item %d (%s): %s\n",
+				item.ID,
+				item.Title,
+				err.Error())
+		}
+	}
 
 	return nil
 } // func (c *Critic) Retrain() error
+
+// Learn teaches the model about an Item.
+func (c *Critic) Learn(item *model.Item) error {
+	// var err error
+
+	return krylib.ErrNotImplemented
+} // func (c *Critic) Learn(item *model.Item) error
