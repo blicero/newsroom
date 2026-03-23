@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 18. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-18 13:46:12 krylon>
+// Time-stamp: <2026-03-23 17:39:47 krylon>
 
 package cache
 
@@ -86,3 +86,51 @@ func TestLoad(t *testing.T) {
 		}
 	}
 } // func TestLoad(t *testing.T)
+
+func TestDelete(t *testing.T) {
+	if tc == nil {
+		t.SkipNow()
+	}
+
+	var (
+		err             error
+		delCnt, itemCnt int
+		deleted         = make(map[int64]bool)
+	)
+
+	for _, titem := range titems {
+		if titem.ID%8 != 0 {
+			continue
+		} else if err = tc.Delete(titem.Name); err != nil {
+			t.Errorf("Failed to delete item %s from cache: %s",
+				titem.Name,
+				err.Error())
+		} else {
+			deleted[titem.ID] = true
+			delCnt++
+		}
+	}
+
+	for _, titem := range titems {
+		var citem *item
+
+		if citem, err = tc.Load(titem.Name); err != nil {
+			t.Errorf("Failed to load item %s from cache: %s",
+				titem.Name,
+				err.Error())
+		} else if citem == nil && !deleted[titem.ID] {
+			t.Errorf("Item %s was not found in cache, but we did not delete it",
+				titem.Name)
+		} else if citem != nil {
+			itemCnt++
+		}
+	}
+
+	if delCnt+itemCnt != iCnt {
+		t.Errorf("Something doesn't add up: %d items + %d deleted == %d (should be %d)",
+			itemCnt,
+			delCnt,
+			(itemCnt + delCnt),
+			iCnt)
+	}
+} // func TestDelete(t *testing.T)

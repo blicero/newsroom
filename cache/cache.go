@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 18. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-18 14:30:25 krylon>
+// Time-stamp: <2026-03-23 16:40:18 krylon>
 
 package cache
 
@@ -184,3 +184,22 @@ func (c *Cache[T]) Load(key string) (*T, error) {
 
 	return value.Val, nil
 } // func (c *Cache[T]) Load(key string) (*T, error)
+
+// Delete removes the given key from the Cache.
+// It is not an error to delete a key that does not exist, in that case no
+// change is made to the underlying data store.
+func (c *Cache[T]) Delete(key string) error {
+	var err error
+
+	if err = c.store.Update(func(tx *bbolt.Tx) error {
+		var bucket = tx.Bucket([]byte(c.name))
+
+		return bucket.Delete([]byte(key))
+	}); err != nil {
+		c.log.Printf("[ERROR] Failed to delete key %s: %s\n",
+			key,
+			err.Error())
+	}
+
+	return err
+} // func (c *Cache[T]) Delete(key string) error
