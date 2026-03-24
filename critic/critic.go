@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 16. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-23 18:21:55 krylon>
+// Time-stamp: <2026-03-24 16:35:35 krylon>
 
 // Package critic deals with guessing the most probable rating for Items.
 // Like a spam filter for news.
@@ -15,7 +15,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/blicero/krylib"
 	"github.com/blicero/newsroom/cache"
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/database"
@@ -46,6 +45,7 @@ type Critic struct {
 	db      *database.Database
 	lock    sync.RWMutex
 	rcache  *cache.Cache[score]
+	lngMap  map[int64]string
 }
 
 // New creates and returns a fresh Critic instance.
@@ -67,6 +67,8 @@ func New() (*Critic, error) {
 			err.Error())
 		return nil, err
 	}
+
+	c.lngMap = make(map[int64]string)
 
 	for _, lng := range languages {
 		var (
@@ -153,7 +155,62 @@ func (c *Critic) Retrain() error {
 
 // Learn teaches the model about an Item.
 func (c *Critic) Learn(item *model.Item) error {
-	// var err error
+	var (
+		err error
+		lng string
+		s   shield.Shield
+	)
 
-	return krylib.ErrNotImplemented
+	if lng, err = c.getLanguage(item); err != nil {
+		c.log.Printf("[ERROR] Failed to look up language for Item %s: %s\n",
+			item.Title,
+			err.Error())
+		return err
+	} else if lng == "" {
+		c.log.Printf("[ERROR] Failed to look up language for Item %s, falling back to English by default.\n",
+			item.Title)
+		lng = "en"
+	}
+
+	if s = c.critics[lng]; s == nil {
+		err = fmt.Errorf("no Critic found for language %s",
+			lng)
+		c.log.Printf("[ERROR] %s\n", err.Error())
+		return err
+	} else if err = s.Learn(item.Rating.String(), item.Strip()); err != nil {
+		c.log.Printf("[ERROR] Failed to learn about Item %d (%s): %s\n",
+			item.ID,
+			item.Title,
+			err.Error())
+		return err
+	}
+
+	return nil
 } // func (c *Critic) Learn(item *model.Item) error
+
+func (c *Critic) getLanguage(item *model.Item) (string, error) {
+	var (
+		err  error
+		feed *model.Feed
+	)
+
+	if lng, ok := c.lngMap[item.FeedID]; ok {
+		return lng, nil
+	}
+
+	if feed, err = c.db.FeedGetByID(item.FeedID); err != nil {
+		c.log.Printf("[ERROR] Failed to look up Feed %d: %s\n",
+			item.FeedID,
+			err.Error())
+		return "", err
+	} else if feed == nil {
+		err = fmt.Errorf("feed %d was not found in database",
+			item.FeedID)
+		c.log.Printf("[CANTHAPPEN] %s\n",
+			err.Error())
+		return "", err
+	}
+
+	c.lngMap[feed.ID] = feed.Language
+	return feed.Language, nil
+} // func (c *Critic) getLanguage(item *model.Item) (string, error)
