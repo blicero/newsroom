@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 30. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-30 20:21:58 krylon>
+// Time-stamp: <2026-03-30 20:47:58 krylon>
 
 package critic
 
@@ -115,6 +115,8 @@ func prepare() error {
 	} else if err = addItems(feed, db); err != nil {
 		return err
 	}
+
+	tfeed = feed
 
 	return nil
 } // func prepare() error
