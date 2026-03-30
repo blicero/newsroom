@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 16. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-30 20:29:22 krylon>
+// Time-stamp: <2026-03-30 21:11:03 krylon>
 
 // Package critic deals with guessing the most probable rating for Items.
 // Like a spam filter for news.
@@ -225,18 +225,19 @@ func (c *Critic) Unlearn(item *model.Item) error {
 } // func (c *Critic) Unlearn(item *model.Item) error
 
 // Classify attempts to guess a Rating for the given Item.
-func (c *Critic) Classify(item *model.Item) (string, error) {
+func (c *Critic) Classify(item *model.Item) (rating.Rating, error) {
 	var (
 		err      error
 		lng, cls string
 		s        shield.Shield
+		r        = rating.Unrated
 	)
 
 	if lng, err = c.getLanguage(item); err != nil {
 		c.log.Printf("[ERROR] Failed to look up language for Item %s: %s\n",
 			item.Title,
 			err.Error())
-		return "", err
+		return r, err
 	} else if lng == "" {
 		c.log.Printf("[ERROR] Failed to look up language for Item %s, falling back to English by default.\n",
 			item.Title)
@@ -247,7 +248,7 @@ func (c *Critic) Classify(item *model.Item) (string, error) {
 		err = fmt.Errorf("no Critic found for language %s",
 			lng)
 		c.log.Printf("[ERROR] %s\n", err.Error())
-		return "", err
+		return r, err
 	}
 
 	if cls, err = s.Classify(item.Strip()); err != nil {
@@ -255,10 +256,15 @@ func (c *Critic) Classify(item *model.Item) (string, error) {
 			item.Title,
 			item.ID,
 			err.Error())
-		return "", err
+		return r, err
+	} else if r, err = rating.FromString(cls); err != nil {
+		c.log.Printf("[ERROR] Failed to convert class %q to Rating: %s\n",
+			cls,
+			err.Error())
+		return rating.Unrated, err
 	}
 
-	return cls, nil
+	return r, nil
 } // func (c *Critic) Classify(item *model.Item) error
 
 func (c *Critic) getLanguage(item *model.Item) (string, error) {
