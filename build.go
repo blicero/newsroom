@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 02. 2021 by Benjamin Walkenhorst
 // (c) 2021 Benjamin Walkenhorst
-// Time-stamp: <2026-03-16 14:56:35 krylon>
+// Time-stamp: <2026-03-30 20:33:40 krylon>
 
 //go:build ignore
 
@@ -71,6 +71,7 @@ var candidates = map[string][]string{
 		"database",
 		"engine",
 		"web",
+		"critic",
 	},
 	"lint": {
 		"logdomain",
@@ -81,6 +82,7 @@ var candidates = map[string][]string{
 		"database",
 		"engine",
 		"web",
+		"critic",
 	},
 	"nilaway": {
 		"common",
@@ -89,10 +91,12 @@ var candidates = map[string][]string{
 		"model",
 		"engine",
 		"web",
+		"critic",
 	},
 	"test": {
 		"database",
 		"web",
+		"critic",
 	},
 }
 
