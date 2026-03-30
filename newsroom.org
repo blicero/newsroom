@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-03-24 16:39:01 krylon>
+# Time-stamp: <2026-03-30 21:16:56 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,19 +14,20 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-03-24 Di 16:38]
+   #+CAPTION: Clock summary at [2026-03-30 Mo 21:16]
    | Headline                              | Time      |           |      |      |
    |---------------------------------------+-----------+-----------+------+------|
-   | *Total time*                          | *1d 5:24* |           |      |      |
+   | *Total time*                          | *1d 8:17* |           |      |      |
    |---------------------------------------+-----------+-----------+------+------|
-   | *Newsroom [1/8]*                      | *1d 5:24* |           |      |      |
-   | \_  /Components [1/8]/                |           | /1d 5:24/ |      |      |
+   | *Newsroom [1/8]*                      | *1d 8:17* |           |      |      |
+   | \_  /Components [1/8]/                |           | /1d 8:17/ |      |      |
    | \_    Model [0/2]                     |           |           | 2:32 |      |
    | \_      Strip HTML                    |           |           |      | 1:57 |
    | \_    Database [0/0]                  |           |           | 3:43 |      |
    | \_    Engine [1/2]                    |           |           | 4:16 |      |
    | \_    Cache [0/2]                     |           |           | 2:53 |      |
-   | \_    Rating Guesser aka Critic [0/0] |           |           | 6:47 |      |
+   | \_    Rating Guesser aka Critic [0/0] |           |           | 9:40 |      |
+   | \_      Testing                       |           |           |      | 2:31 |
    | \_    Web [0/2]                       |           |           | 9:13 |      |
    | \_      Rate Items                    |           |           |      | 4:52 |
    #+END:
@@ -111,6 +112,7 @@
     :VISIBILITY: all
     :END:
     :LOGBOOK:
+    CLOCK: [2026-03-30 Mo 18:18]--[2026-03-30 Mo 18:40] =>  0:22
     CLOCK: [2026-03-24 Di 14:57]--[2026-03-24 Di 16:37] =>  1:40
     CLOCK: [2026-03-23 Mo 18:17]--[2026-03-23 Mo 18:28] =>  0:11
     CLOCK: [2026-03-23 Mo 14:53]--[2026-03-23 Mo 14:55] =>  0:02
@@ -121,6 +123,16 @@
     CLOCK: [2026-03-18 Mi 12:33]--[2026-03-18 Mi 12:40] =>  0:07
     CLOCK: [2026-03-16 Mo 16:56]--[2026-03-16 Mo 19:10] =>  2:14
     :END:
+**** Testing
+     :LOGBOOK:
+     CLOCK: [2026-03-30 Mo 18:45]--[2026-03-30 Mo 21:16] =>  2:31
+     :END:
+     Testing this is kind of tedious, at best, but I think I better put
+     something in place ahead of time. In previous attempts at building an RSS
+     reader, this part tended to burn through lots of CPU cycles, and one goal
+     in this iteration is to make it more efficient. It should give acceptable
+     performance on a Raspberry Pi Model 2, because that is what it is going
+     to run on in my humble home.
 *** Web [0/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
