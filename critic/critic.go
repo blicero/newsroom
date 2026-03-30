@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 16. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-30 21:11:03 krylon>
+// Time-stamp: <2026-03-30 21:30:20 krylon>
 
 // Package critic deals with guessing the most probable rating for Items.
 // Like a spam filter for news.
@@ -263,6 +263,8 @@ func (c *Critic) Classify(item *model.Item) (rating.Rating, error) {
 			err.Error())
 		return rating.Unrated, err
 	}
+
+	item.GuessedRating = r
 
 	return r, nil
 } // func (c *Critic) Classify(item *model.Item) error
