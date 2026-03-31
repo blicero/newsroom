@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 16. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-30 21:30:20 krylon>
+// Time-stamp: <2026-03-31 13:56:57 krylon>
 
 // Package critic deals with guessing the most probable rating for Items.
 // Like a spam filter for news.
@@ -105,6 +105,9 @@ func (c *Critic) Retrain() error {
 		feeds  []*model.Feed
 	)
 
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
 	if feeds, err = c.db.FeedGetAll(); err != nil {
 		c.log.Printf("[ERROR] Failed to load Feeds from Database: %s\n",
 			err.Error())
@@ -112,6 +115,7 @@ func (c *Critic) Retrain() error {
 	}
 
 	lngMap = make(map[int64]string, len(feeds))
+	c.lngMap = lngMap
 
 	for _, f := range feeds {
 		lngMap[f.ID] = f.Language
@@ -230,7 +234,7 @@ func (c *Critic) Classify(item *model.Item) (rating.Rating, error) {
 		err      error
 		lng, cls string
 		s        shield.Shield
-		r        = rating.Unrated
+		r        rating.Rating
 	)
 
 	if lng, err = c.getLanguage(item); err != nil {
@@ -275,9 +279,16 @@ func (c *Critic) getLanguage(item *model.Item) (string, error) {
 		feed *model.Feed
 	)
 
+	c.lock.RLock()
+
 	if lng, ok := c.lngMap[item.FeedID]; ok {
+		c.lock.RUnlock()
 		return lng, nil
 	}
+
+	c.lock.RUnlock()
+	c.lock.Lock()
+	defer c.lock.Unlock()
 
 	if feed, err = c.db.FeedGetByID(item.FeedID); err != nil {
 		c.log.Printf("[ERROR] Failed to look up Feed %d: %s\n",
