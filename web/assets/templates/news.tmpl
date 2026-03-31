@@ -1,6 +1,6 @@
 {{ define "news" }}
 {{/* Created on 10. 06. 2024 */}}
-{{/* Time-stamp: <2026-03-14 12:45:57 krylon> */}}
+{{/* Time-stamp: <2026-03-31 14:55:14 krylon> */}}
 <!DOCTYPE html>
 <html>
     {{ template "head" . }}
@@ -12,7 +12,7 @@
             {{ if not .FirstPage }}<a href="/news/{{ dec .PageNo }}/{{ .Count }}">{{ end }}
             &lt;&lt;
             {{ if not .FirstPage }}</a>{{ end }}
-            {{ inc .PageNo }}
+            {{ inc .PageNo }} / {{ .MaxPage }}
             {{ if not .LastPage }}<a href="/news/{{ inc .PageNo }}/{{ .Count }}">{{ end }}
             &gt;&gt;
             {{ if not .LastPage }}</a>{{ end }}
