@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-03-30 21:16:56 krylon>
+# Time-stamp: <2026-03-31 15:26:46 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,24 +14,25 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-03-30 Mo 21:16]
-   | Headline                              | Time      |           |      |      |
-   |---------------------------------------+-----------+-----------+------+------|
-   | *Total time*                          | *1d 8:17* |           |      |      |
-   |---------------------------------------+-----------+-----------+------+------|
-   | *Newsroom [1/8]*                      | *1d 8:17* |           |      |      |
-   | \_  /Components [1/8]/                |           | /1d 8:17/ |      |      |
-   | \_    Model [0/2]                     |           |           | 2:32 |      |
-   | \_      Strip HTML                    |           |           |      | 1:57 |
-   | \_    Database [0/0]                  |           |           | 3:43 |      |
-   | \_    Engine [1/2]                    |           |           | 4:16 |      |
-   | \_    Cache [0/2]                     |           |           | 2:53 |      |
-   | \_    Rating Guesser aka Critic [0/0] |           |           | 9:40 |      |
-   | \_      Testing                       |           |           |      | 2:31 |
-   | \_    Web [0/2]                       |           |           | 9:13 |      |
-   | \_      Rate Items                    |           |           |      | 4:52 |
+   #+CAPTION: Clock summary at [2026-03-31 Di 15:26]
+   | Headline                              | Time       |            |       |      |
+   |---------------------------------------+------------+------------+-------+------|
+   | *Total time*                          | *1d 10:22* |            |       |      |
+   |---------------------------------------+------------+------------+-------+------|
+   | *Newsroom [1/8]*                      | *1d 10:22* |            |       |      |
+   | \_  /Components [3/10]/               |            | /1d 10:22/ |       |      |
+   | \_    Model [0/2]                     |            |            |  2:32 |      |
+   | \_      Strip HTML                    |            |            |       | 1:57 |
+   | \_    Database [0/0]                  |            |            |  3:43 |      |
+   | \_    Engine [1/2]                    |            |            |  4:16 |      |
+   | \_    Cache [0/2]                     |            |            |  2:53 |      |
+   | \_    Rating Guesser aka Critic [0/1] |            |            |  9:40 |      |
+   | \_      Testing                       |            |            |       | 2:31 |
+   | \_    Web [2/3]                       |            |            | 11:18 |      |
+   | \_      Integrate Classifier          |            |            |       | 1:43 |
+   | \_      Rate Items                    |            |            |       | 5:14 |
    #+END:
-** Components [1/8]
+** Components [3/10]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -106,7 +107,7 @@
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
     :END:
-*** Rating Guesser aka Critic [0/0]
+*** Rating Guesser aka Critic [0/1]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -123,6 +124,7 @@
     CLOCK: [2026-03-18 Mi 12:33]--[2026-03-18 Mi 12:40] =>  0:07
     CLOCK: [2026-03-16 Mo 16:56]--[2026-03-16 Mo 19:10] =>  2:14
     :END:
+**** TODO Attempt replacing the RWMutex with a sync.Map
 **** Testing
      :LOGBOOK:
      CLOCK: [2026-03-30 Mo 18:45]--[2026-03-30 Mo 21:16] =>  2:31
@@ -133,7 +135,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [0/2]
+*** Web [2/3]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -144,8 +146,16 @@
     CLOCK: [2026-03-12 Do 14:50]--[2026-03-12 Do 17:26] =>  2:36
     CLOCK: [2026-03-12 Do 14:16]--[2026-03-12 Do 14:40] =>  0:24
     :END:
-**** TODO Rate Items
+**** DONE Integrate Classifier
+     CLOSED: [2026-03-31 Di 15:25]
      :LOGBOOK:
+     CLOCK: [2026-03-31 Di 14:01]--[2026-03-31 Di 15:25] =>  1:24
+     CLOCK: [2026-03-31 Di 13:40]--[2026-03-31 Di 13:59] =>  0:19
+     :END:
+**** DONE Rate Items
+     CLOSED: [2026-03-31 Di 13:39]
+     :LOGBOOK:
+     CLOCK: [2026-03-31 Di 13:17]--[2026-03-31 Di 13:39] =>  0:22
      CLOCK: [2026-03-16 Mo 14:21]--[2026-03-16 Mo 15:36] =>  1:15
      CLOCK: [2026-03-16 Mo 14:00]--[2026-03-16 Mo 14:20] =>  0:20
      CLOCK: [2026-03-14 Sa 14:58]--[2026-03-14 Sa 17:50] =>  2:52
