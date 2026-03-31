@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-16 15:35:13 krylon>
+// Time-stamp: <2026-03-31 14:56:45 krylon>
 
 package web
 
@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/blicero/newsroom/common"
+	"github.com/blicero/newsroom/critic"
 	"github.com/blicero/newsroom/database"
 	"github.com/blicero/newsroom/logdomain"
 	"github.com/blicero/newsroom/model"
@@ -47,6 +48,7 @@ type Server struct {
 	pool      *database.Pool // nolint: unused
 	lock      sync.RWMutex   // nolint: unused
 	active    atomic.Bool
+	cls       *critic.Critic
 	router    *mux.Router
 	tmpl      *template.Template
 	web       http.Server
@@ -79,6 +81,10 @@ func Create(addr string) (*Server, error) {
 		return nil, err
 	} else if srv.pool, err = database.NewPool(4); err != nil {
 		srv.log.Printf("[CRITICAL] Cannot open database pool: %s\n",
+			err.Error())
+		return nil, err
+	} else if srv.cls, err = critic.New(); err != nil {
+		srv.log.Printf("[CRITICAL] Cannot create Classifier: %s\n",
 			err.Error())
 		return nil, err
 	}
@@ -307,6 +313,18 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	for _, item := range data.Items {
+		if item.IsRated() {
+			continue
+		} else if item.GuessedRating, err = srv.cls.Classify(item); err != nil {
+			srv.log.Printf("[ERROR] Failed to classify Item %d (%s): %s\n",
+				item.ID,
+				item.Title,
+				err.Error())
+			item.GuessedRating = rating.Unrated
+		}
+	}
+
 	data.MaxPage = data.TotalCount / data.Count
 	data.Feeds = make(map[int64]*model.Feed, len(feeds))
 
@@ -323,6 +341,9 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 	}
 } // func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request)
 
+func (srv *Server) handleRetrain(w http.ResponseWriter, r *http.Request) {
+} // func (srv *Server) handleRetrain(w http.ResponseWriter, r *http.Request)
+
 //////////////////////////////////////////////////////////////////////////////
 /// Handle AJAX //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -334,6 +355,7 @@ func (srv *Server) handleAjaxRateItem(w http.ResponseWriter, r *http.Request) {
 		vars             map[string]string
 		msg, idstr, rstr string
 		id, rint         int64
+		score            rating.Rating
 		item             *model.Item
 		db               *database.Database
 		buf              []byte
@@ -365,6 +387,8 @@ func (srv *Server) handleAjaxRateItem(w http.ResponseWriter, r *http.Request) {
 		goto SEND
 	}
 
+	score = rating.Rating(rint)
+
 	db = srv.pool.Get()
 	defer srv.pool.Put(db)
 
@@ -384,7 +408,16 @@ func (srv *Server) handleAjaxRateItem(w http.ResponseWriter, r *http.Request) {
 		msg = fmt.Sprintf("Failed to rate Item %d (%s) as %s: %s",
 			item.ID,
 			item.Title,
-			rating.Rating(rint),
+			score,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if err = srv.cls.Learn(item); err != nil {
+		msg = fmt.Sprintf("Failed to teach the Classifier about Item %d (%s) as %s: %s",
+			item.ID,
+			item.Title,
+			score,
 			err.Error())
 		srv.log.Printf("[ERROR] %s\n", msg)
 		buf = errJSON(msg)
@@ -461,11 +494,28 @@ func (srv *Server) handleAjaxUnrateItem(w http.ResponseWriter, r *http.Request) 
 		srv.log.Printf("[ERROR] %s\n", msg)
 		buf = errJSON(msg)
 		goto SEND
+	} else if err = srv.cls.Unlearn(item); err != nil {
+		msg = fmt.Sprintf("Failed to make the Classifier forget about Item %d (%s): %s",
+			item.ID,
+			item.Title,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if _, err = srv.cls.Classify(item); err != nil {
+		msg = fmt.Sprintf("Failed to classify Item %d (%s) after unlearning it: %s",
+			item.ID,
+			item.Title,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
 	}
 
 	data.Status = true
 	data.Message = "Success!"
 	data.Content = fmt.Sprintf(`
+        <small><i> %s </i></small>
         <button type="button"
                 class="btn btn-primary btn-sm"
                 onclick="rate_item(%d, 2);">
@@ -477,6 +527,7 @@ func (srv *Server) handleAjaxUnrateItem(w http.ResponseWriter, r *http.Request) 
             Boring
         </button>
 `,
+		item.EffectiveRating(),
 		id,
 		id)
 
