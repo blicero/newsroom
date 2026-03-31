@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 02. 2021 by Benjamin Walkenhorst
 // (c) 2021 Benjamin Walkenhorst
-// Time-stamp: <2026-03-30 20:33:40 krylon>
+// Time-stamp: <2026-03-31 14:34:58 krylon>
 
 //go:build ignore
 
@@ -71,6 +71,7 @@ var candidates = map[string][]string{
 		"database",
 		"engine",
 		"web",
+		"cache",
 		"critic",
 	},
 	"lint": {
@@ -82,6 +83,7 @@ var candidates = map[string][]string{
 		"database",
 		"engine",
 		"web",
+		"cache",
 		"critic",
 	},
 	"nilaway": {
@@ -91,17 +93,19 @@ var candidates = map[string][]string{
 		"model",
 		"engine",
 		"web",
+		"cache",
 		"critic",
 	},
 	"test": {
 		"database",
 		"web",
+		"cache",
 		"critic",
 	},
 }
 
 // During the clean step, all files and folders that match any of these
-// regular expressions is removed.
+// regular expressions are removed.
 // If a directory is matched, it is removed recursively without
 // looking at its content.
 var cleanPatterns = []*regexp.Regexp{
