@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-22 16:50:24 krylon>
+// Time-stamp: <2026-04-01 13:38:26 krylon>
 
 package database
 
@@ -123,12 +123,12 @@ WHERE rating <> 0
 	query.ItemCount:     "SELECT COUNT(id) FROM item",
 	query.ItemSetRating: "UPDATE item SET rating = ? WHERE id = ?",
 	query.TagAdd: `
-INSERT INTO tag (name)
-         VALUES (   ?)
+INSERT INTO tag (name, parent)
+         VALUES (   ?,      ?)
 RETURNING id
 `,
-	query.TagGetAll:  "SELECT id, name FROM tag",
-	query.TagGetByID: "SELECT name FROM tag WHERE id = ?",
+	query.TagGetAll:  "SELECT id, name, parent FROM tag",
+	query.TagGetByID: "SELECT name, parent FROM tag WHERE id = ?",
 	query.TagDelete:  "DELETE FROM tag WHERE id = ?",
 	query.TagLinkAdd: `
 INSERT INTO tag_link (tag_id, item_id) VALUES (?, ?) RETURNING id

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 14:51:41 krylon>
+// Time-stamp: <2026-04-01 13:38:16 krylon>
 
 package database
 
@@ -41,7 +41,11 @@ CREATE TABLE item (
 	`
 CREATE TABLE tag (
     id			INTEGER PRIMARY KEY,
-    name		TEXT UNIQUE NOT NULL
+    parent              INTEGER,
+    name		TEXT UNIQUE NOT NULL,
+    FOREIGN KEY (parent) REFERENCES tag (id)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT
 ) STRICT`,
 	`
 CREATE TABLE tag_link (

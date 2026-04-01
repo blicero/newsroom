@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-23 15:07:28 krylon>
+// Time-stamp: <2026-03-31 18:15:29 krylon>
 
 // Package model defines data types that are used throughout the application.
 package model
@@ -92,8 +92,9 @@ func (i *Item) Strip() string {
 
 // Tag is a descriptive bit of text we can attach to Items.
 type Tag struct {
-	ID   int64
-	Name string
+	ID       int64
+	ParentID int64
+	Name     string
 }
 
 // TagLink attaches a Tag to an Item.
