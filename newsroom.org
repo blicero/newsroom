@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-01 13:47:01 krylon>
+# Time-stamp: <2026-04-01 16:31:30 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,38 +7,41 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [1/8]
+* Newsroom [5/14]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-01 Mi 13:47]
-   | Headline                              | Time       |            |       |      |
-   |---------------------------------------+------------+------------+-------+------|
-   | *Total time*                          | *1d 10:32* |            |       |      |
-   |---------------------------------------+------------+------------+-------+------|
-   | *Newsroom [1/8]*                      | *1d 10:32* |            |       |      |
-   | \_  /Components [3/10]/               |            | /1d 10:32/ |       |      |
-   | \_    Model [0/2]                     |            |            |  2:32 |      |
-   | \_      Strip HTML                    |            |            |       | 1:57 |
-   | \_    Database [0/0]                  |            |            |  3:53 |      |
-   | \_      Tags form a hierarchy         |            |            |       | 0:10 |
-   | \_    Engine [1/2]                    |            |            |  4:16 |      |
-   | \_    Cache [0/2]                     |            |            |  2:53 |      |
-   | \_    Rating Guesser aka Critic [0/1] |            |            |  9:40 |      |
-   | \_      Testing                       |            |            |       | 2:31 |
-   | \_    Web [2/3]                       |            |            | 11:18 |      |
-   | \_      Integrate Classifier          |            |            |       | 1:43 |
-   | \_      Rate Items                    |            |            |       | 5:14 |
+   #+CAPTION: Clock summary at [2026-04-01 Mi 16:31]
+   | Headline                              | Time       |            |       |      |      |
+   |---------------------------------------+------------+------------+-------+------+------|
+   | *Total time*                          | *1d 13:01* |            |       |      |      |
+   |---------------------------------------+------------+------------+-------+------+------|
+   | *Newsroom [5/14]*                     | *1d 13:01* |            |       |      |      |
+   | \_  /Components [5/14]/               |            | /1d 13:01/ |       |      |      |
+   | \_    Model [1/2]                     |            |            |  3:58 |      |      |
+   | \_      Strip HTML                    |            |            |       | 1:57 |      |
+   | \_      Sanitize HTML                 |            |            |       | 1:26 |      |
+   | \_    Database [0/0]                  |            |            |  3:53 |      |      |
+   | \_      Tags form a hierarchy         |            |            |       | 0:10 |      |
+   | \_    Engine [1/2]                    |            |            |  4:16 |      |      |
+   | \_    Cache [0/2]                     |            |            |  2:53 |      |      |
+   | \_    Rating Guesser aka Critic [0/1] |            |            |  9:40 |      |      |
+   | \_      Testing                       |            |            |       | 2:31 |      |
+   | \_    Web [3/7]                       |            |            | 12:21 |      |      |
+   | \_      Subscribe to Feeds            |            |            |       | 0:09 |      |
+   | \_      Integrate Classifier          |            |            |       | 2:37 |      |
+   | \_        Retrain Classifier          |            |            |       |      | 0:54 |
+   | \_      Rate Items                    |            |            |       | 5:14 |      |
    #+END:
-** Components [3/10]
+** Components [5/14]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
    :END:
-*** Model [0/2]
+*** Model [1/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -54,7 +57,11 @@
      In order to work with the Items in Rating and Tagging, I need to clean
      the up - strip all the HTML at the very least. Remove stopwords, stem the
      rest, etc.
-**** TODO Sanitize HTML
+**** DONE Sanitize HTML
+     CLOSED: [2026-04-01 Mi 16:31]
+     :LOGBOOK:
+     CLOCK: [2026-04-01 Mi 15:05]--[2026-04-01 Mi 16:31] =>  1:26
+     :END:
      For display in the Web UI, I would like to sanitize the Item Body on the
      server side (ideally caching the result), remove Javascript and such,
      resize images.
@@ -140,7 +147,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [2/3]
+*** Web [3/7]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -151,12 +158,23 @@
     CLOCK: [2026-03-12 Do 14:50]--[2026-03-12 Do 17:26] =>  2:36
     CLOCK: [2026-03-12 Do 14:16]--[2026-03-12 Do 14:40] =>  0:24
     :END:
+**** TODO Subscribe to Feeds
+     :LOGBOOK:
+     CLOCK: [2026-04-01 Mi 14:02]--[2026-04-01 Mi 14:11] =>  0:09
+     :END:
+**** TODO Manage Feeds
+**** TODO Manage Tags
 **** DONE Integrate Classifier
      CLOSED: [2026-03-31 Di 15:25]
      :LOGBOOK:
      CLOCK: [2026-03-31 Di 14:01]--[2026-03-31 Di 15:25] =>  1:24
      CLOCK: [2026-03-31 Di 13:40]--[2026-03-31 Di 13:59] =>  0:19
      :END:
+***** DONE Retrain Classifier
+      CLOSED: [2026-04-01 Mi 15:05]
+      :LOGBOOK:
+      CLOCK: [2026-04-01 Mi 14:11]--[2026-04-01 Mi 15:05] =>  0:54
+      :END:
 **** DONE Rate Items
      CLOSED: [2026-03-31 Di 13:39]
      :LOGBOOK:
