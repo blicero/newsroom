@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-31 14:56:45 krylon>
+// Time-stamp: <2026-04-01 16:17:44 krylon>
 
 package web
 
@@ -29,6 +29,7 @@ import (
 	"github.com/blicero/newsroom/logdomain"
 	"github.com/blicero/newsroom/model"
 	"github.com/blicero/newsroom/model/rating"
+	"github.com/blicero/newsroom/scrub"
 	"github.com/gorilla/mux"
 )
 
@@ -141,6 +142,7 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
 	srv.router.HandleFunc("/{index:(?i:index|main|start)$}", srv.handleMain)
 	srv.router.HandleFunc("/news/{pageno:(?:\\d+)}/{cnt:(?:\\d+)$}", srv.handleNews)
+	srv.router.HandleFunc("/retrain_classifier", srv.handleRetrain)
 
 	// AJAX Handlers
 	srv.router.HandleFunc(
@@ -354,6 +356,14 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 } // func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleRetrain(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+
+	if err := srv.cls.Retrain(); err != nil {
+		srv.log.Printf("[ERROR] Failed to retrain Classifier: %s\n",
+			err.Error())
+	}
+
+	http.Redirect(w, r, r.Referer(), 307)
 } // func (srv *Server) handleRetrain(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////////////////////////////
