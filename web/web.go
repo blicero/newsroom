@@ -49,6 +49,7 @@ type Server struct {
 	lock      sync.RWMutex   // nolint: unused
 	active    atomic.Bool
 	cls       *critic.Critic
+	scrub     *scrub.Scrubber
 	router    *mux.Router
 	tmpl      *template.Template
 	web       http.Server
@@ -85,6 +86,10 @@ func Create(addr string) (*Server, error) {
 		return nil, err
 	} else if srv.cls, err = critic.New(); err != nil {
 		srv.log.Printf("[CRITICAL] Cannot create Classifier: %s\n",
+			err.Error())
+		return nil, err
+	} else if srv.scrub, err = scrub.Create(); err != nil {
+		srv.log.Printf("[ERROR] Cannot create Scrubber: %s\n",
 			err.Error())
 		return nil, err
 	}
@@ -314,6 +319,13 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, item := range data.Items {
+		if err = srv.scrub.Scrub(item); err != nil {
+			srv.log.Printf("[ERROR] Failed to scrub Item %d (%s): %s\n",
+				item.ID,
+				item.Title,
+				err.Error())
+		}
+
 		if item.IsRated() {
 			continue
 		} else if item.GuessedRating, err = srv.cls.Classify(item); err != nil {

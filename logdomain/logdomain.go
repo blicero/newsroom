@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-18 12:41:09 krylon>
+// Time-stamp: <2026-04-01 15:25:55 krylon>
 
 package logdomain
 
@@ -18,6 +18,7 @@ const (
 	Cache
 	Critic
 	Classifier
+	Scrub
 	Web
 	Main
 )
@@ -31,6 +32,7 @@ func All() []ID {
 		Cache,
 		Critic,
 		Classifier,
+		Scrub,
 		Web,
 		Main,
 	}
