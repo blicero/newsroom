@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-02 13:16:39 krylon>
+# Time-stamp: <2026-04-02 14:39:09 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,18 +14,19 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-02 Do 13:16]
+   #+CAPTION: Clock summary at [2026-04-02 Do 14:39]
    | Headline                              | Time       |            |       |      |      |
    |---------------------------------------+------------+------------+-------+------+------|
-   | *Total time*                          | *1d 13:01* |            |       |      |      |
+   | *Total time*                          | *1d 14:10* |            |       |      |      |
    |---------------------------------------+------------+------------+-------+------+------|
-   | *Newsroom [6/14]*                     | *1d 13:01* |            |       |      |      |
-   | \_  /Components [6/14]/               |            | /1d 13:01/ |       |      |      |
+   | *Newsroom [6/14]*                     | *1d 14:10* |            |       |      |      |
+   | \_  /Components [6/14]/               |            | /1d 14:10/ |       |      |      |
    | \_    Model [2/2]                     |            |            |  3:58 |      |      |
    | \_      Strip HTML                    |            |            |       | 1:57 |      |
    | \_      Sanitize HTML                 |            |            |       | 1:26 |      |
-   | \_    Database [0/0]                  |            |            |  3:53 |      |      |
-   | \_      Tags form a hierarchy         |            |            |       | 0:10 |      |
+   | \_    Database [0/0]                  |            |            |  5:02 |      |      |
+   | \_      Tags                          |            |            |       | 1:19 |      |
+   | \_        Tags form a hierarchy       |            |            |       |      | 0:10 |
    | \_    Engine [1/2]                    |            |            |  4:16 |      |      |
    | \_    Cache [0/2]                     |            |            |  2:53 |      |      |
    | \_    Rating Guesser aka Critic [0/1] |            |            |  9:40 |      |      |
@@ -80,10 +81,14 @@
     CLOCK: [2026-03-09 Mo 14:13]--[2026-03-09 Mo 14:55] =>  0:42
     CLOCK: [2026-03-09 Mo 13:50]--[2026-03-09 Mo 14:07] =>  0:17
     :END:
-**** Tags form a hierarchy
+**** Tags
      :LOGBOOK:
-     CLOCK: [2026-04-01 Mi 13:36]--[2026-04-01 Mi 13:46] =>  0:10
+     CLOCK: [2026-04-02 Do 13:30]--[2026-04-02 Do 14:39] =>  1:09
      :END:
+***** Tags form a hierarchy
+      :LOGBOOK:
+      CLOCK: [2026-04-01 Mi 13:36]--[2026-04-01 Mi 13:46] =>  0:10
+      :END:
 *** Engine [1/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
