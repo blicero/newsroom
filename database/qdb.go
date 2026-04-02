@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-01 13:38:26 krylon>
+// Time-stamp: <2026-04-02 14:03:24 krylon>
 
 package database
 
@@ -127,9 +127,42 @@ INSERT INTO tag (name, parent)
          VALUES (   ?,      ?)
 RETURNING id
 `,
-	query.TagGetAll:  "SELECT id, name, parent FROM tag",
-	query.TagGetByID: "SELECT name, parent FROM tag WHERE id = ?",
-	query.TagDelete:  "DELETE FROM tag WHERE id = ?",
+	query.TagGetAll:  "SELECT id, name, COALESCE(parent, 0) FROM tag",
+	query.TagGetByID: "SELECT name, COALESCE(parent, 0) FROM tag WHERE id = ?",
+	query.TagGetSorted: `
+WITH RECURSIVE children(id, name, lvl, root, parent, full_name) AS (
+    SELECT
+        id,
+        name,
+        0 AS lvl,
+        id AS root,
+        COALESCE(parent, 0) AS parent,
+        name AS full_name
+    FROM tag
+    WHERE COALESCE(parent, 0) = 0
+    UNION ALL
+    SELECT
+        tag.id,
+        tag.name,
+        lvl + 1 AS lvl,
+        children.root,
+        tag.parent,
+        full_name || '/' || tag.name AS full_name
+    FROM tag, children
+    WHERE tag.parent = children.id
+)
+
+SELECT
+        id,
+        name,
+        COALESCE(parent, 0),
+        lvl,
+        full_name
+FROM children
+ORDER BY full_name
+`,
+	query.TagDelete:    "DELETE FROM tag WHERE id = ?",
+	query.TagSetParent: "UPDATE tag SET parent = ? WHERE id = ?",
 	query.TagLinkAdd: `
 INSERT INTO tag_link (tag_id, item_id) VALUES (?, ?) RETURNING id
 `,
