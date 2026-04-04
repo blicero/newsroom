@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-01 16:17:44 krylon>
+// Time-stamp: <2026-04-04 15:40:40 krylon>
 
 package web
 
@@ -15,6 +15,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -155,6 +156,10 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc(
 		"/ajax/item_unrate/{id:(?:\\d+)$}",
 		srv.handleAjaxUnrateItem,
+	)
+	srv.router.HandleFunc(
+		"/ajax/subscribe",
+		srv.handleAjaxSubscribe,
 	)
 
 	return srv, nil
@@ -567,6 +572,87 @@ SEND:
 	w.WriteHeader(200)
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Server) handleAjaxUnrateItem(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxSubscribe(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var (
+		err         error
+		msg         string
+		db          *database.Database
+		intervalStr string
+		interval    int64
+		feed        model.Feed
+		buf         []byte
+		data        = ajaxData{
+			Timestamp: time.Now(),
+		}
+	)
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Cannot parse form data: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if feed.URL, err = url.Parse(r.FormValue("url")); err != nil {
+		msg = fmt.Sprintf("Failed to parse Feed URL %q: %s",
+			r.FormValue("url"),
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if feed.Homepage, err = url.Parse(r.FormValue("homepage")); err != nil {
+		msg = fmt.Sprintf("Failed to parse Feed Homepage %q: %s",
+			r.FormValue("homepage"),
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	intervalStr = r.FormValue("interval")
+	if interval, err = strconv.ParseInt(intervalStr, 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse interval %q: %s",
+			intervalStr,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	feed.Name = r.FormValue("name")
+	feed.RefreshInterval = time.Second * time.Duration(interval)
+	feed.Language = r.FormValue("lang")
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if err = db.FeedAdd(&feed); err != nil {
+		msg = fmt.Sprintf("Adding Feed %s to Database failed: %s",
+			feed.Name,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	data.Status = true
+	data.Message = fmt.Sprintf("Subscription to %s was added successfully",
+		feed.Name)
+	if buf, err = json.Marshal(&data); err != nil {
+		msg = fmt.Sprintf("Failed to serialize response: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxSubscribe(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
 	var (

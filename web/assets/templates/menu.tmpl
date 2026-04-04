@@ -1,5 +1,5 @@
 {{ define "menu" }}
-{{/* Time-stamp: <2026-04-04 14:54:07 krylon> */}}
+{{/* Time-stamp: <2026-04-04 16:09:47 krylon> */}}
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #D4D4D4">
     <div class="container-fluid">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -13,7 +13,7 @@
                 </li>
 
                 <li class="nav-item dropdown">
-                    
+
                     <a class="nav-link dropdown-toggle"
                        href="#"
                        id="subscribemenulink"
@@ -23,47 +23,58 @@
                         Subscribe
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="subscribemenulink">
-                        <li class="dropdown-item">
-                            <table>
-                                <tr>
-                                    <th>Name</th>
-                                    <td>
-                                        <input type="text" name="name" id="name" placeholder="Name" required />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>URL</th>
-                                    <td>
-                                        <input
-                                                type="url"
-                                                name="url"
-                                                id="url"
-                                                placeholder="https://www.example.com/rss"
-                                                required />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Homepage</th>
-                                    <td>
-                                        <input
-                                                type="url"
-                                                name="homepage"
-                                                id="homepage"
-                                                placeholder="https://www.example.com/"
-                                                required />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Interval<br />(in seconds)</th>
-                                    <td>
-                                        <input type="number" name="interval" id="interval" value="900" min="60" max="604800" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th><input type="button" onclick="sub_form_clear();" value="Reset" /></th>
-                                    <td><input type="button" onclick="sub_form_submit();" value="OK" /></td>
-                                </tr>
-                            </table>
+                        <li class="dropdown-item" id="sub_form_item">
+                            <form id="subscribeForm">
+                                <table>
+                                    <tr>
+                                        <th>Name</th>
+                                        <td>
+                                            <input type="text" name="name" id="name" placeholder="Name" required />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>URL</th>
+                                        <td>
+                                            <input
+                                                    type="url"
+                                                    name="url"
+                                                    id="url"
+                                                    placeholder="https://www.example.com/rss"
+                                                    required />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Homepage</th>
+                                        <td>
+                                            <input
+                                                    type="url"
+                                                    name="homepage"
+                                                    id="homepage"
+                                                    placeholder="https://www.example.com/"
+                                                    required />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Language</th>
+                                        <td>
+                                            <select id="lang">
+                                                <option value="en">English</option>
+                                                <option value="de">German</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Interval<br />(in seconds)</th>
+                                        <td>
+                                            <input type="number" name="interval" id="interval" value="900" min="60" max="604800" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><input type="button" onclick="sub_form_clear();" value="Reset" /></th>
+                                        <td><input type="button" onclick="sub_form_submit();" value="OK" /></td>
+                                    </tr>
+                                </table>
+                            </form>
                         </li>
                     </ul>
                 </li>

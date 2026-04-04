@@ -1,4 +1,4 @@
-// Time-stamp: <2026-04-04 14:49:47 krylon>
+// Time-stamp: <2026-04-04 16:15:20 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -943,18 +943,19 @@ function search_reset() {
 function sub_form_clear() {
     const form = $("#subscribeForm")[0]
     form.reset()
-}
+} // function sub_form_clear()
 
 function sub_form_get_field(name) {
     const id = `#${name}`
     return $(id)[0].value
-}
+} // function sub_form_get_field(name)
 
 function sub_form_submit() {
     let data = {
-        "title": sub_form_get_field("name"),
+        "name": sub_form_get_field("name"),
         "url": sub_form_get_field("url"),
         "homepage": sub_form_get_field("homepage"),
+        "lang": sub_form_get_field("lang"),
         "interval": sub_form_get_field("interval"),
     }
 
@@ -962,7 +963,7 @@ function sub_form_submit() {
                        data,
                        (res) => {
                            if (res.status) {
-                               clear_form()
+                               sub_form_clear()
                            } else {
                                const msg = `Failed to add Feed ${data.title}: ${res.message}`
                                console.log(msg)
@@ -971,4 +972,4 @@ function sub_form_submit() {
                        },
                        'json'
                       )
-}
+} // function sub_form_submit()
