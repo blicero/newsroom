@@ -1,4 +1,4 @@
-// Time-stamp: <2026-03-16 15:25:58 krylon>
+// Time-stamp: <2026-04-04 14:49:47 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -935,3 +935,40 @@ function search_reset() {
     $("#tag_bin")[0].innerHTML = ""
     $("#search_text")[0].value = ""
 } // function search_reset()
+
+////////////////////////////////////////////////////////////////////////
+/// Handlers for subscribing to Feeds //////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
+function sub_form_clear() {
+    const form = $("#subscribeForm")[0]
+    form.reset()
+}
+
+function sub_form_get_field(name) {
+    const id = `#${name}`
+    return $(id)[0].value
+}
+
+function sub_form_submit() {
+    let data = {
+        "title": sub_form_get_field("name"),
+        "url": sub_form_get_field("url"),
+        "homepage": sub_form_get_field("homepage"),
+        "interval": sub_form_get_field("interval"),
+    }
+
+    const req = $.post('/ajax/subscribe',
+                       data,
+                       (res) => {
+                           if (res.status) {
+                               clear_form()
+                           } else {
+                               const msg = `Failed to add Feed ${data.title}: ${res.message}`
+                               console.log(msg)
+                               alert(msg)
+                           }
+                       },
+                       'json'
+                      )
+}

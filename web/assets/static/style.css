@@ -1,4 +1,4 @@
-/* Time-stamp: <2026-02-11 00:09:07 krylon> */
+/* Time-stamp: <2026-04-02 15:47:06 krylon> */
 
 body { 
     font-family: Arial,Helvetica,sans-serif;
@@ -28,7 +28,6 @@ h2 {
 }
 
 *.boring {
-    // filter: opacity(50%);
     filter: blur(2px);
 }
 
@@ -69,7 +68,7 @@ h2 {
     border-style: solid;
     margin: 10pt;
     padding: 5pt;
-    border: 1;
+    border: 1px;
 }
 
 *.center { text-align: center; }
@@ -196,7 +195,7 @@ div#results {
 }
 
 td.num {
-    text-alight: right;
+    text-align: right;
 }
 
 div.content {
