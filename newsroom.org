@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-04 14:57:28 krylon>
+# Time-stamp: <2026-04-04 16:25:18 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,20 +7,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [6/14]
+* Newsroom [7/14]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-04 Sa 14:57]
+   #+CAPTION: Clock summary at [2026-04-04 Sa 16:25]
    | Headline                              | Time       |            |       |      |      |
    |---------------------------------------+------------+------------+-------+------+------|
-   | *Total time*                          | *1d 15:37* |            |       |      |      |
+   | *Total time*                          | *1d 17:04* |            |       |      |      |
    |---------------------------------------+------------+------------+-------+------+------|
-   | *Newsroom [6/14]*                     | *1d 15:37* |            |       |      |      |
-   | \_  /Components [6/14]/               |            | /1d 15:37/ |       |      |      |
+   | *Newsroom [7/14]*                     | *1d 17:04* |            |       |      |      |
+   | \_  /Components [7/14]/               |            | /1d 17:04/ |       |      |      |
    | \_    Model [2/2]                     |            |            |  3:58 |      |      |
    | \_      Strip HTML                    |            |            |       | 1:57 |      |
    | \_      Sanitize HTML                 |            |            |       | 1:26 |      |
@@ -31,13 +31,13 @@
    | \_    Cache [0/2]                     |            |            |  2:53 |      |      |
    | \_    Rating Guesser aka Critic [0/1] |            |            |  9:40 |      |      |
    | \_      Testing                       |            |            |       | 2:31 |      |
-   | \_    Web [3/7]                       |            |            | 13:48 |      |      |
-   | \_      Subscribe to Feeds            |            |            |       | 1:36 |      |
+   | \_    Web [4/7]                       |            |            | 15:15 |      |      |
+   | \_      Subscribe to Feeds            |            |            |       | 3:03 |      |
    | \_      Integrate Classifier          |            |            |       | 2:37 |      |
    | \_        Retrain Classifier          |            |            |       |      | 0:54 |
    | \_      Rate Items                    |            |            |       | 5:14 |      |
    #+END:
-** Components [6/14]
+** Components [7/14]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -153,7 +153,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [3/7]
+*** Web [4/7]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -164,8 +164,10 @@
     CLOCK: [2026-03-12 Do 14:50]--[2026-03-12 Do 17:26] =>  2:36
     CLOCK: [2026-03-12 Do 14:16]--[2026-03-12 Do 14:40] =>  0:24
     :END:
-**** TODO Subscribe to Feeds
+**** DONE Subscribe to Feeds
+     CLOSED: [2026-04-04 Sa 16:24]
      :LOGBOOK:
+     CLOCK: [2026-04-04 Sa 14:57]--[2026-04-04 Sa 16:24] =>  1:27
      CLOCK: [2026-04-04 Sa 14:31]--[2026-04-04 Sa 14:57] =>  0:26
      CLOCK: [2026-04-02 Do 14:49]--[2026-04-02 Do 15:50] =>  1:01
      CLOCK: [2026-04-01 Mi 14:02]--[2026-04-01 Mi 14:11] =>  0:09
