@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-02 14:03:24 krylon>
+// Time-stamp: <2026-04-04 18:33:12 krylon>
 
 package database
 
@@ -24,7 +24,7 @@ SELECT
     homepage,
     refresh_interval,
     last_refresh,
-    paused
+    active
 FROM feed
 `,
 	query.FeedGetDue: `
@@ -36,9 +36,9 @@ SELECT
     homepage,
     refresh_interval,
     last_refresh,
-    paused
+    active
 FROM feed
-WHERE paused = 0 AND last_refresh + refresh_interval < unixepoch()
+WHERE active = 1 AND last_refresh + refresh_interval < unixepoch()
 ORDER BY last_refresh
 `,
 	query.FeedGetByID: `
@@ -49,13 +49,13 @@ SELECT
     homepage,
     refresh_interval,
     last_refresh,
-    paused
+    active
 FROM feed
 WHERE id = ?
 `,
 	query.FeedSetInterval:    "UPDATE feed SET refresh_interval = ? WHERE id = ?",
 	query.FeedSetLastRefresh: "UPDATE feed SET last_refresh = ? WHERE id = ?",
-	query.FeedSetPause:       "UPDATE feed SET paused = ? WHERE id = ?",
+	query.FeedSetActive:      "UPDATE feed SET active = ? WHERE id = ?",
 	query.ItemAdd: `
 INSERT INTO item (feed_id, title, url, timestamp, body)
           VALUES (      ?,     ?,   ?,         ?,    ?)

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-02 13:59:57 krylon>
+// Time-stamp: <2026-04-04 18:13:41 krylon>
 
 // Package model defines data types that are used throughout the application.
 package model
@@ -24,7 +24,7 @@ type Feed struct {
 	Homepage        *url.URL
 	RefreshInterval time.Duration
 	LastRefresh     time.Time
-	Paused          bool
+	Active          bool
 }
 
 // IsDue returns true if the feed is due for a refresh.

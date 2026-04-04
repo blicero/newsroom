@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-10 13:11:15 krylon>
+// Time-stamp: <2026-04-04 18:21:09 krylon>
 
 package database
 
@@ -115,7 +115,7 @@ EXEC_QUERY:
 			ustr, homepage        string
 		)
 
-		if err = rows.Scan(&f.Name, &f.Language, &ustr, &homepage, &interval, &lastRefresh, &f.Paused); err != nil {
+		if err = rows.Scan(&f.Name, &f.Language, &ustr, &homepage, &interval, &lastRefresh, &f.Active); err != nil {
 			var ex = fmt.Errorf("failed to scan row: %w", err)
 			db.log.Printf("[ERROR] %s\n", ex.Error())
 			return nil, ex
@@ -199,7 +199,7 @@ EXEC_QUERY:
 			&homepage,
 			&interval,
 			&refresh,
-			&feed.Paused,
+			&feed.Active,
 		); err != nil {
 			msg = fmt.Sprintf("error scanning row: %s", err.Error())
 			db.log.Printf("[ERROR] %s\n", msg)
@@ -285,7 +285,7 @@ EXEC_QUERY:
 			&homepage,
 			&interval,
 			&refresh,
-			&feed.Paused,
+			&feed.Active,
 		); err != nil {
 			msg = fmt.Sprintf("error scanning row: %s", err.Error())
 			db.log.Printf("[ERROR] %s\n", msg)
@@ -411,9 +411,9 @@ EXEC_QUERY:
 	return nil
 } // func (db *Database) FeedSetLastRefresh(feed *model.Feed, interval time.Duration) error
 
-// FeedSetPause sets a Feed's paused flag.
-func (db *Database) FeedSetPause(feed *model.Feed, paused bool) error {
-	const qid query.ID = query.FeedSetPause
+// FeedSetActive sets a Feed's paused flag.
+func (db *Database) FeedSetActive(feed *model.Feed, active bool) error {
+	const qid query.ID = query.FeedSetActive
 	var (
 		err, ex error
 		stmt    *sql.Stmt
@@ -431,7 +431,7 @@ func (db *Database) FeedSetPause(feed *model.Feed, paused bool) error {
 	}
 
 EXEC_QUERY:
-	if res, err = stmt.Exec(paused, feed.ID); err != nil {
+	if res, err = stmt.Exec(active, feed.ID); err != nil {
 		if worthARetry(err) {
 			waitForRetry()
 			goto EXEC_QUERY
@@ -456,7 +456,7 @@ EXEC_QUERY:
 		return ex
 	}
 
-	feed.Paused = paused
+	feed.Active = active
 	return nil
 } // func (db *Database) FeedSetPause(feed *model.Feed, paused bool) error
 

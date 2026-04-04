@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-02 14:03:43 krylon>
+// Time-stamp: <2026-04-04 18:15:51 krylon>
 
 package database
 
@@ -16,11 +16,11 @@ CREATE TABLE feed (
     homepage		TEXT NOT NULL,
     refresh_interval	INTEGER NOT NULL,
     last_refresh	INTEGER NOT NULL DEFAULT 0,
-    paused		INTEGER NOT NULL DEFAULT 0
+    active		INTEGER NOT NULL DEFAULT 1
 ) STRICT
 `,
 	"CREATE INDEX feed_ref_idx ON feed (last_refresh)",
-	"CREATE INDEX feed_pause_idx ON feed (paused)",
+	"CREATE INDEX feed_active_idx ON feed (active)",
 	"CREATE INDEX feed_due_idx ON feed (last_refresh + refresh_interval)",
 	`
 CREATE TABLE item (
