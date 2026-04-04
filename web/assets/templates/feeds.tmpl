@@ -1,0 +1,64 @@
+{{ define "feeds" }}
+{{/* Created on 04. 04. 2026 */}}
+{{/* Time-stamp: <2026-04-04 18:41:14 krylon> */}}
+<!DOCTYPE html>
+<html>
+  {{ template "head" . }}
+
+  <body>
+    {{ template "intro" . }}
+
+    <div>
+      <table class="table table-success table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>URL</th>
+            <th>Homepage</th>
+            <th>Language</th>
+            <th>Interval</th>
+            <th>Last Update</th>
+            <th>Active?</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {{ range .Feeds }}
+          <tr>
+            <td>{{ .ID }}</td>
+            <td>{{ .Name }}</td>
+            <td>
+              <a href="{{ .URL }}">
+                {{ .URL }}
+              </a>
+            </td>
+            <td>
+              <a href="{{ .Homepage }}">
+                {{ .Homepage }}
+              </a>
+            </td>
+            <td>{{ .Language }}</td>
+            <td>{{ .RefreshInterval }}</td>
+            <td>{{ .LastRefresh }}</td>
+            <td>
+              <div class="form-check form-switch">
+                <form>
+                  <input class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    {{ if .Active }}checked{{ end }}
+                    onchange="toggle_feed_active({{ .ID }});"
+                    id="check_feed_active_{{ .ID }}">
+                  <label class="form-check-label" for=check_feed_active_{{ .ID }}">Active</label>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
+{{ end }}

@@ -1,4 +1,4 @@
-// Time-stamp: <2026-04-04 16:15:20 krylon>
+// Time-stamp: <2026-04-04 18:24:46 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -560,7 +560,7 @@ function mark_later_done(item_id) {
     })
 } // function mark_later_done(item_id)
 
-function feed_toggle_active(feed_id) {
+function toggle_feed_active(feed_id) {
     const url = `/ajax/feed/toggle_active/${feed_id}`
     $.get(
         url,

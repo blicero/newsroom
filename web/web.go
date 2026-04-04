@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-04 15:40:40 krylon>
+// Time-stamp: <2026-04-04 19:26:57 krylon>
 
 package web
 
@@ -143,6 +143,7 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
 	srv.router.HandleFunc("/{index:(?i:index|main|start)$}", srv.handleMain)
 	srv.router.HandleFunc("/news/{pageno:(?:\\d+)}/{cnt:(?:\\d+)$}", srv.handleNews)
+	srv.router.HandleFunc("/feed/all", srv.handleSubscriptions)
 	srv.router.HandleFunc("/retrain_classifier", srv.handleRetrain)
 
 	// AJAX Handlers
@@ -160,6 +161,10 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc(
 		"/ajax/subscribe",
 		srv.handleAjaxSubscribe,
+	)
+	srv.router.HandleFunc(
+		"/ajax/feed/toggle_active/{id:(?:\\d+)$}",
+		srv.handleAjaxFeedToggleActive,
 	)
 
 	return srv, nil
@@ -359,6 +364,52 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 		srv.sendErrorMessage(w, msg)
 	}
 } // func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleSubscriptions(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	const tmplName = "feeds"
+
+	var (
+		err  error
+		msg  string
+		db   *database.Database
+		tmpl *template.Template
+		data = tmplDataIndex{
+			tmplDataBase: tmplDataBase{
+				Title: "Manage Subscriptions",
+				Debug: common.Debug,
+				URL:   r.RequestURI,
+			},
+		}
+	)
+
+	if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Couldn't find template %s",
+			tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if data.Feeds, err = db.FeedGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load Feeds from Database: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	w.Header().Set("Cache-Control", noCache)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleSubscriptions(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleRetrain(w http.ResponseWriter, r *http.Request) {
 	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
@@ -653,6 +704,79 @@ SEND:
 	w.WriteHeader(200)
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Server) handleAjaxSubscribe(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxFeedToggleActive(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var (
+		err        error
+		vars       map[string]string
+		msg, idstr string
+		id         int64
+		db         *database.Database
+		feed       *model.Feed
+		buf        []byte
+		data       = ajaxData{
+			Timestamp: time.Now(),
+		}
+	)
+
+	vars = mux.Vars(r)
+	idstr = vars["id"]
+
+	if id, err = strconv.ParseInt(idstr, 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse ID %q: %s",
+			idstr,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if feed, err = db.FeedGetByID(id); err != nil {
+		msg = fmt.Sprintf("Lookup of Feed %d failed: %s",
+			id,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if feed == nil {
+		msg = fmt.Sprintf("Feed %d does not exist in Database",
+			id)
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if err = db.FeedSetActive(feed, !feed.Active); err != nil {
+		msg = fmt.Sprintf("Error toggling Active flag of Feed %s (%d): %s",
+			feed.Name,
+			feed.ID,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	data.Status = true
+	data.Message = fmt.Sprintf("Active flag of Feed %s (%d) has been toggled successfully",
+		feed.Name,
+		feed.ID)
+
+	if buf, err = json.Marshal(&data); err != nil {
+		msg = fmt.Sprintf("Failed to serialize response: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxFeedToggleActive(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
 	var (
