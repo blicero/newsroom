@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-02 14:09:08 krylon>
+// Time-stamp: <2026-04-07 15:43:13 krylon>
 
 package database
 
@@ -204,6 +204,68 @@ EXEC_QUERY:
 
 	return tags, nil
 } // func (db *Database) TagGetSorted() ([]*model.Tag, error)
+
+// TagGetByID looks up a Tag by its Database ID.
+func (db *Database) TagGetByID(id int64) (*model.Tag, error) {
+	const qid query.ID = query.TagGetByID
+	var (
+		err  error
+		msg  string
+		stmt *sql.Stmt
+	)
+
+GET_QUERY:
+	if stmt, err = db.getQuery(qid); err != nil {
+		if worthARetry(err) {
+			time.Sleep(retryDelay)
+			goto GET_QUERY
+		} else {
+			db.log.Printf("[ERROR] Error getting query %s: %s",
+				qid,
+				err.Error())
+			return nil, err
+		}
+	} else if db.tx != nil {
+		stmt = db.tx.Stmt(stmt)
+	}
+
+	var rows *sql.Rows
+
+EXEC_QUERY:
+	if rows, err = stmt.Query(id); err != nil {
+		if worthARetry(err) {
+			time.Sleep(retryDelay)
+			goto EXEC_QUERY
+		} else {
+			msg = fmt.Sprintf("Error querying all Tags: %s",
+				err.Error())
+			db.log.Println(msg)
+			return nil, errors.New(msg)
+		}
+	} else {
+		defer rows.Close() // nolint: errcheck
+	}
+
+	var tag = &model.Tag{ID: id}
+
+	if rows.Next() {
+		if err = rows.Scan(
+			&tag.Name,
+			&tag.ParentID,
+		); err != nil {
+			msg = fmt.Sprintf("error scanning row: %s", err.Error())
+			db.log.Printf("[ERROR] %s\n", msg)
+			return nil, errors.New(msg)
+		}
+
+		return tag, nil
+	}
+
+	db.log.Printf("[TRACE] Tag #%d was not found in Database.\n",
+		id)
+
+	return nil, nil
+} // func (db *Database) TagGetByID(id int64) (*model.Tag, error)
 
 // TagDelete removes a Tag from the Database. It is not possible to remove
 // a Tag that has children.
