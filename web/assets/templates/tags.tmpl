@@ -1,0 +1,46 @@
+{{ define "tags" }}
+{{/* Created on 07. 04. 2026 */}}
+{{/* Time-stamp: <2026-04-07 13:51:34 krylon> */}}
+<!DOCTYPE html>
+<html>
+  {{ template "head" . }}
+
+  <body>
+    {{ template "intro" . }}
+
+    <div>
+      {{ template "tag_form" . }}
+    </div>
+
+    <div>
+      <table class="table table-primary table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Parent</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {{ range .Tags }}
+          <tr>
+            <td>{{ .ID }}</td>
+            <td>{{ .Parent }}</td>
+            <td>{{ .Name }}</td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <div>
+      <!-- Display Items here? -->
+    </div>
+
+    {{ template "footer" . }}
+  </body>
+</html>
+{{ end }}

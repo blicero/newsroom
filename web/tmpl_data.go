@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-03-14 12:42:11 krylon>
+// Time-stamp: <2026-04-07 13:54:59 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
@@ -40,3 +40,9 @@ func (tdn *tmplDataNews) FirstPage() bool {
 func (tdn *tmplDataNews) LastPage() bool {
 	return tdn.PageNo >= tdn.MaxPage
 } // func (tdn *tmplDataNews) LastPage() bool
+
+type tmplDataTags struct {
+	tmplDataBase
+	Tag  *model.Tag
+	Tags []*model.Tag
+}

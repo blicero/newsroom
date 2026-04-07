@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 12. 2018 by Benjamin Walkenhorst
 // (c) 2018 Benjamin Walkenhorst
-// Time-stamp: <2026-03-14 12:34:52 krylon>
+// Time-stamp: <2026-04-07 14:17:57 krylon>
 
 package web
 
@@ -59,6 +59,7 @@ var funcmap = template.FuncMap{
 	"dec":              dec,
 	"positive":         positive,
 	"since":            since,
+	"twice":            twice,
 }
 
 type generator struct {
@@ -329,4 +330,8 @@ func positive(n int64) bool {
 
 func since(t time.Time) string {
 	return time.Since(t).Truncate(time.Second).String()
-}
+} // func since(t time.Time) string
+
+func twice(i int) int {
+	return i + i
+} // func twice(s string) string
