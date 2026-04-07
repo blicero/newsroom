@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-04 19:37:16 krylon>
+# Time-stamp: <2026-04-07 14:22:12 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,38 +7,40 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [7/14]
+* Newsroom [8/17]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-04 Sa 19:37]
+   #+CAPTION: Clock summary at [2026-04-07 Di 14:22]
    | Headline                              | Time       |            |       |      |      |
    |---------------------------------------+------------+------------+-------+------+------|
-   | *Total time*                          | *1d 19:49* |            |       |      |      |
+   | *Total time*                          | *1d 21:12* |            |       |      |      |
    |---------------------------------------+------------+------------+-------+------+------|
-   | *Newsroom [7/14]*                     | *1d 19:49* |            |       |      |      |
-   | \_  /Components [7/14]/               |            | /1d 19:49/ |       |      |      |
+   | *Newsroom [8/17]*                     | *1d 21:12* |            |       |      |      |
+   | \_  /Components [8/17]/               |            | /1d 21:12/ |       |      |      |
    | \_    Model [2/2]                     |            |            |  3:58 |      |      |
    | \_      Strip HTML                    |            |            |       | 1:57 |      |
    | \_      Sanitize HTML                 |            |            |       | 1:26 |      |
-   | \_    Database [0/0]                  |            |            |  5:02 |      |      |
-   | \_      Tags                          |            |            |       | 1:19 |      |
+   | \_    Database [0/0]                  |            |            |  5:20 |      |      |
+   | \_      Tags                          |            |            |       | 1:37 |      |
    | \_        Tags form a hierarchy       |            |            |       |      | 0:10 |
    | \_    Engine [1/2]                    |            |            |  4:16 |      |      |
    | \_    Cache [0/2]                     |            |            |  2:53 |      |      |
    | \_    Rating Guesser aka Critic [0/1] |            |            |  9:40 |      |      |
    | \_      Testing                       |            |            |       | 2:31 |      |
-   | \_    Web [4/7]                       |            |            | 18:00 |      |      |
+   | \_    Web [5/10]                      |            |            | 19:05 |      |      |
    | \_      Subscribe to Feeds            |            |            |       | 3:03 |      |
    | \_      Manage Feeds                  |            |            |       | 2:45 |      |
+   | \_      Manage Tags [0/3]             |            |            |       | 1:05 |      |
+   | \_        Create Tags                 |            |            |       |      | 1:02 |
    | \_      Integrate Classifier          |            |            |       | 2:37 |      |
    | \_        Retrain Classifier          |            |            |       |      | 0:54 |
    | \_      Rate Items                    |            |            |       | 5:14 |      |
    #+END:
-** Components [7/14]
+** Components [8/17]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -84,6 +86,7 @@
     :END:
 **** Tags
      :LOGBOOK:
+     CLOCK: [2026-04-07 Di 12:50]--[2026-04-07 Di 13:08] =>  0:18
      CLOCK: [2026-04-02 Do 13:30]--[2026-04-02 Do 14:39] =>  1:09
      :END:
 ***** Tags form a hierarchy
@@ -154,7 +157,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [4/7]
+*** Web [5/10]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -173,11 +176,25 @@
      CLOCK: [2026-04-02 Do 14:49]--[2026-04-02 Do 15:50] =>  1:01
      CLOCK: [2026-04-01 Mi 14:02]--[2026-04-01 Mi 14:11] =>  0:09
      :END:
-**** TODO Manage Feeds
+**** DONE Manage Feeds
+     CLOSED: [2026-04-07 Di 13:16]
      :LOGBOOK:
      CLOCK: [2026-04-04 Sa 16:52]--[2026-04-04 Sa 19:37] =>  2:45
      :END:
-**** TODO Manage Tags
+**** TODO Manage Tags [0/3]
+     :PROPERTIES:
+     :COOKIE_DATA: todo recursive
+     :VISIBILITY: all
+     :END:
+     :LOGBOOK:
+     CLOCK: [2026-04-07 Di 13:16]--[2026-04-07 Di 13:19] =>  0:03
+     :END:
+***** TODO Create Tags
+      :LOGBOOK:
+      CLOCK: [2026-04-07 Di 13:19]--[2026-04-07 Di 14:21] =>  1:02
+      :END:
+***** TODO Tag Items
+***** TODO Suggest Tags
 **** DONE Integrate Classifier
      CLOSED: [2026-03-31 Di 15:25]
      :LOGBOOK:
