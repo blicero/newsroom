@@ -2,13 +2,14 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-04 18:13:41 krylon>
+// Time-stamp: <2026-04-07 13:29:33 krylon>
 
 // Package model defines data types that are used throughout the application.
 package model
 
 import (
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/blicero/newsroom/model/rating"
@@ -98,6 +99,16 @@ type Tag struct {
 	Level    int
 	FullName string
 }
+
+// Parent returns the Tags ParentID as a string, or an empty string
+// if ParentID is 0.
+func (t *Tag) Parent() string {
+	if t.ParentID == 0 {
+		return ""
+	}
+
+	return strconv.FormatInt(t.ParentID, 10)
+} // func (t *Tag) Parent() string
 
 // TagLink attaches a Tag to an Item.
 type TagLink struct {
