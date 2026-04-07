@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-07 14:22:12 krylon>
+# Time-stamp: <2026-04-07 16:20:55 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,13 +14,13 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-07 Di 14:22]
+   #+CAPTION: Clock summary at [2026-04-07 Di 16:20]
    | Headline                              | Time       |            |       |      |      |
    |---------------------------------------+------------+------------+-------+------+------|
-   | *Total time*                          | *1d 21:12* |            |       |      |      |
+   | *Total time*                          | *1d 22:44* |            |       |      |      |
    |---------------------------------------+------------+------------+-------+------+------|
-   | *Newsroom [8/17]*                     | *1d 21:12* |            |       |      |      |
-   | \_  /Components [8/17]/               |            | /1d 21:12/ |       |      |      |
+   | *Newsroom [8/17]*                     | *1d 22:44* |            |       |      |      |
+   | \_  /Components [8/17]/               |            | /1d 22:44/ |       |      |      |
    | \_    Model [2/2]                     |            |            |  3:58 |      |      |
    | \_      Strip HTML                    |            |            |       | 1:57 |      |
    | \_      Sanitize HTML                 |            |            |       | 1:26 |      |
@@ -31,11 +31,11 @@
    | \_    Cache [0/2]                     |            |            |  2:53 |      |      |
    | \_    Rating Guesser aka Critic [0/1] |            |            |  9:40 |      |      |
    | \_      Testing                       |            |            |       | 2:31 |      |
-   | \_    Web [5/10]                      |            |            | 19:05 |      |      |
+   | \_    Web [5/10]                      |            |            | 20:37 |      |      |
    | \_      Subscribe to Feeds            |            |            |       | 3:03 |      |
    | \_      Manage Feeds                  |            |            |       | 2:45 |      |
-   | \_      Manage Tags [0/3]             |            |            |       | 1:05 |      |
-   | \_        Create Tags                 |            |            |       |      | 1:02 |
+   | \_      Manage Tags [0/3]             |            |            |       | 2:37 |      |
+   | \_        Create and edit Tags        |            |            |       |      | 2:34 |
    | \_      Integrate Classifier          |            |            |       | 2:37 |      |
    | \_        Retrain Classifier          |            |            |       |      | 0:54 |
    | \_      Rate Items                    |            |            |       | 5:14 |      |
@@ -189,8 +189,9 @@
      :LOGBOOK:
      CLOCK: [2026-04-07 Di 13:16]--[2026-04-07 Di 13:19] =>  0:03
      :END:
-***** TODO Create Tags
+***** TODO Create and edit Tags
       :LOGBOOK:
+      CLOCK: [2026-04-07 Di 14:48]--[2026-04-07 Di 16:20] =>  1:32
       CLOCK: [2026-04-07 Di 13:19]--[2026-04-07 Di 14:21] =>  1:02
       :END:
 ***** TODO Tag Items
