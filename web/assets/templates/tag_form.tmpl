@@ -1,9 +1,9 @@
 {{ define "tag_form" }}
 {{/* Created on 07. 04. 2026 */}}
-{{/* Time-stamp: <2026-04-07 14:06:52 krylon> */}}
+{{/* Time-stamp: <2026-04-07 15:07:25 krylon> */}}
 <form>
   <script>
-   function reset_form() {
+   function tag_form_reset() {
            const name = $("#tag_name")[0]
            name.value = ""
 
@@ -12,9 +12,9 @@
 
            const id = $("#tag_id")[0]
            id.value = ""
-   } // function reset_form()
+   } // function tag_form_reset()
 
-   function submit_tag() {
+   function tag_form_submit() {
            const name = $("#tag_name")[0].value
            const parent = $("#tag_parent")[0].value
            const id = $("#tag_id")[0].value
@@ -54,9 +54,9 @@
                    },
                    'json'
            )
-   } // function submit_tag()
+   } // function tag_form_submit()
 
-   function render_tag_row(tag, cnt) {
+   function tag_row_render(tag, cnt) {
            const row = `<td>${tag.id}</td>
        <td>
            <h4 onclick="load_tag_details(${tag.id});">${tag.name}</h4>
@@ -72,53 +72,56 @@
                    const view = $('#tag_view')[0]
                    view.innerHTML += row
            }
-   }   
+   } // function tag_row_render(tag, cnt)
   </script>
-  <table class="horizontal">
-    <input
-      type="hidden"
-      name="tag_id"
-      id="tag_id" 
-      {{ with .Tag  }}value="{{ .Tag.ID }}"{{ end -}}
-    />
-    <tr>
-      <th>Parent</th>
-      <td>
-        <select id="tag_parent">
-          {{ $tag := .Tag }}
-          <option value="0">--</option>
-          {{ range .Tags }}
-          <option
-            value="{{ .ID }}"
-            {{- with $tag }}selected{{ end -}}
+  <fieldset>
+    <legend>Add / Edit Tag</legend>
+    <table class="horizontal">
+      <input
+        type="hidden"
+        name="tag_id"
+        id="tag_id"
+        {{ with .Tag  }}value="{{ .Tag.ID }}"{{ end -}}
+      />
+      <tr>
+        <th>Parent</th>
+        <td>
+          <select id="tag_parent">
+            {{ $tag := .Tag }}
+            <option value="0">--</option>
+            {{ range .Tags }}
+            <option
+              value="{{ .ID }}"
+              {{- with $tag }}selected{{ end -}}
             >
-            {{- nbsp (twice .Level) }}{{ .Name -}}
-          </option>
-          {{ end }}
-        </select>
-      </td>
-    </tr>
-    <tr>
-      <th>Name</th>
-      <td>
-        <input
-          id="tag_name"
-          name="tag_name"
-          type="text"
-          required
-          placeholder="Name"
-          {{ with $tag }}value="{{ $tag.Name }}"{{ end -}}>
-      </td>
-    </tr>
-    <tr>
-      <th>
-        <input type="button" onclick="tag_form_reset();" value="Reset" />
-      </th>
-      <td>
-        <input type="button" onclick="tag_form_submit();" value="OK" />
-      </td>
-    </tr>
-  </table>
+              {{- nbsp (twice .Level) }}{{ .Name -}}
+            </option>
+            {{ end }}
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <th>Name</th>
+        <td>
+          <input
+            id="tag_name"
+            name="tag_name"
+            type="text"
+            required
+            placeholder="Name"
+            {{ with $tag }}value="{{ $tag.Name }}"{{ end -}}>
+        </td>
+      </tr>
+      <tr>
+        <th>
+          <input type="button" onclick="tag_form_reset();" value="Reset" />
+        </th>
+        <td>
+          <input type="button" onclick="tag_form_submit();" value="OK" />
+        </td>
+      </tr>
+    </table>
+  </fieldset>
 </form>
 
 {{ end }}

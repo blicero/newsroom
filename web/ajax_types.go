@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 03. 11. 2022 by Benjamin Walkenhorst
 // (c) 2022 Benjamin Walkenhorst
-// Time-stamp: <2026-03-16 15:33:49 krylon>
+// Time-stamp: <2026-04-07 16:11:14 krylon>
 
 package web
 
@@ -24,4 +24,10 @@ type ajaxBeaconData struct {
 type ajaxResponseRateItem struct {
 	ajaxData
 	Content string `json:"content"`
+}
+
+type ajaxResponseTagSubmit struct {
+	ajaxData
+	Operation string `json:"operation"`
+	Payload   string `json:"payload"`
 }

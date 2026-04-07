@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-07 13:57:13 krylon>
+// Time-stamp: <2026-04-07 16:10:47 krylon>
 
 package web
 
@@ -166,6 +166,10 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc(
 		"/ajax/feed/toggle_active/{id:(?:\\d+)$}",
 		srv.handleAjaxFeedToggleActive,
+	)
+	srv.router.HandleFunc(
+		"/ajax/tag/submit",
+		srv.handleAjaxTagSubmit,
 	)
 
 	return srv, nil
@@ -824,6 +828,128 @@ SEND:
 	w.WriteHeader(200)
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Server) handleAjaxFeedToggleActive(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxTagSubmit(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var (
+		err                error
+		msg, idstr, parstr string
+		db                 *database.Database
+		buf                []byte
+		tag                model.Tag
+		dtag               *model.Tag
+		res                = ajaxResponseTagSubmit{
+			ajaxData: ajaxData{
+				Timestamp: time.Now(),
+			},
+		}
+	)
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Cannot parse form data: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	idstr = r.FormValue("id")
+	parstr = r.FormValue("parent")
+	tag.Name = r.FormValue("name")
+
+	if idstr != "" {
+		if tag.ID, err = strconv.ParseInt(idstr, 10, 64); err != nil {
+			msg = fmt.Sprintf("Cannot parse Tag ID %q: %s",
+				idstr,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			buf = errJSON(msg)
+			goto SEND
+		}
+	}
+
+	if parstr != "" {
+		if tag.ParentID, err = strconv.ParseInt(parstr, 10, 64); err != nil {
+			msg = fmt.Sprintf("Cannot parse Parent ID %q: %s",
+				parstr,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			buf = errJSON(msg)
+			goto SEND
+		}
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if tag.ID == 0 {
+		if err = db.TagAdd(&tag); err != nil {
+			msg = fmt.Sprintf("Failed to add Tag %q to Database: %s",
+				tag.Name,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			buf = errJSON(msg)
+			goto SEND
+		}
+
+		res.Status = true
+		res.Message = fmt.Sprintf("Tag %s was added successfully",
+			tag.Name)
+		goto JSON
+
+	} else if dtag, err = db.TagGetByID(tag.ID); err != nil {
+		msg = fmt.Sprintf("Failed to load Tag #%d from Database: %s",
+			tag.ID,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if dtag == nil {
+		msg = fmt.Sprintf("Tag #%d was not found in Database!",
+			tag.ID)
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	if tag.ParentID != dtag.ParentID {
+		if err = db.TagSetParent(dtag, tag.ParentID); err != nil {
+			msg = fmt.Sprintf("Failed to set Parent of Tag %s (%d) to %d: %s",
+				dtag.Name,
+				dtag.ID,
+				tag.ParentID,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			buf = errJSON(msg)
+			goto SEND
+		}
+	}
+
+	if tag.Name != dtag.Name {
+		msg = "Renaming Tags is not allowed"
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	res.Status = true
+	res.Message = "Success"
+
+JSON:
+	if buf, err = json.Marshal(&res); err != nil {
+		msg = fmt.Sprintf("Failed to serialize Response to JSON: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxTagSubmit(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
 	var (

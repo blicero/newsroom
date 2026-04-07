@@ -1,6 +1,6 @@
 {{ define "tags" }}
 {{/* Created on 07. 04. 2026 */}}
-{{/* Time-stamp: <2026-04-07 13:51:34 krylon> */}}
+{{/* Time-stamp: <2026-04-07 14:50:39 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -12,8 +12,10 @@
       {{ template "tag_form" . }}
     </div>
 
+    <hr />
+
     <div>
-      <table class="table table-primary table-striped">
+      <table class="table table-primary table-sm table-striped">
         <thead>
           <tr>
             <th>ID</th>
@@ -27,7 +29,10 @@
           <tr>
             <td>{{ .ID }}</td>
             <td>{{ .Parent }}</td>
-            <td>{{ .Name }}</td>
+            <td>
+              {{ nbsp (twice .Level) }}
+              {{ .Name }}
+            </td>
           </tr>
           {{ end }}
         </tbody>
