@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-04 18:15:51 krylon>
+// Time-stamp: <2026-04-07 13:03:48 krylon>
 
 package database
 
@@ -48,6 +48,8 @@ CREATE TABLE tag (
         ON DELETE RESTRICT,
     CHECK (parent <> id)
 ) STRICT`,
+	"CREATE INDEX tag_id_idx ON tag (id)",
+	"CREATE INDEX tag_parent_idx ON tag (parent)",
 	`
 CREATE TABLE tag_link (
     id			INTEGER PRIMARY KEY,
@@ -62,4 +64,6 @@ CREATE TABLE tag_link (
         ON DELETE CASCADE
 ) STRICT
 `,
+	"CREATE INDEX tag_link_tag_idx ON tag_link (tag_id)",
+	"CREATE INDEX tag_link_item_idx ON tag_link (item_id)",
 }
