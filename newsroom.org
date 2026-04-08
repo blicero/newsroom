@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-07 16:20:55 krylon>
+# Time-stamp: <2026-04-08 16:05:38 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,31 +14,33 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-07 Di 16:20]
-   | Headline                              | Time       |            |       |      |      |
-   |---------------------------------------+------------+------------+-------+------+------|
-   | *Total time*                          | *1d 22:44* |            |       |      |      |
-   |---------------------------------------+------------+------------+-------+------+------|
-   | *Newsroom [8/17]*                     | *1d 22:44* |            |       |      |      |
-   | \_  /Components [8/17]/               |            | /1d 22:44/ |       |      |      |
-   | \_    Model [2/2]                     |            |            |  3:58 |      |      |
-   | \_      Strip HTML                    |            |            |       | 1:57 |      |
-   | \_      Sanitize HTML                 |            |            |       | 1:26 |      |
-   | \_    Database [0/0]                  |            |            |  5:20 |      |      |
-   | \_      Tags                          |            |            |       | 1:37 |      |
-   | \_        Tags form a hierarchy       |            |            |       |      | 0:10 |
-   | \_    Engine [1/2]                    |            |            |  4:16 |      |      |
-   | \_    Cache [0/2]                     |            |            |  2:53 |      |      |
-   | \_    Rating Guesser aka Critic [0/1] |            |            |  9:40 |      |      |
-   | \_      Testing                       |            |            |       | 2:31 |      |
-   | \_    Web [5/10]                      |            |            | 20:37 |      |      |
-   | \_      Subscribe to Feeds            |            |            |       | 3:03 |      |
-   | \_      Manage Feeds                  |            |            |       | 2:45 |      |
-   | \_      Manage Tags [0/3]             |            |            |       | 2:37 |      |
-   | \_        Create and edit Tags        |            |            |       |      | 2:34 |
-   | \_      Integrate Classifier          |            |            |       | 2:37 |      |
-   | \_        Retrain Classifier          |            |            |       |      | 0:54 |
-   | \_      Rate Items                    |            |            |       | 5:14 |      |
+   #+CAPTION: Clock summary at [2026-04-08 Mi 16:05]
+   | Headline                              | Time      |           |       |      |      |
+   |---------------------------------------+-----------+-----------+-------+------+------|
+   | *Total time*                          | *2d 2:59* |           |       |      |      |
+   |---------------------------------------+-----------+-----------+-------+------+------|
+   | *Newsroom [8/17]*                     | *2d 2:59* |           |       |      |      |
+   | \_  /Components [8/17]/               |           | /2d 2:59/ |       |      |      |
+   | \_    Model [2/2]                     |           |           |  3:58 |      |      |
+   | \_      Strip HTML                    |           |           |       | 1:57 |      |
+   | \_      Sanitize HTML                 |           |           |       | 1:26 |      |
+   | \_    Database [0/0]                  |           |           |  6:13 |      |      |
+   | \_      Tags                          |           |           |       | 1:37 |      |
+   | \_        Tags form a hierarchy       |           |           |       |      | 0:10 |
+   | \_      TagLinks                      |           |           |       | 0:53 |      |
+   | \_    Engine [1/2]                    |           |           |  4:16 |      |      |
+   | \_    Cache [0/2]                     |           |           |  2:53 |      |      |
+   | \_    Rating Guesser aka Critic [0/1] |           |           |  9:40 |      |      |
+   | \_      Testing                       |           |           |       | 2:31 |      |
+   | \_    Web [5/10]                      |           |           | 23:59 |      |      |
+   | \_      Subscribe to Feeds            |           |           |       | 3:03 |      |
+   | \_      Manage Feeds                  |           |           |       | 2:45 |      |
+   | \_      Manage Tags [0/3]             |           |           |       | 5:59 |      |
+   | \_        Create and edit Tags        |           |           |       |      | 2:34 |
+   | \_        Tag Items                   |           |           |       |      | 3:22 |
+   | \_      Integrate Classifier          |           |           |       | 2:37 |      |
+   | \_        Retrain Classifier          |           |           |       |      | 0:54 |
+   | \_      Rate Items                    |           |           |       | 5:14 |      |
    #+END:
 ** Components [8/17]
    :PROPERTIES:
@@ -93,6 +95,10 @@
       :LOGBOOK:
       CLOCK: [2026-04-01 Mi 13:36]--[2026-04-01 Mi 13:46] =>  0:10
       :END:
+**** TagLinks
+     :LOGBOOK:
+     CLOCK: [2026-04-08 Mi 11:53]--[2026-04-08 Mi 12:46] =>  0:53
+     :END:
 *** Engine [1/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
@@ -195,6 +201,13 @@
       CLOCK: [2026-04-07 Di 13:19]--[2026-04-07 Di 14:21] =>  1:02
       :END:
 ***** TODO Tag Items
+      :LOGBOOK:
+      CLOCK: [2026-04-08 Mi 12:46]--[2026-04-08 Mi 16:03] =>  3:17
+      CLOCK: [2026-04-08 Mi 11:48]--[2026-04-08 Mi 11:53] =>  0:05
+      :END:
+      /Adding/ Tags works, but displaying them does not, except in one case. I
+      am unsure why this is, but I'm afraid I have spent my brain power for
+      the day. So I shall look into this again tomorrow.
 ***** TODO Suggest Tags
 **** DONE Integrate Classifier
      CLOSED: [2026-03-31 Di 15:25]
