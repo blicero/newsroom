@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-04 18:33:12 krylon>
+// Time-stamp: <2026-04-08 12:13:43 krylon>
 
 package database
 
@@ -166,19 +166,27 @@ ORDER BY full_name
 	query.TagLinkAdd: `
 INSERT INTO tag_link (tag_id, item_id) VALUES (?, ?) RETURNING id
 `,
-	query.TagLinkDelete: "DELETE FROM tag_link WHERE id = ?",
+	query.TagLinkDelete: "DELETE FROM tag_link WHERE tag_id = ? AND item_id = ?",
 	query.TagLinkGetByItem: `
 SELECT
-    id,
-    tag_id
-FROM tag_link
-WHERE item_id = ?
+    t.id,
+    t.parent,
+    t.name
+FROM tag_link l
+INNER JOIN tag t ON l.tag_id = t.id
+WHERE l.item_id = ?
 `,
 	query.TagLinkGetByTag: `
 SELECT
-    id,
-    item_id
-FROM tag_link
-WHERE tag_id = ?
+    i.id,
+    i.feed_id,
+    i.title,
+    i.url,
+    i.rating,
+    i.timestamp,
+    i.body
+FROM tag_link l
+INNER JOIN item i ON l.item_id = i.id
+WHERE l.tag_id = ?
 `,
 }

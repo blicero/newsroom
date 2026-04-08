@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 10. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-10 13:22:32 krylon>
+// Time-stamp: <2026-04-08 12:44:06 krylon>
 
 package database
 
@@ -18,14 +18,12 @@ import (
 
 const testFeedCnt = 16
 
-var feeds []*model.Feed
+var feeds [testFeedCnt]*model.Feed
 
 func TestFeedAd(t *testing.T) {
 	if tdb == nil {
 		t.SkipNow()
 	}
-
-	feeds = make([]*model.Feed, 0, testFeedCnt)
 
 	const homepage = "https://www.example.com/"
 
@@ -65,7 +63,7 @@ func TestFeedAd(t *testing.T) {
 			continue
 		}
 
-		feeds = append(feeds, feed)
+		feeds[i] = feed
 	}
 } // func TestFeedAd(t *testing.T)
 
