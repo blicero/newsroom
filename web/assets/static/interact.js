@@ -1,4 +1,4 @@
-// Time-stamp: <2026-04-04 18:24:46 krylon>
+// Time-stamp: <2026-04-08 15:31:14 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -973,3 +973,80 @@ function sub_form_submit() {
                        'json'
                       )
 } // function sub_form_submit()
+
+function tag_link_create(item_id) {
+    const url = "/ajax/tag_link/create"
+    const menu_id = `#tag_menu_${item_id}`
+    const menu = $(menu_id)[0]
+    const tag_id = menu.value
+    const data = {
+        "item_id": item_id,
+        "tag_id": tag_id,
+    }
+
+    const msg = `Attach Tag #${tag_id} to Item #${item_id}`
+    console.log(msg)
+    msg_add(msg)
+
+    $.post(
+        url,
+        data,
+        (res) => {
+            if (res.status) {
+                // We SHOULD also disable the option that was linked.
+                const area_id = `#item_tags_${item_id}`
+                const tag_area = $(area_id)[0]
+                const tag_display = `
+<span id="tag_link_${item_id}_${tag_id}">
+  <a href="/tag/${tag_id}">${res.tag.name}</a>
+  <img src="/static/delete.png"
+       onclick="tag_link_remove(${tag_id}, ${item_id});" />
+</span>`
+
+                tag_area.innerHTML += tag_display
+            } else {
+                msg_add(res.message, "ERROR")
+            }
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+        const msg = `Error creating TagLink: ${status} - ${reply}`
+        msg_add(msg, 'ERROR')
+        console.error(msg)
+        alert(msg)
+    })
+} // function tag_link_create(item_id)
+
+function tag_link_remove(tag_id, item_id) {
+    const display_id = `#tag_link_${item_id}_${tag_id}`
+    const display = $(display_id)[0]
+    const url = "/ajax/tag_link/delete"
+    const data = {
+        "item_id": item_id,
+        "tag_id": tag_id,
+    }
+
+    const msg = `Unlink Tag #${tag_id} from Item #${item_id}`
+    console.log(msg)
+    msg_add(msg)
+
+    $.post(
+        url,
+        data,
+        (res) => {
+            if (res.status) {
+                // We SHOULD re-enable the corresponding option in the Tag menu.
+                display.remove()
+            } else {
+                console.log(res.message)
+                msg_add(res.message, "ERROR")
+            }
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+        const msg = `Error deleting TagLink: ${status} - ${reply}`
+        msg_add(msg, 'ERROR')
+        console.error(msg)
+        alert(msg)
+    })
+}

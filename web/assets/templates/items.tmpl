@@ -1,55 +1,86 @@
 {{ define "items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-03-31 14:28:45 krylon> */}}
+{{/* Time-stamp: <2026-04-08 15:57:35 krylon> */}}
 {{ $feeds := .Feeds }}
+{{ $tags := .Tags }}
+{{ $tagMap := .TagMap }}
+{{ $itemTags := .ItemTags }}
+
 {{ range .Items }}
+{{ $item := . }}
 <tr id="item_row_{{ .ID }}"
-    {{- if .IsBoring }}class="boring"{{ end }}>
-    <td>{{ fmt_time_minute .Timestamp }}</td>
-    <td>
-        <a href="/feed/{{ .FeedID }}">
-            {{ (index $feeds .FeedID).Name }}
-        </a>
-    </td>
-    <td>
-        <a href="{{ .URL }}" target="_blank">
-            {{ .Title }}
-        </a>
-    </td>
-    <td id="item_rating_{{ .ID }}"> {{/* Rating */}}
-        {{ if (not .IsRated) }}
-        <small><i>({{ .EffectiveRating }})</i></small>
-        <button type="button"
-                class="btn btn-primary btn-sm"
-                onclick="rate_item({{ .ID }}, 2);">
-            Interesting
-        </button>
-        <button type="button"
-                class="btn btn-secondary btn-sm"
-                onclick="rate_item({{ .ID }}, 1);">
-            Boring
-        </button>
-        {{ else if .IsBoring }}
-        <img src="/static/face-tired.png" onclick="unrate_item({{ .ID }});" />
-        {{ else }}
-        <img src="/static/face-glasses.png" onclick="unrate_item({{ .ID }});" />
+  {{- if .IsBoring }}class="boring"{{ end }}>
+  <td>{{ fmt_time_minute .Timestamp }}</td>
+  <td>
+    <a href="/feed/{{ .FeedID }}">
+      {{ (index $feeds .FeedID).Name }}
+    </a>
+  </td>
+  <td>
+    <a href="{{ .URL }}" target="_blank">
+      {{ .Title }}
+    </a>
+  </td>
+  <td id="item_rating_{{ .ID }}"> {{/* Rating */}}
+    {{ if (not .IsRated) }}
+    <small><i>({{ .EffectiveRating }})</i></small>
+    <button type="button"
+      class="btn btn-primary btn-sm"
+      onclick="rate_item({{ .ID }}, 2);">
+      Interesting
+    </button>
+    <button type="button"
+      class="btn btn-secondary btn-sm"
+      onclick="rate_item({{ .ID }}, 1);">
+      Boring
+    </button>
+    {{ else if .IsBoring }}
+    <img src="/static/face-tired.png" onclick="unrate_item({{ .ID }});" />
+    {{ else }}
+    <img src="/static/face-glasses.png" onclick="unrate_item({{ .ID }});" />
+    {{ end }}
+  </td>
+  <td> {{/* Tags */}}
+    {{ $myTags := index $itemTags .ID }}
+    <div>
+      <select id="tag_menu_{{ .ID }}">
+        <option value="0">--</option>
+        {{ range $tags }}
+        <option
+          {{ if (index $myTags .ID) }}disabled{{ end }}
+          value="{{ .ID }}">
+          {{- nbsp (twice .Level) }}{{ .Name -}}
+        </option>
         {{ end }}
-    </td>
-    <td> {{/* Tags */}}
-        &nbsp;
-    </td>
-    <td>
-        <button class="btn btn-primary"
-                data-bs-toggle="collapse"
-                href="#collapse_item_{{ .ID }}"
-                aria-expanded="false"
-                aria-controls="#collapse_item_{{ .ID }}">
-            Description
-        </button>
-        <div class="collapse" id="collapse_item_{{ .ID }}">
-            {{ .Body }}
-        </div>
-    </td>
+      </select>
+      <button
+        type="button"
+        class="btn btn-success"
+        onclick="tag_link_create({{ $item.ID }});">Add</button>
+    </div>
+    <div id="item_tags_{{ $item.ID }}">
+      {{ range $id, $ok := $myTags }}
+      {{ $tag := index $tagMap $id }}
+      <span id="tag_link_{{ $item.ID }}_{{ $tag.ID }}">
+        <a href="/tag/{{ $tag.ID }}">{{ $tag.Name }}</a>
+        <img src="/static/delete.png"
+          onclick="tag_link_remove({{ $tag.ID }}, {{ $item.ID }});" />
+      </span>
+      {{ end }}
+    </div>
+  </td>
+  <td>
+    <button class="btn btn-primary"
+      data-bs-toggle="collapse"
+      href="#collapse_item_{{ .ID }}"
+      aria-expanded="false"
+      aria-controls="#collapse_item_{{ .ID }}">
+      Description
+    </button>
+    <div class="collapse" id="collapse_item_{{ .ID }}">
+      {{ .Body }}
+    </div>
+  </td>
 </tr>
 {{ end }}
 {{ end }}

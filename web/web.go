@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-07 16:10:47 krylon>
+// Time-stamp: <2026-04-08 15:52:15 krylon>
 
 package web
 
@@ -171,6 +171,10 @@ func Create(addr string) (*Server, error) {
 		"/ajax/tag/submit",
 		srv.handleAjaxTagSubmit,
 	)
+	srv.router.HandleFunc(
+		"/ajax/tag_link/create",
+		srv.handleAjaxTagLinkCreate,
+	)
 
 	return srv, nil
 } // func Create(addr string, nx *nexus.Nexus) (*Server, error)
@@ -333,6 +337,18 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 		srv.log.Printf("[ERROR] %s\n", msg)
 		srv.sendErrorMessage(w, msg)
 		return
+	} else if data.Tags, err = db.TagGetSorted(); err != nil {
+		msg = fmt.Sprintf("Failed to load all Tags: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	data.ItemTags = make(map[int64]map[int64]bool, len(data.Items))
+	data.TagMap = make(map[int64]*model.Tag, len(data.Tags))
+	for _, tag := range data.Tags {
+		data.TagMap[tag.ID] = tag
 	}
 
 	for _, item := range data.Items {
@@ -352,6 +368,26 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 				err.Error())
 			item.GuessedRating = rating.Unrated
 		}
+
+		var itemTags []*model.Tag
+
+		if itemTags, err = db.TagLinkGetByItem(item); err != nil {
+			msg = fmt.Sprintf("Failed to load Tags for Item %q (%d): %s",
+				item.Title,
+				item.ID,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		}
+
+		// data.ItemTags[item.ID] = make(map[int64]bool, len(itemTags))
+		var itags = make(map[int64]bool, len(itemTags))
+		for _, tag := range itemTags {
+			itags[tag.ID] = true
+		}
+
+		data.ItemTags[item.ID] = itags
 	}
 
 	data.MaxPage = data.TotalCount / data.Count
@@ -950,6 +986,86 @@ SEND:
 	w.WriteHeader(200)
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Server) handleAjaxTagSubmit(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxTagLinkCreate(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var (
+		err                  error
+		msg, itemStr, tagStr string
+		db                   *database.Database
+		buf                  []byte
+		lnk                  model.TagLink
+		res                  = ajaxResponseTagLinkCreate{
+			ajaxData: ajaxData{
+				Timestamp: time.Now(),
+			},
+		}
+	)
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Cannot parse form data: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	itemStr = r.FormValue("item_id")
+	tagStr = r.FormValue("tag_id")
+
+	if lnk.ItemID, err = strconv.ParseInt(itemStr, 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse Item ID %q: %s",
+			itemStr,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if lnk.TagID, err = strconv.ParseInt(tagStr, 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse Tag ID %q: %s",
+			tagStr,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if err = db.TagLinkAdd(&lnk); err != nil {
+		msg = fmt.Sprintf("Failed to create TagLink(%d -> %d): %s",
+			lnk.TagID,
+			lnk.ItemID,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if res.Tag, err = db.TagGetByID(lnk.TagID); err != nil {
+		msg = fmt.Sprintf("Failed load Tag #%d: %s",
+			lnk.TagID,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	res.Status = true
+	res.Message = "Success"
+
+	if buf, err = json.Marshal(&res); err != nil {
+		msg = fmt.Sprintf("Failed to serialize response: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxTagLinkCreate(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
 	var (
