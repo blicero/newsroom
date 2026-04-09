@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 08. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-08 12:13:54 krylon>
+// Time-stamp: <2026-04-09 13:53:00 krylon>
 
 package database
 
@@ -216,7 +216,7 @@ EXEC_QUERY:
 } // func (db *Database) TagLinkGetByTag(tag *model.Tag) ([]*model.Item, error)
 
 // TagLinkDelete removes the link between a given Tag and a given Item.
-func (db *Database) TagLinkDelete(tag *model.Tag, item *model.Item) error {
+func (db *Database) TagLinkDelete(tagID, itemID int64) error {
 	const qid query.ID = query.TagLinkDelete
 	var (
 		err, ex error
@@ -235,14 +235,14 @@ func (db *Database) TagLinkDelete(tag *model.Tag, item *model.Item) error {
 	}
 
 EXEC_QUERY:
-	if res, err = stmt.Exec(tag.ID, item.ID); err != nil {
+	if res, err = stmt.Exec(tagID, itemID); err != nil {
 		if worthARetry(err) {
 			waitForRetry()
 			goto EXEC_QUERY
 		} else {
-			ex = fmt.Errorf("cannot delete Tag %s (%d): %w",
-				tag.Name,
-				tag.ID,
+			ex = fmt.Errorf("cannot detach Tag %d from Item %d: %w",
+				tagID,
+				itemID,
 				err)
 			db.log.Printf("[ERROR] %s\n", ex.Error())
 			return ex
