@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-08 12:13:43 krylon>
+// Time-stamp: <2026-04-09 14:02:05 krylon>
 
 package database
 
@@ -170,7 +170,7 @@ INSERT INTO tag_link (tag_id, item_id) VALUES (?, ?) RETURNING id
 	query.TagLinkGetByItem: `
 SELECT
     t.id,
-    t.parent,
+    COALESCE(t.parent, 0),
     t.name
 FROM tag_link l
 INNER JOIN tag t ON l.tag_id = t.id
