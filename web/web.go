@@ -359,14 +359,14 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 				err.Error())
 		}
 
-		if item.IsRated() {
-			continue
-		} else if item.GuessedRating, err = srv.cls.Classify(item); err != nil {
-			srv.log.Printf("[ERROR] Failed to classify Item %d (%s): %s\n",
-				item.ID,
-				item.Title,
-				err.Error())
-			item.GuessedRating = rating.Unrated
+		if !item.IsRated() {
+			if item.GuessedRating, err = srv.cls.Classify(item); err != nil {
+				srv.log.Printf("[ERROR] Failed to classify Item %d (%s): %s\n",
+					item.ID,
+					item.Title,
+					err.Error())
+				item.GuessedRating = rating.Unrated
+			}
 		}
 
 		var itemTags []*model.Tag
