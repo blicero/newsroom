@@ -3,8 +3,10 @@ module github.com/blicero/newsroom
 go 1.25.1
 
 require (
+	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/blicero/krylib v0.2.1
 	github.com/blicero/shield v0.0.0-20241004181537-05f336ba3f75
+	github.com/darkoatanasovski/htmltags v1.0.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/logutils v1.0.0
@@ -12,12 +14,11 @@ require (
 	github.com/mborgerson/GoTruncateHtml v0.0.0-20150507032438-125d9154cd1e
 	github.com/mmcdole/gofeed v1.3.0
 	go.etcd.io/bbolt v1.4.3
+	golang.org/x/net v0.52.0
 )
 
 require (
-	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
-	github.com/darkoatanasovski/htmltags v1.0.0 // indirect
 	github.com/garyburd/redigo v1.6.4 // indirect
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -27,7 +28,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
-	golang.org/x/net v0.52.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/text v0.35.0 // indirect
 )
