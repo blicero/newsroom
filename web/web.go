@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-08 15:52:15 krylon>
+// Time-stamp: <2026-04-09 13:55:25 krylon>
 
 package web
 
@@ -174,6 +174,10 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc(
 		"/ajax/tag_link/create",
 		srv.handleAjaxTagLinkCreate,
+	)
+	srv.router.HandleFunc(
+		"/ajax/tag_link/delete",
+		srv.handleAjaxTagLinkRemove,
 	)
 
 	return srv, nil
@@ -1066,6 +1070,79 @@ SEND:
 	w.WriteHeader(200)
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Server) handleAjaxTagLinkCreate(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxTagLinkRemove(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var (
+		err                  error
+		msg, itemStr, tagStr string
+		db                   *database.Database
+		buf                  []byte
+		lnk                  model.TagLink
+		res                  = ajaxResponseTagLinkCreate{
+			ajaxData: ajaxData{
+				Timestamp: time.Now(),
+			},
+		}
+	)
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Cannot parse form data: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	itemStr = r.FormValue("item_id")
+	tagStr = r.FormValue("tag_id")
+
+	if lnk.ItemID, err = strconv.ParseInt(itemStr, 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse Item ID %q: %s",
+			itemStr,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if lnk.TagID, err = strconv.ParseInt(tagStr, 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse Tag ID %q: %s",
+			tagStr,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if err = db.TagLinkDelete(lnk.TagID, lnk.ItemID); err != nil {
+		msg = fmt.Sprintf("Failed to create TagLink(%d -> %d): %s",
+			lnk.TagID,
+			lnk.ItemID,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	res.Status = true
+	res.Message = "Success"
+
+	if buf, err = json.Marshal(&res); err != nil {
+		msg = fmt.Sprintf("Failed to serialize response: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxTagLinkRemove(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
 	var (
