@@ -1,6 +1,6 @@
 {{ define "items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-04-08 15:57:35 krylon> */}}
+{{/* Time-stamp: <2026-04-09 13:27:12 krylon> */}}
 {{ $feeds := .Feeds }}
 {{ $tags := .Tags }}
 {{ $tagMap := .TagMap }}
@@ -23,7 +23,7 @@
   </td>
   <td id="item_rating_{{ .ID }}"> {{/* Rating */}}
     {{ if (not .IsRated) }}
-    <small><i>({{ .EffectiveRating }})</i></small>
+    <small><i>({{ .EffectiveRating }})</i></small><br />
     <button type="button"
       class="btn btn-primary btn-sm"
       onclick="rate_item({{ .ID }}, 2);">

@@ -1,43 +1,53 @@
 {{ define "news" }}
 {{/* Created on 10. 06. 2024 */}}
-{{/* Time-stamp: <2026-03-31 14:55:14 krylon> */}}
+{{/* Time-stamp: <2026-04-09 12:27:41 krylon> */}}
 <!DOCTYPE html>
 <html>
-    {{ template "head" . }}
+  {{ template "head" . }}
 
-    <body>
-        {{ template "intro" . }}
+  <body>
+    {{ template "intro" . }}
 
-        <div class="paginate">
-            {{ if not .FirstPage }}<a href="/news/{{ dec .PageNo }}/{{ .Count }}">{{ end }}
-            &lt;&lt;
-            {{ if not .FirstPage }}</a>{{ end }}
-            {{ inc .PageNo }} / {{ .MaxPage }}
-            {{ if not .LastPage }}<a href="/news/{{ inc .PageNo }}/{{ .Count }}">{{ end }}
-            &gt;&gt;
-            {{ if not .LastPage }}</a>{{ end }}
-        </div>
+    <div class="paginate">
+      {{ if not .FirstPage }}<a href="/news/{{ dec .PageNo }}/{{ .Count }}">{{ end }}
+      &lt;&lt;
+      {{ if not .FirstPage }}</a>{{ end }}
+      {{ inc .PageNo }} / {{ .MaxPage }}
+      {{ if not .LastPage }}<a href="/news/{{ inc .PageNo }}/{{ .Count }}">{{ end }}
+      &gt;&gt;
+      {{ if not .LastPage }}</a>{{ end }}
+    </div>
 
-        <div>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Feed</th>
-                        <th>Time</th>
-                        <th>Headline</th>
-                        <th>Rating</th>
-                        <th>Tags</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
+    <div>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Feed</th>
+            <th>Time</th>
+            <th>Headline</th>
+            <th>Rating</th>
+            <th>Tags</th>
+            <th>Details</th>
+          </tr>
+        </thead>
 
-                <tbody>
-                    {{ template "items" . }}
-                </tbody>
-            </table>
-        </div>
+        <tbody>
+          {{ template "items" . }}
+        </tbody>
+      </table>
+    </div>
 
-        {{ template "footer" . }}
-    </body>
+    <div class="paginate">
+      {{ if not .FirstPage }}<a href="/news/{{ dec .PageNo }}/{{ .Count }}">{{ end }}
+      &lt;&lt;
+      {{ if not .FirstPage }}</a>{{ end }}
+      {{ inc .PageNo }} / {{ .MaxPage }}
+      {{ if not .LastPage }}<a href="/news/{{ inc .PageNo }}/{{ .Count }}">{{ end }}
+      &gt;&gt;
+      {{ if not .LastPage }}</a>{{ end }}
+    </div>
+
+    {{ template "footer" . }}
+  </body>
 </html>
 {{ end }}
