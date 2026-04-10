@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 08. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-09 13:53:00 krylon>
+// Time-stamp: <2026-04-10 12:34:45 krylon>
 
 package database
 
@@ -262,3 +262,82 @@ EXEC_QUERY:
 
 	return nil
 } // func (db *Database) TagLinkDelete(tag *model.Tag, item *model.Item) error
+
+// TagLinkGetMap produces a map of all Tags that are linked to one or more Items
+// and the corresponding Items.
+func (db *Database) TagLinkGetMap() (map[model.Tag][]*model.Item, error) {
+	const qid query.ID = query.TagLinkGetMap
+	var (
+		err  error
+		msg  string
+		stmt *sql.Stmt
+	)
+
+GET_QUERY:
+	if stmt, err = db.getQuery(qid); err != nil {
+		if worthARetry(err) {
+			waitForRetry()
+			goto GET_QUERY
+		} else {
+			db.log.Printf("[ERROR] Error getting query %s: %s",
+				qid,
+				err.Error())
+			return nil, err
+		}
+	} else if db.tx != nil {
+		stmt = db.tx.Stmt(stmt)
+	}
+
+	var rows *sql.Rows
+
+EXEC_QUERY:
+	if rows, err = stmt.Query(); err != nil {
+		if worthARetry(err) {
+			time.Sleep(retryDelay)
+			goto EXEC_QUERY
+		} else {
+			msg = fmt.Sprintf("Error querying all Tags: %s",
+				err.Error())
+			db.log.Println(msg)
+			return nil, errors.New(msg)
+		}
+	}
+
+	defer rows.Close() // nolint: errcheck
+
+	var tags = make([]*model.Tag, 0, 8)
+
+	for rows.Next() {
+		var tag = new(model.Tag)
+
+		if err = rows.Scan(
+			&tag.ID,
+			&tag.ParentID,
+			&tag.Name,
+		); err != nil {
+			msg = fmt.Sprintf("error scanning row: %s", err.Error())
+			db.log.Printf("[ERROR] %s\n", msg)
+			return nil, errors.New(msg)
+		}
+
+		tags = append(tags, tag)
+	}
+
+	var linkMap = make(map[model.Tag][]*model.Item, len(tags))
+
+	for _, tag := range tags {
+		var items []*model.Item
+
+		if items, err = db.TagLinkGetByTag(tag); err != nil {
+			db.log.Printf("[ERROR] Failed to get Items for Tag %s (%d): %s\n",
+				tag.Name,
+				tag.ID,
+				err.Error())
+			return nil, err
+		}
+
+		linkMap[*tag] = items
+	}
+
+	return linkMap, nil
+} // func (db *Database) TagLinkGetMap() (map[model.Tag][]*model.Item, error)

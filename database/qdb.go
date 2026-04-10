@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-09 14:02:05 krylon>
+// Time-stamp: <2026-04-09 16:06:00 krylon>
 
 package database
 
@@ -188,5 +188,13 @@ SELECT
 FROM tag_link l
 INNER JOIN item i ON l.item_id = i.id
 WHERE l.tag_id = ?
+`,
+	query.TagLinkGetMap: `
+SELECT
+    DISTINCT l.tag_id,
+    t.name,
+    COALESCE(t.parent, 0)
+FROM tag_link l
+INNER JOIN tag t ON l.tag_id = t.id
 `,
 }
