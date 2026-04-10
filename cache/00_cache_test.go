@@ -2,39 +2,18 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 01. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-18 13:27:04 krylon>
+// Time-stamp: <2026-04-10 13:30:42 krylon>
 
 package cache
 
 import (
 	"fmt"
 	"os"
-	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/blicero/newsroom/common"
 )
-
-type item struct {
-	ID        int64
-	Name      string
-	Timestamp time.Time
-}
-
-var (
-	idCnt atomic.Int64
-)
-
-func newItem(name string) *item {
-	var i = &item{
-		ID:        idCnt.Add(1),
-		Name:      name,
-		Timestamp: time.Now(),
-	}
-
-	return i
-} // func newItem(name string) *item
 
 func TestMain(m *testing.M) {
 	var (

@@ -2,16 +2,38 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 18. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-23 17:39:47 krylon>
+// Time-stamp: <2026-04-10 13:32:43 krylon>
 
 package cache
 
 import (
 	"fmt"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/blicero/newsroom/common"
 )
+
+type item struct {
+	ID        int64
+	Name      string
+	Timestamp time.Time
+}
+
+var (
+	idCnt atomic.Int64
+)
+
+func newItem(name string) *item {
+	var i = &item{
+		ID:        idCnt.Add(1),
+		Name:      name,
+		Timestamp: time.Now(),
+	}
+
+	return i
+} // func newItem(name string) *item
 
 const (
 	cName = "test"
@@ -134,3 +156,16 @@ func TestDelete(t *testing.T) {
 			iCnt)
 	}
 } // func TestDelete(t *testing.T)
+
+func TestPurge(t *testing.T) {
+	if tc == nil {
+		t.SkipNow()
+	}
+
+	var err error
+
+	if err = tc.Purge(true); err != nil {
+		t.Fatalf("Failed to purge Cache: %s",
+			err.Error())
+	}
+} // func TestPurge(t *testing.T)

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 18. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-23 17:42:16 krylon>
+// Time-stamp: <2026-04-10 13:28:18 krylon>
 
 package cache
 
@@ -179,3 +179,62 @@ func (c *Cache[T]) Delete(key string) error {
 
 	return err
 } // func (c *Cache[T]) Delete(key string) error
+
+// Purge removes expired entries from the Cache. If all is true,
+// it removes *all* entries.
+func (c *Cache[T]) Purge(all bool) error {
+	var (
+		err    error
+		delCnt int64
+		now    = time.Now()
+	)
+
+	if err = c.store.Update(func(tx *bbolt.Tx) error {
+		var (
+			ex     error
+			bucket = tx.Bucket([]byte(c.name))
+			cur    = bucket.Cursor()
+		)
+
+		for key, val := cur.First(); key != nil; key, val = cur.Next() {
+			var (
+				decbuf *bytes.Buffer
+				dec    *gob.Decoder
+				citem  *cacheItem[T]
+			)
+
+			decbuf = bytes.NewBuffer(val)
+			dec = gob.NewDecoder(decbuf)
+
+			citem = new(cacheItem[T])
+
+			if ex = dec.Decode(citem); err != nil {
+				c.log.Printf("[ERROR] Cannot decode cached Item %s: %s\n",
+					key,
+					ex.Error())
+				continue
+			} else if all || citem.Expires.Before(now) {
+				if ex = cur.Delete(); ex != nil {
+					c.log.Printf("[ERROR] Cannot delete cached Item %s: %s\n",
+						key,
+						ex.Error())
+					return ex
+				}
+				delCnt++
+			}
+		}
+
+		return nil
+	}); err != nil {
+		c.log.Printf("[ERROR] Failed to purge %s Cache: %s\n",
+			c.name,
+			err.Error())
+		return err
+	}
+
+	c.log.Printf("[DEBUG] Successfully purged %d items from %s Cache.\n",
+		delCnt,
+		c.name)
+
+	return nil
+} // func (c *Cache[T]) Purge(all bool) error
