@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-08 14:37:05 krylon>
+// Time-stamp: <2026-04-10 14:16:57 krylon>
 
 // Package model defines data types that are used throughout the application.
 package model
@@ -44,7 +44,18 @@ type Item struct {
 	Timestamp     time.Time
 	Body          string
 	stripped      string
+	istr          string
 }
+
+// IDstr returns the Item's ID rendered as a string.
+func (i *Item) IDStr() string {
+	if i.istr != "" {
+		return i.istr
+	}
+
+	i.istr = strconv.FormatInt(i.ID, 10)
+	return i.istr
+} // func (t *Tag) IDStr() string
 
 // IsRated returns true if the Item has been rated.
 func (i *Item) IsRated() bool {
@@ -98,7 +109,18 @@ type Tag struct {
 	Name     string `json:"name"`
 	Level    int    `json:"level"`
 	FullName string `json:"full_name"`
+	istr     string
 }
+
+// IDstr returns the Tag's ID rendered as a string.
+func (t *Tag) IDStr() string {
+	if t.istr != "" {
+		return t.istr
+	}
+
+	t.istr = strconv.FormatInt(t.ID, 10)
+	return t.istr
+} // func (t *Tag) IDStr() string
 
 // Parent returns the Tags ParentID as a string, or an empty string
 // if ParentID is 0.
