@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-09 13:55:25 krylon>
+// Time-stamp: <2026-04-10 15:02:03 krylon>
 
 package web
 
@@ -24,6 +24,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/blicero/newsroom/classify"
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/critic"
 	"github.com/blicero/newsroom/database"
@@ -51,6 +52,7 @@ type Server struct {
 	lock      sync.RWMutex   // nolint: unused
 	active    atomic.Bool
 	cls       *critic.Critic
+	adv       *classify.Advisor
 	scrub     *scrub.Scrubber
 	router    *mux.Router
 	tmpl      *template.Template
@@ -88,6 +90,10 @@ func Create(addr string) (*Server, error) {
 		return nil, err
 	} else if srv.cls, err = critic.New(); err != nil {
 		srv.log.Printf("[CRITICAL] Cannot create Classifier: %s\n",
+			err.Error())
+		return nil, err
+	} else if srv.adv, err = classify.New(); err != nil {
+		srv.log.Printf("[CRITICAL] Cannot create Tag Advisor: %s\n",
 			err.Error())
 		return nil, err
 	} else if srv.scrub, err = scrub.Create(); err != nil {
@@ -504,9 +510,13 @@ func (srv *Server) handleTagsView(w http.ResponseWriter, r *http.Request) {
 
 func (srv *Server) handleRetrain(w http.ResponseWriter, r *http.Request) {
 	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var err error
 
-	if err := srv.cls.Retrain(); err != nil {
+	if err = srv.cls.Reset(); err != nil {
 		srv.log.Printf("[ERROR] Failed to retrain Classifier: %s\n",
+			err.Error())
+	} else if err = srv.adv.Reset(); err != nil {
+		srv.log.Printf("[ERROR] Failed to retrain Tag Advisor: %s\n",
 			err.Error())
 	}
 
