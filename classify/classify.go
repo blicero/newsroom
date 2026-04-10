@@ -1,0 +1,293 @@
+// /home/krylon/go/src/github.com/blicero/newsroom/classify/classify.go
+// -*- mode: go; coding: utf-8; -*-
+// Created on 09. 04. 2026 by Benjamin Walkenhorst
+// (c) 2026 Benjamin Walkenhorst
+// Time-stamp: <2026-04-10 14:35:28 krylon>
+
+// Package classify suggests Tags that are likely to be a match for news Items.
+package classify
+
+import (
+	"cmp"
+	"fmt"
+	"log"
+	"path/filepath"
+	"slices"
+	"strconv"
+	"sync"
+
+	"github.com/blicero/krylib"
+	"github.com/blicero/newsroom/cache"
+	"github.com/blicero/newsroom/common"
+	"github.com/blicero/newsroom/database"
+	"github.com/blicero/newsroom/logdomain"
+	"github.com/blicero/newsroom/model"
+	"github.com/blicero/shield"
+)
+
+// REMINDER: To avoid problems when Tags are renamed, I should avoid using their
+//           names as class names. I have to use a string because of the API
+//           offered by Shield, but I could use e.g. the stringified IDs.
+
+// Suggestion is the ID of a Tag and the score calculated by the Advisor.
+type Suggestion struct {
+	TagID int64
+	Match float64
+}
+
+// SuggList is a list of Suggestions.
+type SuggList []Suggestion
+
+var languages = []string{"en", "de"}
+
+type score struct {
+	ID   int64
+	Tags map[string]float64
+}
+
+// Advisor suggests Tags for Items, based on existing tagging.
+type Advisor struct {
+	log      *log.Logger
+	advisors map[string]shield.Shield
+	db       *database.Database
+	lock     sync.RWMutex
+	acache   *cache.Cache[score]
+	lngMap   map[int64]string
+}
+
+// New creates a new Advisor.
+func New() (*Advisor, error) {
+	var (
+		err   error
+		feeds []*model.Feed
+		ad    = &Advisor{
+			advisors: make(map[string]shield.Shield, len(languages)),
+		}
+	)
+
+	if ad.log, err = common.GetLogger(logdomain.Classifier); err != nil {
+		return nil, err
+	} else if ad.db, err = database.Open(common.DbPath); err != nil {
+		ad.log.Printf("[CRITICAL] Cannot open database at %s: %s\n",
+			common.DbPath,
+			err.Error())
+		return nil, err
+	} else if feeds, err = ad.db.FeedGetAll(); err != nil {
+		ad.log.Printf("[ERROR] Failed to load Feeds from Database: %s\n",
+			err.Error())
+		return nil, err
+	}
+
+	ad.lngMap = make(map[int64]string, len(feeds))
+
+	for _, feed := range feeds {
+		ad.lngMap[feed.ID] = feed.Language
+	}
+
+	feeds = nil
+
+	for _, lng := range languages {
+		var (
+			tok       shield.Tokenizer
+			storePath = filepath.Join(common.CachePath, fmt.Sprintf("critic_store_%s", lng))
+			store     = shield.NewLevelDBStore(storePath)
+		)
+
+		switch lng {
+		case "en":
+			tok = shield.NewEnglishTokenizer()
+		case "de":
+			tok = shield.NewGermanTokenizer()
+		default:
+			ad.log.Printf("[CANTHAPPEN] Unsupported language %s\n",
+				lng)
+			return nil, fmt.Errorf("unsupported language %s", lng)
+		}
+
+		ad.advisors[lng] = shield.New(tok, store)
+	}
+
+	if ad.acache, err = cache.New[score]("advisor"); err != nil {
+		ad.log.Printf("[CRITICAL] Cannot open/create cache for advice: %s\n",
+			err.Error())
+		return nil, err
+	}
+
+	return ad, nil
+} // func New() (*Advisor, error)
+
+// Reset discards the Advisor's training state and trains it from scratch on the
+// tagged Items in the Database.
+func (ad *Advisor) Reset() error {
+	var (
+		feeds []*model.Feed
+		err   error
+	)
+
+	ad.lock.Lock()
+	defer ad.lock.Unlock()
+
+	if feeds, err = ad.db.FeedGetAll(); err != nil {
+		ad.log.Printf("[ERROR] Failed to load Feeds from Database: %s\n",
+			err.Error())
+		return err
+	}
+
+	clear(ad.lngMap)
+
+	for _, feed := range feeds {
+		ad.lngMap[feed.ID] = feed.Language
+	}
+
+	feeds = nil
+
+	for lng, s := range ad.advisors {
+		ad.log.Printf("[TRACE] Reset Shield for %s\n", lng)
+		if err = s.Reset(); err != nil {
+			ad.log.Printf("[CRITICAL] Failed to reset Shield for %s: %s\n",
+				lng, err.Error())
+			return err
+		}
+	}
+
+	if err = ad.acache.Purge(true); err != nil {
+		ad.log.Printf("[ERROR] Cannot purge Cache: %s\n",
+			err.Error())
+		return err
+	}
+
+	var tagMap map[model.Tag][]*model.Item
+
+	if tagMap, err = ad.db.TagLinkGetMap(); err != nil {
+		ad.log.Printf("[CRITICAL] Failed to load Tag map: %s\n",
+			err.Error())
+		return err
+	}
+
+	// nolint: nilaway
+	for tag, items := range tagMap {
+		for _, item := range items {
+			var (
+				lng = ad.lngMap[item.FeedID]
+				s   = ad.advisors[lng]
+			)
+
+			if err = s.Learn(tag.Name, item.Strip()); err != nil { // nolint: nilaway
+				ad.log.Printf("[ERROR] Failed to train Advisor on Item %q (%d): %s\n",
+					item.Title,
+					item.ID,
+					err.Error())
+			}
+		}
+	}
+
+	return krylib.ErrNotImplemented
+} // func (ad *Advisor) Reset() error
+
+// Learn teaches the Advisor about the link between a Tag and an Item.
+func (ad *Advisor) Learn(tag *model.Tag, item *model.Item) error {
+	var (
+		err error
+		lng string
+		s   shield.Shield
+	)
+
+	ad.lock.Lock()
+	defer ad.lock.Unlock()
+
+	lng = ad.lngMap[item.FeedID]
+	s = ad.advisors[lng]
+
+	// nolint: nilaway
+	if err = s.Learn(tag.IDStr(), item.Strip()); err != nil {
+		ad.log.Printf("[ERROR] Failed to train Tag Advisor on Item %q (%d): %s\n",
+			item.Title,
+			item.ID,
+			err.Error())
+		return err
+	} else if err = ad.acache.Delete(item.IDStr()); err != nil {
+		ad.log.Printf("[ERROR] Failed to delete cached Tag scores for Item %q (%d): %s\n",
+			item.Title,
+			item.ID,
+			err.Error())
+		return err
+	}
+
+	return nil
+} // func (ad *Advisor) Learn(tag *model.Tag, item *model.Item) error
+
+// Unlearn tells the Advisor to forget about the link between a Tag and an Item.
+func (ad *Advisor) Unlearn(tag *model.Tag, item *model.Item) error {
+	var (
+		err error
+		lng string
+		s   shield.Shield
+	)
+
+	ad.lock.Lock()
+	defer ad.lock.Unlock()
+
+	lng = ad.lngMap[item.FeedID]
+	s = ad.advisors[lng]
+
+	// nolint: nilaway
+	if err = s.Forget(tag.IDStr(), item.Strip()); err != nil {
+		ad.log.Printf("[ERROR] Failed to forget about Item %q (%d) and Tag %s (%d): %s\n",
+			item.Title,
+			item.ID,
+			tag.Name,
+			tag.ID,
+			err.Error())
+		return err
+	} else if ad.acache.Delete(item.IDStr()); err != nil {
+		ad.log.Printf("[ERROR] Failed to remove Tag scores for Item %q (%d) from Cache: %s\n",
+			item.Title,
+			item.ID,
+			err.Error())
+	}
+
+	return nil
+} // func (ad *Advisor) Unlearn(tag *model.Tag, item *model.Item) error
+
+// Score calculates how strongly the Item matches different tags.
+func (ad *Advisor) Score(item *model.Item) (SuggList, error) {
+	var (
+		err     error
+		matches map[string]float64
+		lng     string
+		s       shield.Shield
+	)
+
+	ad.lock.RLock()
+	defer ad.lock.RUnlock()
+
+	lng = ad.lngMap[item.FeedID]
+	s = ad.advisors[lng]
+
+	// nolint: nilaway
+	if matches, err = s.Score(item.Strip()); err != nil {
+		ad.log.Printf("[ERROR] Failed to calculate Tag scores for Item %q (%d): %s\n",
+			item.Title,
+			item.ID,
+			err.Error())
+		return nil, err
+	}
+
+	var lst = make(SuggList, 0, len(matches))
+
+	for tname, degree := range matches {
+		var sugg Suggestion
+
+		sugg.TagID, _ = strconv.ParseInt(tname, 10, 64)
+		sugg.Match = degree
+		lst = append(lst, sugg)
+	}
+
+	slices.SortFunc(lst, cmpSugg)
+
+	return lst, nil
+} // func (ad *Advisor) Score(item *model.Item) (SuggList, error)
+
+func cmpSugg(a, b Suggestion) int {
+	return cmp.Compare[float64](a.Match, b.Match)
+}
