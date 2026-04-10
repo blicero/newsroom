@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 30. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-30 21:13:45 krylon>
+// Time-stamp: <2026-04-09 15:29:52 krylon>
 
 package critic
 
@@ -41,7 +41,7 @@ func TestTrain(t *testing.T) {
 		t.SkipNow()
 	}
 
-	if err = tc.Retrain(); err != nil {
+	if err = tc.Reset(); err != nil {
 		t.Fatalf("Failed to train Critic: %s",
 			err.Error())
 	}

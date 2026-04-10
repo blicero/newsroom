@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 16. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-31 13:56:57 krylon>
+// Time-stamp: <2026-04-10 12:59:30 krylon>
 
 // Package critic deals with guessing the most probable rating for Items.
 // Like a spam filter for news.
@@ -95,14 +95,13 @@ func New() (*Critic, error) {
 	return c, nil
 } // func New() (*Critic, error)
 
-// Retrain discards the Critic's model training state and trains it again
+// Reset discards the Critic's model training state and trains it again
 // based on the rated Items in the Database.
-func (c *Critic) Retrain() error {
+func (c *Critic) Reset() error {
 	var (
-		err    error
-		items  []*model.Item
-		lngMap map[int64]string
-		feeds  []*model.Feed
+		err   error
+		items []*model.Item
+		feeds []*model.Feed
 	)
 
 	c.lock.Lock()
@@ -114,11 +113,10 @@ func (c *Critic) Retrain() error {
 		return err
 	}
 
-	lngMap = make(map[int64]string, len(feeds))
-	c.lngMap = lngMap
+	c.lngMap = make(map[int64]string, len(feeds))
 
 	for _, f := range feeds {
-		lngMap[f.ID] = f.Language
+		c.lngMap[f.ID] = f.Language
 	}
 
 	if items, err = c.db.ItemGetRated(); err != nil {
@@ -140,14 +138,16 @@ func (c *Critic) Retrain() error {
 
 	// nolint: nilaway
 	for _, item := range items {
+		if item == nil {
+			continue
+		}
+
 		var (
-			lng = lngMap[item.FeedID]
+			lng = c.lngMap[item.FeedID]
 			s   = c.critics[lng]
 		)
 
-		if item == nil {
-			continue
-		} else if err = s.Learn(item.Rating.String(), item.Strip()); err != nil {
+		if err = s.Learn(item.Rating.String(), item.Strip()); err != nil {
 			c.log.Printf("[ERROR] Failed to learn about Item %d (%s): %s\n",
 				item.ID,
 				item.Title,
@@ -156,7 +156,7 @@ func (c *Critic) Retrain() error {
 	}
 
 	return nil
-} // func (c *Critic) Retrain() error
+} // func (c *Critic) Reset() error
 
 // Learn teaches the model about an Item.
 func (c *Critic) Learn(item *model.Item) error {
