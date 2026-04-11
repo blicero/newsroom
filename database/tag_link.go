@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 08. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-10 12:34:45 krylon>
+// Time-stamp: <2026-04-11 13:18:48 krylon>
 
 package database
 
@@ -312,8 +312,8 @@ EXEC_QUERY:
 
 		if err = rows.Scan(
 			&tag.ID,
-			&tag.ParentID,
 			&tag.Name,
+			&tag.ParentID,
 		); err != nil {
 			msg = fmt.Sprintf("error scanning row: %s", err.Error())
 			db.log.Printf("[ERROR] %s\n", msg)
