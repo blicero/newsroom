@@ -2,13 +2,14 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 18. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-10 13:28:18 krylon>
+// Time-stamp: <2026-04-11 13:15:25 krylon>
 
 package cache
 
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
 	"io/fs"
 	"log"
 	"path/filepath"
@@ -192,9 +193,21 @@ func (c *Cache[T]) Purge(all bool) error {
 	if err = c.store.Update(func(tx *bbolt.Tx) error {
 		var (
 			ex     error
-			bucket = tx.Bucket([]byte(c.name))
-			cur    = bucket.Cursor()
+			bucket *bbolt.Bucket // = tx.Bucket([]byte(c.name))
+			cur    *bbolt.Cursor // = bucket.Cursor()
 		)
+
+		if bucket, ex = tx.CreateBucketIfNotExists([]byte(c.name)); ex != nil {
+			return fmt.Errorf("failed to create/obtain Bucket %s: %w",
+				c.name,
+				ex)
+		} else if bucket == nil {
+			return fmt.Errorf(
+				"CreateBucketIfNotExists(%s) did not raise an error but returned a nil bucket",
+				c.name)
+		}
+
+		cur = bucket.Cursor()
 
 		for key, val := cur.First(); key != nil; key, val = cur.Next() {
 			var (
