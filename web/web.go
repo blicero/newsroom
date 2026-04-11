@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-10 15:02:03 krylon>
+// Time-stamp: <2026-04-11 14:31:16 krylon>
 
 package web
 
@@ -355,6 +355,7 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	data.TagAdvice = make(map[int64]classify.SuggList, len(data.Items))
 	data.ItemTags = make(map[int64]map[int64]bool, len(data.Items))
 	data.TagMap = make(map[int64]*model.Tag, len(data.Tags))
 	for _, tag := range data.Tags {
@@ -383,6 +384,14 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 
 		if itemTags, err = db.TagLinkGetByItem(item); err != nil {
 			msg = fmt.Sprintf("Failed to load Tags for Item %q (%d): %s",
+				item.Title,
+				item.ID,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		} else if data.TagAdvice[item.ID], err = srv.adv.Score(item); err != nil {
+			msg = fmt.Sprintf("Failed to calculate Tag Advice for Item %q (%d): %s",
 				item.Title,
 				item.ID,
 				err.Error())
@@ -1230,9 +1239,9 @@ func (srv *Server) handleStaticFile(w http.ResponseWriter, request *http.Request
 
 	var mimeType string
 
-	srv.log.Printf("[TRACE] Delivering static file %s to client %s\n",
-		filename,
-		request.RemoteAddr)
+	// srv.log.Printf("[TRACE] Delivering static file %s to client %s\n",
+	// 	filename,
+	// 	request.RemoteAddr)
 
 	var match []string
 

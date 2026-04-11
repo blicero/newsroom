@@ -1,4 +1,4 @@
-/* Time-stamp: <2026-04-02 15:47:06 krylon> */
+/* Time-stamp: <2026-04-11 11:58:03 krylon> */
 
 body { 
     font-family: Arial,Helvetica,sans-serif;
@@ -207,4 +207,9 @@ div.content {
 
 *.tagmenu {
     text-align: left;
+}
+
+div.tag_advice > * {
+    font-family: serif;
+    font-size: smaller;
 }

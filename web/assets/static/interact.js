@@ -1,4 +1,4 @@
-// Time-stamp: <2026-04-08 15:31:14 krylon>
+// Time-stamp: <2026-04-11 14:52:00 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -1049,4 +1049,46 @@ function tag_link_remove(tag_id, item_id) {
         console.error(msg)
         alert(msg)
     })
-}
+} // function tag_link_remove(tag_id, item_id)
+
+function attach_tag(tag_id, item_id, node_id) {
+    const url = "/ajax/tag_link/create"
+    const data = {
+        "tag_id": tag_id,
+        "item_id": item_id,
+    }
+
+        const msg = `Attach Tag #${tag_id} to Item #${item_id}`
+    console.log(msg)
+    msg_add(msg)
+
+    $.post(
+        url,
+        data,
+        (res) => {
+            if (res.status) {
+                // We SHOULD also disable the option that was linked.
+                const area_id = `#item_tags_${item_id}`
+                const tag_area = $(area_id)[0]
+                const tag_display = `
+<span id="tag_link_${item_id}_${tag_id}">
+  <a href="/tag/${tag_id}">${res.tag.name}</a>
+  <img src="/static/delete.png"
+       onclick="tag_link_remove(${tag_id}, ${item_id});" />
+</span>`
+
+                tag_area.innerHTML += tag_display
+                // remove advice
+                $(node_id)[0].remove()
+            } else {
+                msg_add(res.message, "ERROR")
+            }
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+        const msg = `Error creating TagLink: ${status} - ${reply}`
+        msg_add(msg, 'ERROR')
+        console.error(msg)
+        alert(msg)
+    })
+} // function attach_tag(tag_id, item_id, node_id)

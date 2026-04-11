@@ -2,13 +2,16 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-04-08 12:58:47 krylon>
+// Time-stamp: <2026-04-11 11:37:47 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
 package web
 
-import "github.com/blicero/newsroom/model"
+import (
+	"github.com/blicero/newsroom/classify"
+	"github.com/blicero/newsroom/model"
+)
 
 type tmplDataBase struct {
 	Title string
@@ -32,6 +35,7 @@ type tmplDataNews struct {
 	Tags       []*model.Tag
 	TagMap     map[int64]*model.Tag
 	ItemTags   map[int64]map[int64]bool
+	TagAdvice  map[int64]classify.SuggList
 }
 
 // FirstPage returns true if we are on the first page.
