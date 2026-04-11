@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-10 14:35:28 krylon>
+// Time-stamp: <2026-04-11 15:38:40 krylon>
 
 // Package classify suggests Tags that are likely to be a match for news Items.
 package classify
@@ -12,11 +12,12 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strconv"
 	"sync"
+	"time"
 
-	"github.com/blicero/krylib"
 	"github.com/blicero/newsroom/cache"
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/database"
@@ -24,6 +25,27 @@ import (
 	"github.com/blicero/newsroom/model"
 	"github.com/blicero/shield"
 )
+
+// If a query returns an error and the error text is matched by this regex, we
+// consider the error as transient and try again after a short delay.
+var retryPat = regexp.MustCompile("(?i)resource temporarily unavailable")
+
+// worthARetry returns true if an error returned from the database
+// is matched by the retryPat regex.
+func worthARetry(e error) bool {
+	return retryPat.MatchString(e.Error())
+} // func worthARetry(e error) bool
+
+// retryDelay is the amount of time we wait before we repeat a database
+// operation that failed due to a transient error.
+const (
+	retryDelay = 25 * time.Millisecond
+	maxWait    = 10
+)
+
+func waitForRetry() {
+	time.Sleep(retryDelay)
+} // func waitForRetry()
 
 // REMINDER: To avoid problems when Tags are renamed, I should avoid using their
 //           names as class names. I have to use a string because of the API
@@ -89,7 +111,7 @@ func New() (*Advisor, error) {
 	for _, lng := range languages {
 		var (
 			tok       shield.Tokenizer
-			storePath = filepath.Join(common.CachePath, fmt.Sprintf("critic_store_%s", lng))
+			storePath = filepath.Join(common.CachePath, fmt.Sprintf("advisor_model_%s", lng))
 			store     = shield.NewLevelDBStore(storePath)
 		)
 
@@ -123,6 +145,8 @@ func (ad *Advisor) Reset() error {
 		feeds []*model.Feed
 		err   error
 	)
+
+	ad.log.Println("[TRACE] Resetting/Retraining Advisor")
 
 	ad.lock.Lock()
 	defer ad.lock.Unlock()
@@ -172,7 +196,7 @@ func (ad *Advisor) Reset() error {
 				s   = ad.advisors[lng]
 			)
 
-			if err = s.Learn(tag.Name, item.Strip()); err != nil { // nolint: nilaway
+			if err = s.Learn(tag.IDStr(), item.Strip()); err != nil { // nolint: nilaway
 				ad.log.Printf("[ERROR] Failed to train Advisor on Item %q (%d): %s\n",
 					item.Title,
 					item.ID,
@@ -181,15 +205,18 @@ func (ad *Advisor) Reset() error {
 		}
 	}
 
-	return krylib.ErrNotImplemented
+	ad.log.Println("[TRACE] Advisor has been retrained successfully.")
+
+	return nil
 } // func (ad *Advisor) Reset() error
 
 // Learn teaches the Advisor about the link between a Tag and an Item.
 func (ad *Advisor) Learn(tag *model.Tag, item *model.Item) error {
 	var (
-		err error
-		lng string
-		s   shield.Shield
+		err     error
+		lng     string
+		s       shield.Shield
+		waitCnt int
 	)
 
 	ad.lock.Lock()
@@ -198,8 +225,14 @@ func (ad *Advisor) Learn(tag *model.Tag, item *model.Item) error {
 	lng = ad.lngMap[item.FeedID]
 	s = ad.advisors[lng]
 
+CLASSIFY:
 	// nolint: nilaway
 	if err = s.Learn(tag.IDStr(), item.Strip()); err != nil {
+		if worthARetry(err) && waitCnt < maxWait {
+			waitCnt++
+			waitForRetry()
+			goto CLASSIFY
+		}
 		ad.log.Printf("[ERROR] Failed to train Tag Advisor on Item %q (%d): %s\n",
 			item.Title,
 			item.ID,
@@ -219,9 +252,10 @@ func (ad *Advisor) Learn(tag *model.Tag, item *model.Item) error {
 // Unlearn tells the Advisor to forget about the link between a Tag and an Item.
 func (ad *Advisor) Unlearn(tag *model.Tag, item *model.Item) error {
 	var (
-		err error
-		lng string
-		s   shield.Shield
+		err     error
+		lng     string
+		s       shield.Shield
+		waitCnt int
 	)
 
 	ad.lock.Lock()
@@ -230,8 +264,14 @@ func (ad *Advisor) Unlearn(tag *model.Tag, item *model.Item) error {
 	lng = ad.lngMap[item.FeedID]
 	s = ad.advisors[lng]
 
+CLASSIFY:
 	// nolint: nilaway
 	if err = s.Forget(tag.IDStr(), item.Strip()); err != nil {
+		if worthARetry(err) && waitCnt < maxWait {
+			waitCnt++
+			waitForRetry()
+			goto CLASSIFY
+		}
 		ad.log.Printf("[ERROR] Failed to forget about Item %q (%d) and Tag %s (%d): %s\n",
 			item.Title,
 			item.ID,
@@ -256,16 +296,38 @@ func (ad *Advisor) Score(item *model.Item) (SuggList, error) {
 		matches map[string]float64
 		lng     string
 		s       shield.Shield
+		waitCnt int
+		tags    []*model.Tag
+		tmap    map[int64]bool
 	)
 
 	ad.lock.RLock()
 	defer ad.lock.RUnlock()
 
+	if tags, err = ad.db.TagLinkGetByItem(item); err != nil {
+		ad.log.Printf("[ERROR] Failed to load Tags attached to Item %q (%d): %s\n",
+			item.Title,
+			item.ID,
+			err.Error())
+		return nil, err
+	}
+
+	tmap = make(map[int64]bool, len(tags))
+	for _, tag := range tags {
+		tmap[tag.ID] = true
+	}
+
 	lng = ad.lngMap[item.FeedID]
 	s = ad.advisors[lng]
 
+CLASSIFY:
 	// nolint: nilaway
 	if matches, err = s.Score(item.Strip()); err != nil {
+		if worthARetry(err) && waitCnt < maxWait {
+			waitCnt++
+			waitForRetry()
+			goto CLASSIFY
+		}
 		ad.log.Printf("[ERROR] Failed to calculate Tag scores for Item %q (%d): %s\n",
 			item.Title,
 			item.ID,
@@ -279,15 +341,23 @@ func (ad *Advisor) Score(item *model.Item) (SuggList, error) {
 		var sugg Suggestion
 
 		sugg.TagID, _ = strconv.ParseInt(tname, 10, 64)
-		sugg.Match = degree
-		lst = append(lst, sugg)
+
+		if !tmap[sugg.TagID] {
+			sugg.Match = degree
+			lst = append(lst, sugg)
+		}
+
 	}
 
 	slices.SortFunc(lst, cmpSugg)
+
+	if len(lst) > 10 {
+		return lst[:10], nil
+	}
 
 	return lst, nil
 } // func (ad *Advisor) Score(item *model.Item) (SuggList, error)
 
 func cmpSugg(a, b Suggestion) int {
-	return cmp.Compare[float64](a.Match, b.Match)
+	return -cmp.Compare[float64](a.Match, b.Match)
 }
