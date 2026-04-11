@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-10 15:13:02 krylon>
+# Time-stamp: <2026-04-11 15:48:32 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,36 +14,36 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-10 Fr 15:13]
-   | Headline                              | Time      |           |         |      |      |
-   |---------------------------------------+-----------+-----------+---------+------+------|
-   | *Total time*                          | *2d 9:21* |           |         |      |      |
-   |---------------------------------------+-----------+-----------+---------+------+------|
-   | *Newsroom [11/17]*                    | *2d 9:21* |           |         |      |      |
-   | \_  /Components [11/17]/              |           | /2d 9:21/ |         |      |      |
-   | \_    Model [2/2]                     |           |           |    3:58 |      |      |
-   | \_      Strip HTML                    |           |           |         | 1:57 |      |
-   | \_      Sanitize HTML                 |           |           |         | 1:26 |      |
-   | \_    Database [0/0]                  |           |           |    7:43 |      |      |
-   | \_      Tags                          |           |           |         | 1:37 |      |
-   | \_        Tags form a hierarchy       |           |           |         |      | 0:10 |
-   | \_      TagLinks                      |           |           |         | 2:23 |      |
-   | \_    Engine [1/2]                    |           |           |    4:16 |      |      |
-   | \_    Cache [1/2]                     |           |           |    3:20 |      |      |
-   | \_      Evict expired values          |           |           |         | 0:27 |      |
-   | \_    Classifier [0/0]                |           |           |    2:26 |      |      |
-   | \_    Rating Guesser aka Critic [0/1] |           |           |    9:40 |      |      |
-   | \_      Testing                       |           |           |         | 2:31 |      |
-   | \_    Web [7/10]                      |           |           | 1d 1:58 |      |      |
-   | \_      Subscribe to Feeds            |           |           |         | 3:03 |      |
-   | \_      Manage Feeds                  |           |           |         | 2:45 |      |
-   | \_      Manage Tags [2/3]             |           |           |         | 7:58 |      |
-   | \_        Create and edit Tags        |           |           |         |      | 2:34 |
-   | \_        Tag Items                   |           |           |         |      | 5:07 |
-   | \_        Suggest Tags                |           |           |         |      | 0:14 |
-   | \_      Integrate Classifier          |           |           |         | 2:37 |      |
-   | \_        Retrain Classifier          |           |           |         |      | 0:54 |
-   | \_      Rate Items                    |           |           |         | 5:14 |      |
+   #+CAPTION: Clock summary at [2026-04-11 Sa 15:48]
+   | Headline                              | Time       |            |         |       |      |
+   |---------------------------------------+------------+------------+---------+-------+------|
+   | *Total time*                          | *2d 13:18* |            |         |       |      |
+   |---------------------------------------+------------+------------+---------+-------+------|
+   | *Newsroom [11/17]*                    | *2d 13:18* |            |         |       |      |
+   | \_  /Components [11/17]/              |            | /2d 13:18/ |         |       |      |
+   | \_    Model [2/2]                     |            |            |    3:58 |       |      |
+   | \_      Strip HTML                    |            |            |         |  1:57 |      |
+   | \_      Sanitize HTML                 |            |            |         |  1:26 |      |
+   | \_    Database [0/0]                  |            |            |    7:43 |       |      |
+   | \_      Tags                          |            |            |         |  1:37 |      |
+   | \_        Tags form a hierarchy       |            |            |         |       | 0:10 |
+   | \_      TagLinks                      |            |            |         |  2:23 |      |
+   | \_    Engine [1/2]                    |            |            |    4:16 |       |      |
+   | \_    Cache [1/2]                     |            |            |    3:20 |       |      |
+   | \_      Evict expired values          |            |            |         |  0:27 |      |
+   | \_    Classifier [0/0]                |            |            |    2:26 |       |      |
+   | \_    Rating Guesser aka Critic [0/1] |            |            |    9:40 |       |      |
+   | \_      Testing                       |            |            |         |  2:31 |      |
+   | \_    Web [7/10]                      |            |            | 1d 5:55 |       |      |
+   | \_      Subscribe to Feeds            |            |            |         |  3:03 |      |
+   | \_      Manage Feeds                  |            |            |         |  2:45 |      |
+   | \_      Manage Tags [2/3]             |            |            |         | 11:55 |      |
+   | \_        Create and edit Tags        |            |            |         |       | 2:34 |
+   | \_        Tag Items                   |            |            |         |       | 5:07 |
+   | \_        Suggest Tags                |            |            |         |       | 4:11 |
+   | \_      Integrate Classifier          |            |            |         |  2:37 |      |
+   | \_        Retrain Classifier          |            |            |         |       | 0:54 |
+   | \_      Rate Items                    |            |            |         |  5:14 |      |
    #+END:
 ** Components [11/17]
    :PROPERTIES:
@@ -227,6 +227,8 @@
       the day. So I shall look into this again tomorrow.
 ***** TODO Suggest Tags
       :LOGBOOK:
+      CLOCK: [2026-04-11 Sa 12:05]--[2026-04-11 Sa 15:48] =>  3:43
+      CLOCK: [2026-04-11 Sa 11:30]--[2026-04-11 Sa 11:44] =>  0:14
       CLOCK: [2026-04-10 Fr 14:58]--[2026-04-10 Fr 15:12] =>  0:14
       :END:
 **** DONE Integrate Classifier
