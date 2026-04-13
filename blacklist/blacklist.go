@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 13. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-13 15:18:31 krylon>
+// Time-stamp: <2026-04-13 15:50:37 krylon>
 
 // Package blacklist provides a filter made of one or more regular expressions,
 // to exclude or hide news Items.
@@ -55,6 +55,12 @@ func (p *blPat) Match(item *model.Item) bool {
 func cmpPat(a, b *blPat) int {
 	return -cmp.Compare(a.HitCnt.Load(), b.HitCnt.Load())
 } // func cmpPat(a, b *blPat) int
+
+// DispPat is for external use, i.e. for displaying Patterns in the web frontend.
+type DispPat struct {
+	Pattern string
+	HitCnt  int64
+}
 
 // Blacklist matches news Items against a list of regular expressions.
 type Blacklist struct {
@@ -150,6 +156,24 @@ func (bl *Blacklist) initBlacklist() error {
 
 	return err
 } // func (bl *Blacklist) initBlacklist() error
+
+// Patterns returns a slice of DispPats representing the Blacklist for use in
+// web UI.
+func (bl *Blacklist) Patterns() []DispPat {
+	bl.lock.RLock()
+	defer bl.lock.RUnlock()
+
+	var lst = make([]DispPat, len(bl.patterns))
+
+	for idx, pat := range bl.patterns {
+		lst[idx] = DispPat{
+			Pattern: pat.Pattern.String(),
+			HitCnt:  pat.HitCnt.Load(),
+		}
+	}
+
+	return lst
+} // func (bl *Blacklist) Patterns() []DispPat
 
 // Add adds a new pattern to the Blacklist.
 func (bl *Blacklist) Add(pattern string) error {
