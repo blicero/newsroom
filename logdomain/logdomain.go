@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-01 15:25:55 krylon>
+// Time-stamp: <2026-04-13 12:41:09 krylon>
 
 package logdomain
 
@@ -20,6 +20,7 @@ const (
 	Classifier
 	Scrub
 	Web
+	Blacklist
 	Main
 )
 
@@ -34,6 +35,7 @@ func All() []ID {
 		Classifier,
 		Scrub,
 		Web,
+		Blacklist,
 		Main,
 	}
 } // func All() []ID

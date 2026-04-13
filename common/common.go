@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-11 15:49:52 krylon>
+// Time-stamp: <2026-04-13 12:38:58 krylon>
 
 package common
 
@@ -17,6 +17,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/blicero/krylib"
@@ -97,14 +98,19 @@ var LogPath = filepath.Join(BaseDir, fmt.Sprintf("%s.log", strings.ToLower(AppNa
 // DbPath is the filename of the database.
 var DbPath = filepath.Join(BaseDir, fmt.Sprintf("%s.db", strings.ToLower(AppName)))
 
+// CachePath is the directory where the various cache stores live.
 var CachePath = filepath.Join(BaseDir, "cache.d")
 
+// CfgPath is the path to the config file (should we ever adopt using one).
 var CfgPath = filepath.Join(BaseDir, fmt.Sprintf("%s.toml", strings.ToLower(AppName)))
+
+// BlacklistPath is the path to the Blacklist.
+var BlacklistPath = filepath.Join(BaseDir, "blacklist.db")
 
 // This needs a little refinement, but should clear up the race condition.
 var (
 	lock   sync.RWMutex
-	isInit bool
+	isInit atomic.Bool
 )
 
 // InitApp performs some basic preparations for the application to run.
@@ -112,29 +118,28 @@ var (
 func InitApp() (e error) {
 	var err error
 
-	lock.RLock()
-	if isInit {
-		lock.RUnlock()
+	if isInit.Load() {
 		return nil
 	}
 
-	lock.RUnlock()
 	lock.Lock()
 	defer func() {
 		if e == nil {
-			isInit = true
+			isInit.Store(true)
 		}
 		lock.Unlock()
 	}()
 
 	if err = os.Mkdir(BaseDir, 0700); err != nil && !os.IsExist(err) {
-		return fmt.Errorf("error creating BaseDir %s: %s", BaseDir, err.Error())
+		return fmt.Errorf("error creating BaseDir %s: %w", BaseDir, err)
 	}
 
 	LogPath = filepath.Join(BaseDir, fmt.Sprintf("%s.log", strings.ToLower(AppName)))
 	DbPath = filepath.Join(BaseDir, fmt.Sprintf("%s.db", strings.ToLower(AppName)))
 	CachePath = filepath.Join(BaseDir, "cache.d")
 	CfgPath = filepath.Join(BaseDir, fmt.Sprintf("%s.toml", strings.ToLower(AppName)))
+	BlacklistPath = filepath.Join(BaseDir, "blacklist.db")
+
 	if err = os.Mkdir(CachePath, 0700); err != nil && !os.IsExist(err) {
 		return fmt.Errorf("error creating cache directory %s: %s",
 			CachePath,
@@ -161,6 +166,7 @@ func SetBaseDir(path string) error {
 	DbPath = filepath.Join(BaseDir, fmt.Sprintf("%s.db", strings.ToLower(AppName)))
 	CachePath = filepath.Join(BaseDir, "cache.d")
 	CfgPath = filepath.Join(BaseDir, fmt.Sprintf("%s.toml", strings.ToLower(AppName)))
+	BlacklistPath = filepath.Join(BaseDir, "blacklist.db")
 
 	var (
 		err error
