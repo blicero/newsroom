@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-11 15:48:32 krylon>
+# Time-stamp: <2026-04-13 17:16:31 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,20 +7,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [11/17]
+* Newsroom [16/21]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-11 Sa 15:48]
+   #+CAPTION: Clock summary at [2026-04-13 Mo 17:16]
    | Headline                              | Time       |            |         |       |      |
    |---------------------------------------+------------+------------+---------+-------+------|
-   | *Total time*                          | *2d 13:18* |            |         |       |      |
+   | *Total time*                          | *2d 18:17* |            |         |       |      |
    |---------------------------------------+------------+------------+---------+-------+------|
-   | *Newsroom [11/17]*                    | *2d 13:18* |            |         |       |      |
-   | \_  /Components [11/17]/              |            | /2d 13:18/ |         |       |      |
+   | *Newsroom [16/21]*                    | *2d 18:17* |            |         |       |      |
+   | \_  /Components [16/21]/              |            | /2d 18:17/ |         |       |      |
    | \_    Model [2/2]                     |            |            |    3:58 |       |      |
    | \_      Strip HTML                    |            |            |         |  1:57 |      |
    | \_      Sanitize HTML                 |            |            |         |  1:26 |      |
@@ -29,15 +29,18 @@
    | \_        Tags form a hierarchy       |            |            |         |       | 0:10 |
    | \_      TagLinks                      |            |            |         |  2:23 |      |
    | \_    Engine [1/2]                    |            |            |    4:16 |       |      |
+   | \_    Blacklist [2/2]                 |            |            |    3:33 |       |      |
    | \_    Cache [1/2]                     |            |            |    3:20 |       |      |
    | \_      Evict expired values          |            |            |         |  0:27 |      |
    | \_    Classifier [0/0]                |            |            |    2:26 |       |      |
    | \_    Rating Guesser aka Critic [0/1] |            |            |    9:40 |       |      |
    | \_      Testing                       |            |            |         |  2:31 |      |
-   | \_    Web [7/10]                      |            |            | 1d 5:55 |       |      |
+   | \_    Web [10/13]                     |            |            | 1d 7:21 |       |      |
+   | \_      Blacklist [0/2]               |            |            |         |  1:26 |      |
+   | \_        View and edit Blacklist     |            |            |         |       | 1:26 |
    | \_      Subscribe to Feeds            |            |            |         |  3:03 |      |
    | \_      Manage Feeds                  |            |            |         |  2:45 |      |
-   | \_      Manage Tags [2/3]             |            |            |         | 11:55 |      |
+   | \_      Manage Tags [3/3]             |            |            |         | 11:55 |      |
    | \_        Create and edit Tags        |            |            |         |       | 2:34 |
    | \_        Tag Items                   |            |            |         |       | 5:07 |
    | \_        Suggest Tags                |            |            |         |       | 4:11 |
@@ -45,7 +48,7 @@
    | \_        Retrain Classifier          |            |            |         |       | 0:54 |
    | \_      Rate Items                    |            |            |         |  5:14 |      |
    #+END:
-** Components [11/17]
+** Components [16/21]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -118,9 +121,39 @@
 **** DONE Parse RSS/Atom
      CLOSED: [2026-03-12 Do 14:15]
      https://github.com/mmcdole/gofeed
-**** TODO [#E] Blacklist
-     I would like to discard Items based on regular expressions, to filter out
-     e.g. paywalled articles.
+*** Blacklist [2/2]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
+    :LOGBOOK:
+    CLOCK: [2026-04-13 Mo 12:12]--[2026-04-13 Mo 15:45] =>  3:33
+    :END:
+    I want to filter Items based on regular expressions, mainly to get rid of
+    paywalled articles.
+**** DONE Persistence
+     CLOSED: [2026-04-13 Mo 15:20]
+     I need to decide how and where I want to store the blacklist
+     items. BoltDB might be the most simple solution. OTOH, using the SQLite
+     database I am using already would make it easier to inspect the blacklist
+     or manipulate it manually.
+     Then again, I don't want to put more load on the database than I have to.
+     I could use something really primitive, too, a plain text file for
+     example.
+     I think, I will try BoltDB first, because it should give me good
+     performance and is reasonably easy to use.
+**** DONE Where to perform blacklisting?
+     CLOSED: [2026-04-13 Mo 15:21]
+     I could apply the blacklist when fetching new Items or when getting them
+     from the database for displaying them.
+     The first approach has a performance advantage, obviously, since I would
+     have to filter Items only once.
+     The second approach has the advantage that I can alter the blacklist
+     later on. If I were to remove a pattern, Items that where skipped upon
+     fetching them would remain lost. And adding patterns would not affect
+     Items already in the database.
+
+     So I will apply the filter when loading Items for display.
 *** Cache [1/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
@@ -177,7 +210,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [7/10]
+*** Web [10/13]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -188,6 +221,12 @@
     CLOCK: [2026-03-12 Do 14:50]--[2026-03-12 Do 17:26] =>  2:36
     CLOCK: [2026-03-12 Do 14:16]--[2026-03-12 Do 14:40] =>  0:24
     :END:
+**** TODO Blacklist [0/2]
+***** TODO View and edit Blacklist
+      :LOGBOOK:
+      CLOCK: [2026-04-13 Mo 15:50]--[2026-04-13 Mo 17:16] =>  1:26
+      :END:
+***** TODO Use Blacklist
 **** DONE Subscribe to Feeds
      CLOSED: [2026-04-04 Sa 16:24]
      :LOGBOOK:
@@ -201,7 +240,8 @@
      :LOGBOOK:
      CLOCK: [2026-04-04 Sa 16:52]--[2026-04-04 Sa 19:37] =>  2:45
      :END:
-**** TODO Manage Tags [2/3]
+**** DONE Manage Tags [3/3]
+CLOSED: [2026-04-13 Mo 12:11]
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
      :VISIBILITY: all
@@ -225,7 +265,8 @@
       /Adding/ Tags works, but displaying them does not, except in one case. I
       am unsure why this is, but I'm afraid I have spent my brain power for
       the day. So I shall look into this again tomorrow.
-***** TODO Suggest Tags
+***** DONE Suggest Tags
+      CLOSED: [2026-04-13 Mo 12:10]
       :LOGBOOK:
       CLOCK: [2026-04-11 Sa 12:05]--[2026-04-11 Sa 15:48] =>  3:43
       CLOCK: [2026-04-11 Sa 11:30]--[2026-04-11 Sa 11:44] =>  0:14
@@ -251,9 +292,13 @@
      CLOCK: [2026-03-14 Sa 14:58]--[2026-03-14 Sa 17:50] =>  2:52
      CLOCK: [2026-03-14 Sa 12:59]--[2026-03-14 Sa 13:24] =>  0:25
      :END:
-**** TODO [#F] Dark Mode?
+**** CANCELLED [#F] Dark Mode?
+     CLOSED: [2026-04-13 Mo 15:21]
      I switched my desktop to a dark theme the other day, after frowning upon
-     those for a long time. And I gotta admit, I kind of like it. 
+     those for a long time. And I gotta admit, I kind of like it.
+
+     [2026-04-13 Mo 15:21] I have abandoned the dark side, and I no longer
+     want a dark RSS reader.
 *** Main [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
