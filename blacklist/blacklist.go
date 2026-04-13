@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 13. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-13 14:34:14 krylon>
+// Time-stamp: <2026-04-13 15:18:31 krylon>
 
 // Package blacklist provides a filter made of one or more regular expressions,
 // to exclude or hide news Items.
@@ -59,7 +59,7 @@ func cmpPat(a, b *blPat) int {
 // Blacklist matches news Items against a list of regular expressions.
 type Blacklist struct {
 	log      *log.Logger
-	lock     *sync.RWMutex
+	lock     sync.RWMutex
 	patterns []*blPat
 	db       *bbolt.DB
 }
@@ -81,9 +81,9 @@ func New() (*Blacklist, error) {
 			common.BlacklistPath,
 			err.Error())
 		return nil, err
+	} else if err = bl.initBlacklist(); err != nil {
+		return nil, err
 	}
-
-	// initalize patterns
 
 	return bl, nil
 } // func New() (*Blacklist, error)
