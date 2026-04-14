@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-11 14:31:16 krylon>
+// Time-stamp: <2026-04-14 12:51:36 krylon>
 
 package web
 
@@ -24,6 +24,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/blicero/newsroom/blacklist"
 	"github.com/blicero/newsroom/classify"
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/critic"
@@ -54,6 +55,7 @@ type Server struct {
 	cls       *critic.Critic
 	adv       *classify.Advisor
 	scrub     *scrub.Scrubber
+	bl        *blacklist.Blacklist
 	router    *mux.Router
 	tmpl      *template.Template
 	web       http.Server
@@ -98,6 +100,10 @@ func Create(addr string) (*Server, error) {
 		return nil, err
 	} else if srv.scrub, err = scrub.Create(); err != nil {
 		srv.log.Printf("[ERROR] Cannot create Scrubber: %s\n",
+			err.Error())
+		return nil, err
+	} else if srv.bl, err = blacklist.New(); err != nil {
+		srv.log.Printf("[ERROR] Failed to create Blacklist: %s\n",
 			err.Error())
 		return nil, err
 	}
@@ -151,6 +157,7 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc("/news/{pageno:(?:\\d+)}/{cnt:(?:\\d+)$}", srv.handleNews)
 	srv.router.HandleFunc("/feed/all", srv.handleSubscriptions)
 	srv.router.HandleFunc("/tag/all", srv.handleTagsView)
+	srv.router.HandleFunc("/blacklist", srv.handleBlacklistView)
 	srv.router.HandleFunc("/retrain_classifier", srv.handleRetrain)
 
 	// AJAX Handlers
@@ -482,7 +489,7 @@ func (srv *Server) handleTagsView(w http.ResponseWriter, r *http.Request) {
 		tmpl *template.Template
 		data = tmplDataTags{
 			tmplDataBase: tmplDataBase{
-				Title: "Manage Subscriptions",
+				Title: "Manage Tags",
 				Debug: common.Debug,
 				URL:   r.RequestURI,
 			},
@@ -531,6 +538,42 @@ func (srv *Server) handleRetrain(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, r.Referer(), 307)
 } // func (srv *Server) handleRetrain(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleBlacklistView(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+
+	const tmplName = "blacklist"
+	var (
+		err  error
+		msg  string
+		tmpl *template.Template
+		data = tmplDataBlacklist{
+			tmplDataBase: tmplDataBase{
+				Title: "Manage Blacklist",
+				Debug: common.Debug,
+				URL:   r.RequestURI,
+			},
+		}
+	)
+
+	if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Couldn't find template %s",
+			tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	data.Patterns = srv.bl.Patterns()
+
+	w.Header().Set("Cache-Control", noCache)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleBlacklistView(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////////////////////////////
 /// Handle AJAX //////////////////////////////////////////////////////////////
