@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-14 13:29:13 krylon>
+// Time-stamp: <2026-04-14 14:25:29 krylon>
 
 package web
 
@@ -18,6 +18,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -376,6 +377,23 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 	for _, tag := range data.Tags {
 		data.TagMap[tag.ID] = tag
 	}
+
+	var blHit int
+
+	defer func() {
+		if blHit > 0 {
+			srv.bl.Save()
+		}
+	}()
+
+	data.Items = slices.DeleteFunc(data.Items, func(item *model.Item) bool {
+		if srv.bl.Match(item) {
+			srv.bl.Sort()
+			blHit++
+			return true
+		}
+		return false
+	})
 
 	for _, item := range data.Items {
 		if err = srv.scrub.Scrub(item); err != nil {
