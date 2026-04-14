@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-13 17:16:31 krylon>
+# Time-stamp: <2026-04-14 13:38:30 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,20 +7,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [16/21]
+* Newsroom [17/22]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-13 Mo 17:16]
+   #+CAPTION: Clock summary at [2026-04-14 Di 13:38]
    | Headline                              | Time       |            |         |       |      |
    |---------------------------------------+------------+------------+---------+-------+------|
-   | *Total time*                          | *2d 18:17* |            |         |       |      |
+   | *Total time*                          | *2d 19:16* |            |         |       |      |
    |---------------------------------------+------------+------------+---------+-------+------|
-   | *Newsroom [16/21]*                    | *2d 18:17* |            |         |       |      |
-   | \_  /Components [16/21]/              |            | /2d 18:17/ |         |       |      |
+   | *Newsroom [17/22]*                    | *2d 19:16* |            |         |       |      |
+   | \_  /Components [17/22]/              |            | /2d 19:16/ |         |       |      |
    | \_    Model [2/2]                     |            |            |    3:58 |       |      |
    | \_      Strip HTML                    |            |            |         |  1:57 |      |
    | \_      Sanitize HTML                 |            |            |         |  1:26 |      |
@@ -29,15 +29,15 @@
    | \_        Tags form a hierarchy       |            |            |         |       | 0:10 |
    | \_      TagLinks                      |            |            |         |  2:23 |      |
    | \_    Engine [1/2]                    |            |            |    4:16 |       |      |
-   | \_    Blacklist [2/2]                 |            |            |    3:33 |       |      |
+   | \_    Blacklist [2/3]                 |            |            |    3:33 |       |      |
    | \_    Cache [1/2]                     |            |            |    3:20 |       |      |
    | \_      Evict expired values          |            |            |         |  0:27 |      |
    | \_    Classifier [0/0]                |            |            |    2:26 |       |      |
    | \_    Rating Guesser aka Critic [0/1] |            |            |    9:40 |       |      |
    | \_      Testing                       |            |            |         |  2:31 |      |
-   | \_    Web [10/13]                     |            |            | 1d 7:21 |       |      |
-   | \_      Blacklist [0/2]               |            |            |         |  1:26 |      |
-   | \_        View and edit Blacklist     |            |            |         |       | 1:26 |
+   | \_    Web [11/13]                     |            |            | 1d 8:20 |       |      |
+   | \_      Blacklist [1/2]               |            |            |         |  2:25 |      |
+   | \_        View and edit Blacklist     |            |            |         |       | 2:25 |
    | \_      Subscribe to Feeds            |            |            |         |  3:03 |      |
    | \_      Manage Feeds                  |            |            |         |  2:45 |      |
    | \_      Manage Tags [3/3]             |            |            |         | 11:55 |      |
@@ -48,7 +48,7 @@
    | \_        Retrain Classifier          |            |            |         |       | 0:54 |
    | \_      Rate Items                    |            |            |         |  5:14 |      |
    #+END:
-** Components [16/21]
+** Components [17/22]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -121,7 +121,7 @@
 **** DONE Parse RSS/Atom
      CLOSED: [2026-03-12 Do 14:15]
      https://github.com/mmcdole/gofeed
-*** Blacklist [2/2]
+*** Blacklist [2/3]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -131,6 +131,7 @@
     :END:
     I want to filter Items based on regular expressions, mainly to get rid of
     paywalled articles.
+**** TODO Save and Sort Blacklist periodically
 **** DONE Persistence
      CLOSED: [2026-04-13 Mo 15:20]
      I need to decide how and where I want to store the blacklist
@@ -210,7 +211,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [10/13]
+*** Web [11/13]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -221,9 +222,11 @@
     CLOCK: [2026-03-12 Do 14:50]--[2026-03-12 Do 17:26] =>  2:36
     CLOCK: [2026-03-12 Do 14:16]--[2026-03-12 Do 14:40] =>  0:24
     :END:
-**** TODO Blacklist [0/2]
-***** TODO View and edit Blacklist
+**** TODO Blacklist [1/2]
+***** DONE View and edit Blacklist
+      CLOSED: [2026-04-14 Di 13:38]
       :LOGBOOK:
+      CLOCK: [2026-04-14 Di 12:39]--[2026-04-14 Di 13:38] =>  0:59
       CLOCK: [2026-04-13 Mo 15:50]--[2026-04-13 Mo 17:16] =>  1:26
       :END:
 ***** TODO Use Blacklist
