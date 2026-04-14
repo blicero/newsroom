@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 13. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-13 15:50:37 krylon>
+// Time-stamp: <2026-04-14 14:14:48 krylon>
 
 // Package blacklist provides a filter made of one or more regular expressions,
 // to exclude or hide news Items.
@@ -152,6 +152,7 @@ func (bl *Blacklist) initBlacklist() error {
 			err.Error())
 	} else {
 		bl.patterns = patterns
+		slices.SortFunc(bl.patterns, cmpPat)
 	}
 
 	return err
@@ -290,6 +291,49 @@ func (bl *Blacklist) Sort() {
 	bl.lock.Unlock()
 } // func (bl *Blacklist) Sort()
 
+// Save persists the Blacklist's patterns and their counters.
+func (bl *Blacklist) Save() error {
+	bl.lock.Lock()
+	defer bl.lock.Unlock()
+
+	bl.log.Println("[TRACE] Saving Blacklist.")
+
+	var err error
+
+	if err = bl.db.Update(func(tx *bbolt.Tx) error {
+		var (
+			ex             error
+			bucket         *bbolt.Bucket
+			keybuf, valbuf []byte
+		)
+
+		if bucket, ex = tx.CreateBucketIfNotExists(bucketName); ex != nil {
+			bl.log.Printf("[ERROR] Failed to create/obtain bucket: %s\n",
+				ex.Error())
+			return ex
+		}
+
+		for _, pat := range bl.patterns {
+			keybuf = pat.key()
+			valbuf = pat.val()
+
+			if ex = bucket.Put(keybuf, valbuf); err != nil {
+				bl.log.Printf("[ERROR] Failed to save Blacklist pattern %q: %s\n",
+					pat.Pattern.String(),
+					ex.Error())
+				return ex
+			}
+		}
+
+		return nil
+	}); err != nil {
+		bl.log.Printf("[ERROR] Failed to save Blacklist: %s\n",
+			err.Error())
+	}
+
+	return err
+} // func (bl *Blacklist) Save() error
+
 // Match attempts to match the Item's Headline against each pattern in the
 // Blacklist, until either a match is found or the list is exhausted.
 func (bl *Blacklist) Match(item *model.Item) bool {
@@ -298,6 +342,9 @@ func (bl *Blacklist) Match(item *model.Item) bool {
 
 	for _, pat := range bl.patterns {
 		if pat.Match(item) {
+			bl.log.Printf("[DEBUG] Pattern %q matches headline %q\n",
+				pat.Pattern.String(),
+				item.Title)
 			return true
 		}
 	}
