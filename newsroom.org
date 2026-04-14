@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-14 13:38:30 krylon>
+# Time-stamp: <2026-04-14 14:32:40 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,20 +7,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [17/22]
+* Newsroom [19/22]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-14 Di 13:38]
+   #+CAPTION: Clock summary at [2026-04-14 Di 14:32]
    | Headline                              | Time       |            |         |       |      |
    |---------------------------------------+------------+------------+---------+-------+------|
-   | *Total time*                          | *2d 19:16* |            |         |       |      |
+   | *Total time*                          | *2d 20:10* |            |         |       |      |
    |---------------------------------------+------------+------------+---------+-------+------|
-   | *Newsroom [17/22]*                    | *2d 19:16* |            |         |       |      |
-   | \_  /Components [17/22]/              |            | /2d 19:16/ |         |       |      |
+   | *Newsroom [19/22]*                    | *2d 20:10* |            |         |       |      |
+   | \_  /Components [19/22]/              |            | /2d 20:10/ |         |       |      |
    | \_    Model [2/2]                     |            |            |    3:58 |       |      |
    | \_      Strip HTML                    |            |            |         |  1:57 |      |
    | \_      Sanitize HTML                 |            |            |         |  1:26 |      |
@@ -35,9 +35,10 @@
    | \_    Classifier [0/0]                |            |            |    2:26 |       |      |
    | \_    Rating Guesser aka Critic [0/1] |            |            |    9:40 |       |      |
    | \_      Testing                       |            |            |         |  2:31 |      |
-   | \_    Web [11/13]                     |            |            | 1d 8:20 |       |      |
-   | \_      Blacklist [1/2]               |            |            |         |  2:25 |      |
+   | \_    Web [13/13]                     |            |            | 1d 9:14 |       |      |
+   | \_      Blacklist [2/2]               |            |            |         |  3:19 |      |
    | \_        View and edit Blacklist     |            |            |         |       | 2:25 |
+   | \_        Use Blacklist               |            |            |         |       | 0:54 |
    | \_      Subscribe to Feeds            |            |            |         |  3:03 |      |
    | \_      Manage Feeds                  |            |            |         |  2:45 |      |
    | \_      Manage Tags [3/3]             |            |            |         | 11:55 |      |
@@ -48,7 +49,7 @@
    | \_        Retrain Classifier          |            |            |         |       | 0:54 |
    | \_      Rate Items                    |            |            |         |  5:14 |      |
    #+END:
-** Components [17/22]
+** Components [19/22]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -211,7 +212,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [11/13]
+*** Web [13/13]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -222,14 +223,19 @@
     CLOCK: [2026-03-12 Do 14:50]--[2026-03-12 Do 17:26] =>  2:36
     CLOCK: [2026-03-12 Do 14:16]--[2026-03-12 Do 14:40] =>  0:24
     :END:
-**** TODO Blacklist [1/2]
+**** DONE Blacklist [2/2]
+     CLOSED: [2026-04-14 Di 14:32]
 ***** DONE View and edit Blacklist
       CLOSED: [2026-04-14 Di 13:38]
       :LOGBOOK:
       CLOCK: [2026-04-14 Di 12:39]--[2026-04-14 Di 13:38] =>  0:59
       CLOCK: [2026-04-13 Mo 15:50]--[2026-04-13 Mo 17:16] =>  1:26
       :END:
-***** TODO Use Blacklist
+***** DONE Use Blacklist
+      CLOSED: [2026-04-14 Di 14:32]
+      :LOGBOOK:
+      CLOCK: [2026-04-14 Di 13:38]--[2026-04-14 Di 14:32] =>  0:54
+      :END:
 **** DONE Subscribe to Feeds
      CLOSED: [2026-04-04 Sa 16:24]
      :LOGBOOK:
