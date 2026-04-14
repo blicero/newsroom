@@ -1,4 +1,4 @@
-// Time-stamp: <2026-04-11 14:52:00 krylon>
+// Time-stamp: <2026-04-14 13:21:55 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -1058,7 +1058,7 @@ function attach_tag(tag_id, item_id, node_id) {
         "item_id": item_id,
     }
 
-        const msg = `Attach Tag #${tag_id} to Item #${item_id}`
+    const msg = `Attach Tag #${tag_id} to Item #${item_id}`
     console.log(msg)
     msg_add(msg)
 
@@ -1092,3 +1092,74 @@ function attach_tag(tag_id, item_id, node_id) {
         alert(msg)
     })
 } // function attach_tag(tag_id, item_id, node_id)
+
+function blacklist_add() {
+    const url = "/ajax/blacklist/add"
+    const input_id = "#bl_pattern"
+    const pat = $(input_id)[0].value
+    const data = {
+        "pattern": pat,
+    }
+
+    $.post(
+        url,
+        data,
+        (res) => {
+            if (res.status) {
+                msg_add(res.message, "INFO")
+                // TODO add pattern to table
+                const rid = Math.floor(Math.random() * 2000) + 64
+                const row = `
+<tr id="pat_${rid}">
+  <td>0</td>
+  <td class="bl_pat">${pat}</td>
+  <td>
+    <button
+      class="btn btn-danger"
+      onclick="blacklist_remove(${rid}, '${pat}');">
+      Delete
+    </button>
+  </td>
+</tr>
+`
+                $("#pattern_body")[0].innerHTML += row
+            } else {
+                msg_add(res.message, "ERROR")
+                console.error(res.message)
+            }
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+        const msg = `Error deleting TagLink: ${status} - ${reply}`
+        msg_add(msg, 'ERROR')
+        console.error(msg)
+        alert(msg)
+    })
+} // function blacklist_add()
+
+function blacklist_remove(row_id, pat) {
+    const url = "/ajax/blacklist/remove"
+    const data = {
+        "pattern": pat,
+    }
+
+    $.post(
+        url,
+        data,
+        (res) => {
+            if (res.status) {
+                const pat_row = $(`#pat_${row_id}`)[0]
+                pat_row.remove()
+            } else {
+                msg_add(res.message, "ERROR")
+                console.error(res.message)
+            }
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+        const msg = `Error deleting TagLink: ${status} - ${reply}`
+        msg_add(msg, 'ERROR')
+        console.error(msg)
+        alert(msg)
+    })
+} // function blacklist_add()

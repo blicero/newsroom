@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-14 12:51:36 krylon>
+// Time-stamp: <2026-04-14 13:29:13 krylon>
 
 package web
 
@@ -191,6 +191,14 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc(
 		"/ajax/tag_link/delete",
 		srv.handleAjaxTagLinkRemove,
+	)
+	srv.router.HandleFunc(
+		"/ajax/blacklist/add",
+		srv.handleAjaxBlacklistAdd,
+	)
+	srv.router.HandleFunc(
+		"/ajax/blacklist/remove",
+		srv.handleAjaxBlacklistRemove,
 	)
 
 	return srv, nil
@@ -1205,6 +1213,102 @@ SEND:
 	w.WriteHeader(200)
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Server) handleAjaxTagLinkRemove(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxBlacklistAdd(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var (
+		err      error
+		msg, pat string
+		buf      []byte
+		res      = ajaxData{
+			Timestamp: time.Now(),
+		}
+	)
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Cannot parse form data: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	pat = r.FormValue("pattern")
+
+	if err = srv.bl.Add(pat); err != nil {
+		msg = fmt.Sprintf("Failed to add pattern %q to Blacklist: %s",
+			pat,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	res.Status = true
+	res.Message = "Success"
+
+	if buf, err = json.Marshal(&res); err != nil {
+		msg = fmt.Sprintf("Failed to serialize response: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxBlacklistAdd(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxBlacklistRemove(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var (
+		err      error
+		msg, pat string
+		buf      []byte
+		res      = ajaxData{
+			Timestamp: time.Now(),
+		}
+	)
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Cannot parse form data: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	pat = r.FormValue("pattern")
+
+	if err = srv.bl.Remove(pat); err != nil {
+		msg = fmt.Sprintf("Failed to add pattern %q to Blacklist: %s",
+			pat,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	res.Status = true
+	res.Message = "Success"
+
+	if buf, err = json.Marshal(&res); err != nil {
+		msg = fmt.Sprintf("Failed to serialize response: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxBlacklistRemove(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
 	var (
