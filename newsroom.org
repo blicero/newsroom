@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-14 14:32:40 krylon>
+# Time-stamp: <2026-04-18 21:03:19 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,13 +14,13 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-14 Di 14:32]
+   #+CAPTION: Clock summary at [2026-04-18 Sa 21:03]
    | Headline                              | Time       |            |         |       |      |
    |---------------------------------------+------------+------------+---------+-------+------|
-   | *Total time*                          | *2d 20:10* |            |         |       |      |
+   | *Total time*                          | *2d 20:27* |            |         |       |      |
    |---------------------------------------+------------+------------+---------+-------+------|
-   | *Newsroom [19/22]*                    | *2d 20:10* |            |         |       |      |
-   | \_  /Components [19/22]/              |            | /2d 20:10/ |         |       |      |
+   | *Newsroom [19/22]*                    | *2d 20:27* |            |         |       |      |
+   | \_  /Components [19/22]/              |            | /2d 20:27/ |         |       |      |
    | \_    Model [2/2]                     |            |            |    3:58 |       |      |
    | \_      Strip HTML                    |            |            |         |  1:57 |      |
    | \_      Sanitize HTML                 |            |            |         |  1:26 |      |
@@ -35,7 +35,7 @@
    | \_    Classifier [0/0]                |            |            |    2:26 |       |      |
    | \_    Rating Guesser aka Critic [0/1] |            |            |    9:40 |       |      |
    | \_      Testing                       |            |            |         |  2:31 |      |
-   | \_    Web [13/13]                     |            |            | 1d 9:14 |       |      |
+   | \_    Web [14/14]                     |            |            | 1d 9:31 |       |      |
    | \_      Blacklist [2/2]               |            |            |         |  3:19 |      |
    | \_        View and edit Blacklist     |            |            |         |       | 2:25 |
    | \_        Use Blacklist               |            |            |         |       | 0:54 |
@@ -48,6 +48,7 @@
    | \_      Integrate Classifier          |            |            |         |  2:37 |      |
    | \_        Retrain Classifier          |            |            |         |       | 0:54 |
    | \_      Rate Items                    |            |            |         |  5:14 |      |
+   | \_      Resize images                 |            |            |         |  0:17 |      |
    #+END:
 ** Components [19/22]
    :PROPERTIES:
@@ -212,7 +213,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [13/13]
+*** Web [14/14]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -250,7 +251,7 @@
      CLOCK: [2026-04-04 Sa 16:52]--[2026-04-04 Sa 19:37] =>  2:45
      :END:
 **** DONE Manage Tags [3/3]
-CLOSED: [2026-04-13 Mo 12:11]
+     CLOSED: [2026-04-13 Mo 12:11]
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
      :VISIBILITY: all
@@ -308,6 +309,14 @@ CLOSED: [2026-04-13 Mo 12:11]
 
      [2026-04-13 Mo 15:21] I have abandoned the dark side, and I no longer
      want a dark RSS reader.
+**** DONE [#B] Resize images
+     CLOSED: [2026-04-18 Sa 21:03]
+     :LOGBOOK:
+     CLOCK: [2026-04-18 Sa 20:46]--[2026-04-18 Sa 21:03] =>  0:17
+     :END:
+     I don't need to actually *resize* images, just fix the img tags to change
+     the size at which the images are displayed. I have done this before, so
+     it shouldn't be too much work.
 *** Main [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
