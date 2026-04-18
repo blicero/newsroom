@@ -1,6 +1,6 @@
 {{ define "items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-04-11 15:20:12 krylon> */}}
+{{/* Time-stamp: <2026-04-18 20:56:33 krylon> */}}
 {{ $feeds := .Feeds }}
 {{ $tags := .Tags }}
 {{ $tagMap := .TagMap }}
@@ -97,7 +97,7 @@
       aria-controls="#collapse_item_{{ .ID }}">
       Description
     </button>
-    <div class="collapse" id="collapse_item_{{ .ID }}">
+    <div class="news-body collapse" id="collapse_item_{{ .ID }}">
       {{ .Body }}
     </div>
   </td>

@@ -1,12 +1,18 @@
 {{ define "news" }}
 {{/* Created on 10. 06. 2024 */}}
-{{/* Time-stamp: <2026-04-09 12:27:41 krylon> */}}
+{{/* Time-stamp: <2026-04-18 20:49:53 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
 
   <body>
     {{ template "intro" . }}
+
+    <script>
+     $(document).ready(() => {
+             scale_images()
+     })
+    </script>
 
     <div class="paginate">
       {{ if not .FirstPage }}<a href="/news/{{ dec .PageNo }}/{{ .Count }}">{{ end }}
@@ -31,7 +37,7 @@
           </tr>
         </thead>
 
-        <tbody>
+        <tbody class="items">
           {{ template "items" . }}
         </tbody>
       </table>

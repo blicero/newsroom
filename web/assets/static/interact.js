@@ -1,4 +1,4 @@
-// Time-stamp: <2026-04-14 13:21:55 krylon>
+// Time-stamp: <2026-04-18 20:59:44 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -149,7 +149,7 @@ function db_maintenance() {
 } // function db_maintenance()
 
 function scale_images() {
-    const selector = '#items img'
+    const selector = '.news-body > img'
     const maxHeight = 300
     const maxWidth = 300
 
