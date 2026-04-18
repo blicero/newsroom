@@ -1,6 +1,6 @@
 {{ define "tags" }}
 {{/* Created on 07. 04. 2026 */}}
-{{/* Time-stamp: <2026-04-07 14:50:39 krylon> */}}
+{{/* Time-stamp: <2026-04-18 22:08:26 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -15,6 +15,17 @@
     <hr />
 
     <div>
+      <script>
+       function edit_tag(tag_id, parent_id, name) {
+               const msg = `Edit Tag ${name} (${tag_id} &lt; ${parent_id})`
+               console.log(msg)
+               msg_add(msg, 'INFO')
+
+               $("#tag_id")[0].value = tag_id
+               $("#tag_parent")[0].value = parent_id
+               $("#tag_name")[0].value = name
+       }
+      </script>
       <table class="table table-primary table-sm table-striped">
         <thead>
           <tr>
@@ -32,6 +43,11 @@
             <td>
               {{ nbsp (twice .Level) }}
               {{ .Name }}
+              <button type="button"
+                class="btn btn-success btn-sm"
+                onclick="edit_tag({{ .ID }}, {{ .ParentID }}, '{{ .Name }}');">
+                <small>Edit</small>
+              </button>
             </td>
           </tr>
           {{ end }}
