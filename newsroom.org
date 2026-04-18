@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-18 21:03:19 krylon>
+# Time-stamp: <2026-04-18 21:18:20 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,50 +7,51 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [19/22]
+* Newsroom [21/23]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-18 Sa 21:03]
-   | Headline                              | Time       |            |         |       |      |
-   |---------------------------------------+------------+------------+---------+-------+------|
-   | *Total time*                          | *2d 20:27* |            |         |       |      |
-   |---------------------------------------+------------+------------+---------+-------+------|
-   | *Newsroom [19/22]*                    | *2d 20:27* |            |         |       |      |
-   | \_  /Components [19/22]/              |            | /2d 20:27/ |         |       |      |
-   | \_    Model [2/2]                     |            |            |    3:58 |       |      |
-   | \_      Strip HTML                    |            |            |         |  1:57 |      |
-   | \_      Sanitize HTML                 |            |            |         |  1:26 |      |
-   | \_    Database [0/0]                  |            |            |    7:43 |       |      |
-   | \_      Tags                          |            |            |         |  1:37 |      |
-   | \_        Tags form a hierarchy       |            |            |         |       | 0:10 |
-   | \_      TagLinks                      |            |            |         |  2:23 |      |
-   | \_    Engine [1/2]                    |            |            |    4:16 |       |      |
-   | \_    Blacklist [2/3]                 |            |            |    3:33 |       |      |
-   | \_    Cache [1/2]                     |            |            |    3:20 |       |      |
-   | \_      Evict expired values          |            |            |         |  0:27 |      |
-   | \_    Classifier [0/0]                |            |            |    2:26 |       |      |
-   | \_    Rating Guesser aka Critic [0/1] |            |            |    9:40 |       |      |
-   | \_      Testing                       |            |            |         |  2:31 |      |
-   | \_    Web [14/14]                     |            |            | 1d 9:31 |       |      |
-   | \_      Blacklist [2/2]               |            |            |         |  3:19 |      |
-   | \_        View and edit Blacklist     |            |            |         |       | 2:25 |
-   | \_        Use Blacklist               |            |            |         |       | 0:54 |
-   | \_      Subscribe to Feeds            |            |            |         |  3:03 |      |
-   | \_      Manage Feeds                  |            |            |         |  2:45 |      |
-   | \_      Manage Tags [3/3]             |            |            |         | 11:55 |      |
-   | \_        Create and edit Tags        |            |            |         |       | 2:34 |
-   | \_        Tag Items                   |            |            |         |       | 5:07 |
-   | \_        Suggest Tags                |            |            |         |       | 4:11 |
-   | \_      Integrate Classifier          |            |            |         |  2:37 |      |
-   | \_        Retrain Classifier          |            |            |         |       | 0:54 |
-   | \_      Rate Items                    |            |            |         |  5:14 |      |
-   | \_      Resize images                 |            |            |         |  0:17 |      |
+   #+CAPTION: Clock summary at [2026-04-18 Sa 21:18]
+   | Headline                                     | Time       |            |         |       |      |
+   |----------------------------------------------+------------+------------+---------+-------+------|
+   | *Total time*                                 | *2d 20:29* |            |         |       |      |
+   |----------------------------------------------+------------+------------+---------+-------+------|
+   | *Newsroom [21/23]*                           | *2d 20:29* |            |         |       |      |
+   | \_  /Components [21/23]/                     |            | /2d 20:29/ |         |       |      |
+   | \_    Model [2/2]                            |            |            |    3:58 |       |      |
+   | \_      Strip HTML                           |            |            |         |  1:57 |      |
+   | \_      Sanitize HTML                        |            |            |         |  1:26 |      |
+   | \_    Database [0/0]                         |            |            |    7:43 |       |      |
+   | \_      Tags                                 |            |            |         |  1:37 |      |
+   | \_        Tags form a hierarchy              |            |            |         |       | 0:10 |
+   | \_      TagLinks                             |            |            |         |  2:23 |      |
+   | \_    Engine [1/2]                           |            |            |    4:16 |       |      |
+   | \_    Blacklist [3/3]                        |            |            |    3:35 |       |      |
+   | \_      Save and Sort Blacklist periodically |            |            |         |  0:02 |      |
+   | \_    Cache [1/2]                            |            |            |    3:20 |       |      |
+   | \_      Evict expired values                 |            |            |         |  0:27 |      |
+   | \_    Classifier [0/0]                       |            |            |    2:26 |       |      |
+   | \_    Rating Guesser aka Critic [0/1]        |            |            |    9:40 |       |      |
+   | \_      Testing                              |            |            |         |  2:31 |      |
+   | \_    Web [14/14]                            |            |            | 1d 9:31 |       |      |
+   | \_      Blacklist [2/2]                      |            |            |         |  3:19 |      |
+   | \_        View and edit Blacklist            |            |            |         |       | 2:25 |
+   | \_        Use Blacklist                      |            |            |         |       | 0:54 |
+   | \_      Subscribe to Feeds                   |            |            |         |  3:03 |      |
+   | \_      Manage Feeds                         |            |            |         |  2:45 |      |
+   | \_      Manage Tags [3/3]                    |            |            |         | 11:55 |      |
+   | \_        Create and edit Tags               |            |            |         |       | 2:34 |
+   | \_        Tag Items                          |            |            |         |       | 5:07 |
+   | \_        Suggest Tags                       |            |            |         |       | 4:11 |
+   | \_      Integrate Classifier                 |            |            |         |  2:37 |      |
+   | \_        Retrain Classifier                 |            |            |         |       | 0:54 |
+   | \_      Rate Items                           |            |            |         |  5:14 |      |
+   | \_      Resize images                        |            |            |         |  0:17 |      |
    #+END:
-** Components [19/22]
+** Components [21/23]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -123,7 +124,7 @@
 **** DONE Parse RSS/Atom
      CLOSED: [2026-03-12 Do 14:15]
      https://github.com/mmcdole/gofeed
-*** Blacklist [2/3]
+*** Blacklist [3/3]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -133,7 +134,14 @@
     :END:
     I want to filter Items based on regular expressions, mainly to get rid of
     paywalled articles.
-**** TODO Save and Sort Blacklist periodically
+**** DONE Save and Sort Blacklist periodically
+     CLOSED: [2026-04-18 Sa 21:17]
+     :LOGBOOK:
+     CLOCK: [2026-04-18 Sa 21:15]--[2026-04-18 Sa 21:17] =>  0:02
+     :END:
+     Huh, looks like I already took care of it. The Blacklist is sorted from
+     the web UI when preparing the news view, and if there were any hits, it
+     is saved as well.
 **** DONE Persistence
      CLOSED: [2026-04-13 Mo 15:20]
      I need to decide how and where I want to store the blacklist
