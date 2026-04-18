@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-18 21:18:20 krylon>
+# Time-stamp: <2026-04-19 00:03:42 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,51 +7,52 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [21/23]
+* Newsroom [21/25]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-18 Sa 21:18]
-   | Headline                                     | Time       |            |         |       |      |
-   |----------------------------------------------+------------+------------+---------+-------+------|
-   | *Total time*                                 | *2d 20:29* |            |         |       |      |
-   |----------------------------------------------+------------+------------+---------+-------+------|
-   | *Newsroom [21/23]*                           | *2d 20:29* |            |         |       |      |
-   | \_  /Components [21/23]/                     |            | /2d 20:29/ |         |       |      |
-   | \_    Model [2/2]                            |            |            |    3:58 |       |      |
-   | \_      Strip HTML                           |            |            |         |  1:57 |      |
-   | \_      Sanitize HTML                        |            |            |         |  1:26 |      |
-   | \_    Database [0/0]                         |            |            |    7:43 |       |      |
-   | \_      Tags                                 |            |            |         |  1:37 |      |
-   | \_        Tags form a hierarchy              |            |            |         |       | 0:10 |
-   | \_      TagLinks                             |            |            |         |  2:23 |      |
-   | \_    Engine [1/2]                           |            |            |    4:16 |       |      |
-   | \_    Blacklist [3/3]                        |            |            |    3:35 |       |      |
-   | \_      Save and Sort Blacklist periodically |            |            |         |  0:02 |      |
-   | \_    Cache [1/2]                            |            |            |    3:20 |       |      |
-   | \_      Evict expired values                 |            |            |         |  0:27 |      |
-   | \_    Classifier [0/0]                       |            |            |    2:26 |       |      |
-   | \_    Rating Guesser aka Critic [0/1]        |            |            |    9:40 |       |      |
-   | \_      Testing                              |            |            |         |  2:31 |      |
-   | \_    Web [14/14]                            |            |            | 1d 9:31 |       |      |
-   | \_      Blacklist [2/2]                      |            |            |         |  3:19 |      |
-   | \_        View and edit Blacklist            |            |            |         |       | 2:25 |
-   | \_        Use Blacklist                      |            |            |         |       | 0:54 |
-   | \_      Subscribe to Feeds                   |            |            |         |  3:03 |      |
-   | \_      Manage Feeds                         |            |            |         |  2:45 |      |
-   | \_      Manage Tags [3/3]                    |            |            |         | 11:55 |      |
-   | \_        Create and edit Tags               |            |            |         |       | 2:34 |
-   | \_        Tag Items                          |            |            |         |       | 5:07 |
-   | \_        Suggest Tags                       |            |            |         |       | 4:11 |
-   | \_      Integrate Classifier                 |            |            |         |  2:37 |      |
-   | \_        Retrain Classifier                 |            |            |         |       | 0:54 |
-   | \_      Rate Items                           |            |            |         |  5:14 |      |
-   | \_      Resize images                        |            |            |         |  0:17 |      |
+   #+CAPTION: Clock summary at [2026-04-19 So 00:03]
+   | Headline                                     | Time       |            |          |       |      |
+   |----------------------------------------------+------------+------------+----------+-------+------|
+   | *Total time*                                 | *2d 22:46* |            |          |       |      |
+   |----------------------------------------------+------------+------------+----------+-------+------|
+   | *Newsroom [21/25]*                           | *2d 22:46* |            |          |       |      |
+   | \_  /Components [21/25]/                     |            | /2d 22:46/ |          |       |      |
+   | \_    Model [2/2]                            |            |            |     3:58 |       |      |
+   | \_      Strip HTML                           |            |            |          |  1:57 |      |
+   | \_      Sanitize HTML                        |            |            |          |  1:26 |      |
+   | \_    Database [0/0]                         |            |            |     7:43 |       |      |
+   | \_      Tags                                 |            |            |          |  1:37 |      |
+   | \_        Tags form a hierarchy              |            |            |          |       | 0:10 |
+   | \_      TagLinks                             |            |            |          |  2:23 |      |
+   | \_    Engine [1/2]                           |            |            |     4:16 |       |      |
+   | \_    Blacklist [3/3]                        |            |            |     3:35 |       |      |
+   | \_      Save and Sort Blacklist periodically |            |            |          |  0:02 |      |
+   | \_    Cache [1/2]                            |            |            |     3:20 |       |      |
+   | \_      Evict expired values                 |            |            |          |  0:27 |      |
+   | \_    Classifier [0/0]                       |            |            |     2:26 |       |      |
+   | \_    Rating Guesser aka Critic [0/1]        |            |            |     9:40 |       |      |
+   | \_      Testing                              |            |            |          |  2:31 |      |
+   | \_    Web [14/16]                            |            |            | 1d 11:48 |       |      |
+   | \_      Blacklist [2/2]                      |            |            |          |  3:19 |      |
+   | \_        View and edit Blacklist            |            |            |          |       | 2:25 |
+   | \_        Use Blacklist                      |            |            |          |       | 0:54 |
+   | \_      Subscribe to Feeds                   |            |            |          |  3:03 |      |
+   | \_      Manage Feeds                         |            |            |          |  2:45 |      |
+   | \_      Manage Tags [3/4]                    |            |            |          | 12:30 |      |
+   | \_        Create and edit Tags               |            |            |          |       | 3:09 |
+   | \_        Tag Items                          |            |            |          |       | 5:07 |
+   | \_        Suggest Tags                       |            |            |          |       | 4:11 |
+   | \_      Integrate Classifier                 |            |            |          |  2:37 |      |
+   | \_        Retrain Classifier                 |            |            |          |       | 0:54 |
+   | \_      Rate Items                           |            |            |          |  5:14 |      |
+   | \_      Resize images                        |            |            |          |  0:17 |      |
+   | \_      Search                               |            |            |          |  1:42 |      |
    #+END:
-** Components [21/23]
+** Components [21/25]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -221,7 +222,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [14/14]
+*** Web [14/16]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -258,7 +259,7 @@
      :LOGBOOK:
      CLOCK: [2026-04-04 Sa 16:52]--[2026-04-04 Sa 19:37] =>  2:45
      :END:
-**** DONE Manage Tags [3/3]
+**** DONE Manage Tags [3/4]
      CLOSED: [2026-04-13 Mo 12:11]
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
@@ -270,9 +271,16 @@
 ***** DONE Create and edit Tags
       CLOSED: [2026-04-09 Do 14:11]
       :LOGBOOK:
+      CLOCK: [2026-04-18 Sa 21:45]--[2026-04-18 Sa 22:20] =>  0:35
       CLOCK: [2026-04-07 Di 14:48]--[2026-04-07 Di 16:20] =>  1:32
       CLOCK: [2026-04-07 Di 13:19]--[2026-04-07 Di 14:21] =>  1:02
       :END:
+****** TODO Rename Tags
+       In a previous incarnation of this app, I ran into trouble when trying
+       to rename Tags, because the name was used in this Classifier.
+       I proactively tackled this issue by using the stringified Tag ID
+       instead of its name when training the Classifier. So it should be no
+       problem to rename Tags.
 ***** DONE Tag Items
       CLOSED: [2026-04-09 Do 14:11]
       :LOGBOOK:
@@ -325,6 +333,12 @@
      I don't need to actually *resize* images, just fix the img tags to change
      the size at which the images are displayed. I have done this before, so
      it shouldn't be too much work.
+**** TODO [#C] Search
+     :LOGBOOK:
+     CLOCK: [2026-04-18 Sa 22:21]--[2026-04-19 So 00:03] =>  1:42
+     :END:
+     On of the big points of having tags, of course, is to use them for
+     searching.
 *** Main [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
@@ -337,6 +351,7 @@
    :END:
 *** Rating
 *** Tagging
+*** Search
 *** Analysis paralysis
     One thing that just popped up in my mind is that I could attempt to
     analyze the headlines, e.g. the frequency of certain words per day, week
