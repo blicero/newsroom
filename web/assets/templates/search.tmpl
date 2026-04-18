@@ -1,0 +1,79 @@
+{{ define "search" }}
+{{/* Created on 18. 04. 2026 */}}
+{{/* Time-stamp: <2026-04-19 00:00:26 krylon> */}}
+<!DOCTYPE html>
+<html>
+  {{ template "head" . }}
+
+  <body>
+    {{ template "intro" . }}
+
+    <div>
+      <script>
+       $(document).ready(() => {
+               {{ range .Messages }}
+               msg_add('{{ . }}')
+               {{ end }}
+       })
+      </script>
+      <!--
+           Note to self: My first goal is to produce a form that has all the
+           features I want and that works.
+
+           "Fancy" stuff, like hiding unused parts of the form, come later.
+           (... yeah, right)
+      -->
+      <form action="/search" method="post">
+        <table>
+          <tr>
+            <td>
+              <label for="date_p">Filter by time?</label>
+              <input type="checkbox" name="date_p" />
+            </td>
+            <td>
+              <label for="date_begin">From:</label>
+              <input type="date" name="date_begin" />
+            </td>
+            <td>
+              <label for="date_to">To:</label>
+              <input type="date" name="date_to" />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label for="tag_p">Filter by tags?</label>
+              <input type="checkbox" name="tag_p" />
+            </td>
+            <td colspan="2">
+              <!--
+                   Okay, this is not only not pretty (that much was to be expected),
+                   it is disgusting, confusing, ...
+                   But as I noted above, for now, that is not the point.
+              -->
+              <fieldset>
+                {{ range .Tags }}
+                <label for="tag_{{ .ID }}">{{ .Name }}</label>
+                <input type="checkbox" name="tag_{{ .ID }}" />
+                {{ end }}
+              </fieldset>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3">
+              <input type="search" name="query" />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3">
+              <input type="reset" value="Reset" />
+              <input type="submit" value="Search" />
+            </td>
+          </tr>
+        </table>
+      </form>
+    </div>
+
+    {{ template "footer" . }}
+  </body>
+</html>
+{{ end }}

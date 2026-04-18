@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-14 14:25:29 krylon>
+// Time-stamp: <2026-04-18 23:15:30 krylon>
 
 package web
 
@@ -20,6 +20,7 @@ import (
 	"regexp"
 	"slices"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"text/template"
@@ -160,6 +161,7 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc("/tag/all", srv.handleTagsView)
 	srv.router.HandleFunc("/blacklist", srv.handleBlacklistView)
 	srv.router.HandleFunc("/retrain_classifier", srv.handleRetrain)
+	srv.router.HandleFunc("/search", srv.handleSearchForm)
 
 	// AJAX Handlers
 	srv.router.HandleFunc(
@@ -600,6 +602,63 @@ func (srv *Server) handleBlacklistView(w http.ResponseWriter, r *http.Request) {
 		srv.sendErrorMessage(w, msg)
 	}
 } // func (srv *Server) handleBlacklistView(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleSearchForm(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	const tmplName = "search"
+	var (
+		err  error
+		msg  string
+		db   *database.Database
+		tmpl *template.Template
+		data = tmplDataSearch{
+			tmplDataBase: tmplDataBase{
+				Title: "Search",
+				Debug: common.Debug,
+				URL:   r.RequestURI,
+			},
+		}
+	)
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if data.Tags, err = db.TagGetSorted(); err != nil {
+		msg = fmt.Sprintf("Failed to load Tags from database: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	data.TagMap = make(map[int64]*model.Tag, len(data.Tags))
+
+	for _, tag := range data.Tags {
+		data.TagMap[tag.ID] = tag
+	}
+
+	if strings.ToLower(r.Method) == "post" {
+		// We should process the search query.
+		data.Messages = make([]string, 1)
+		data.Messages[0] = "Actually PERFORMING the search is not there, yet."
+	}
+
+	if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Couldn't find template %s",
+			tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	w.Header().Set("Cache-Control", noCache)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleSearchForm(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////////////////////////////
 /// Handle AJAX //////////////////////////////////////////////////////////////

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-04-14 12:44:51 krylon>
+// Time-stamp: <2026-04-18 23:03:56 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
@@ -15,9 +15,10 @@ import (
 )
 
 type tmplDataBase struct {
-	Title string
-	Debug bool
-	URL   string
+	Title    string
+	Debug    bool
+	URL      string
+	Messages []string
 }
 
 type tmplDataIndex struct {
@@ -58,4 +59,11 @@ type tmplDataTags struct {
 type tmplDataBlacklist struct {
 	tmplDataBase
 	Patterns []blacklist.DispPat
+}
+
+type tmplDataSearch struct {
+	tmplDataBase
+	Items  []*model.Item
+	Tags   []*model.Tag
+	TagMap map[int64]*model.Tag
 }
