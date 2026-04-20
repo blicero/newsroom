@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 20. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-20 13:31:20 krylon>
+// Time-stamp: <2026-04-20 14:15:37 krylon>
 
 package database
 
@@ -110,7 +110,8 @@ EXEC_QUERY:
 			waitForRetry()
 			goto EXEC_QUERY
 		} else {
-			msg = fmt.Sprintf("Error querying all Feeds: %s",
+			msg = fmt.Sprintf("Error performing %s: %s",
+				qid,
 				err.Error())
 			db.log.Println(msg)
 			return nil, errors.New(msg)

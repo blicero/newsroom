@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 20. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-20 13:50:22 krylon>
+// Time-stamp: <2026-04-20 14:00:14 krylon>
 
 package database
 
@@ -19,9 +19,10 @@ func TestSearch(t *testing.T) {
 	}
 
 	type testCase struct {
-		name string
-		parm SearchParms
-		err  bool
+		name  string
+		parm  SearchParms
+		err   bool
+		empty bool
 	}
 
 	var cases = []testCase{
@@ -52,6 +53,20 @@ func TestSearch(t *testing.T) {
 					time.Now().Add(time.Second * -86400),
 				},
 			},
+			empty: true,
+		},
+		{
+			name: "by tags",
+			parm: SearchParms{
+				Query: "%Bla%",
+				TagP:  true,
+				Tags: map[int64]bool{
+					tags[0].ID: true,
+					tags[1].ID: true,
+					tags[2].ID: true,
+					tags[3].ID: true,
+				},
+			},
 		},
 	}
 
@@ -72,7 +87,7 @@ func TestSearch(t *testing.T) {
 		} else if c.err {
 			t.Errorf("Search %s should have resulted in error, but didn't",
 				c.name)
-		} else if len(items) == 0 {
+		} else if len(items) == 0 && !c.empty {
 			t.Errorf("Search %s returned no items",
 				c.name)
 		}
