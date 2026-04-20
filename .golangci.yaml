@@ -1,5 +1,5 @@
 # -*- mode: yaml; -*-
-# Time-stamp: <2026-03-11 15:35:46 krylon>
+# Time-stamp: <2026-04-20 13:30:46 krylon>
 version: "2"
 linters:
   # Default set of linters.
@@ -81,7 +81,6 @@ linters:
     - musttag
     - nakedret
     - nestif
-    # - nilaway
     - nilerr
     - nilnesserr
     - nilnil
@@ -100,7 +99,6 @@ linters:
     - reassign
     - recvcheck
     - revive
-    - rowserrcheck
     - sloglint
     - spancheck
     - sqlclosecheck
@@ -128,6 +126,7 @@ linters:
   # Disable specific linters.
   disable:
     - wsl
+    - rowserrcheck
   # All available settings of specific linters.
   settings:
     # custom:
