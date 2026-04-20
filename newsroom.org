@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-19 00:03:42 krylon>
+# Time-stamp: <2026-04-20 15:59:51 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,52 +7,53 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [21/25]
+* Newsroom [21/26]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-19 So 00:03]
-   | Headline                                     | Time       |            |          |       |      |
-   |----------------------------------------------+------------+------------+----------+-------+------|
-   | *Total time*                                 | *2d 22:46* |            |          |       |      |
-   |----------------------------------------------+------------+------------+----------+-------+------|
-   | *Newsroom [21/25]*                           | *2d 22:46* |            |          |       |      |
-   | \_  /Components [21/25]/                     |            | /2d 22:46/ |          |       |      |
-   | \_    Model [2/2]                            |            |            |     3:58 |       |      |
-   | \_      Strip HTML                           |            |            |          |  1:57 |      |
-   | \_      Sanitize HTML                        |            |            |          |  1:26 |      |
-   | \_    Database [0/0]                         |            |            |     7:43 |       |      |
-   | \_      Tags                                 |            |            |          |  1:37 |      |
-   | \_        Tags form a hierarchy              |            |            |          |       | 0:10 |
-   | \_      TagLinks                             |            |            |          |  2:23 |      |
-   | \_    Engine [1/2]                           |            |            |     4:16 |       |      |
-   | \_    Blacklist [3/3]                        |            |            |     3:35 |       |      |
-   | \_      Save and Sort Blacklist periodically |            |            |          |  0:02 |      |
-   | \_    Cache [1/2]                            |            |            |     3:20 |       |      |
-   | \_      Evict expired values                 |            |            |          |  0:27 |      |
-   | \_    Classifier [0/0]                       |            |            |     2:26 |       |      |
-   | \_    Rating Guesser aka Critic [0/1]        |            |            |     9:40 |       |      |
-   | \_      Testing                              |            |            |          |  2:31 |      |
-   | \_    Web [14/16]                            |            |            | 1d 11:48 |       |      |
-   | \_      Blacklist [2/2]                      |            |            |          |  3:19 |      |
-   | \_        View and edit Blacklist            |            |            |          |       | 2:25 |
-   | \_        Use Blacklist                      |            |            |          |       | 0:54 |
-   | \_      Subscribe to Feeds                   |            |            |          |  3:03 |      |
-   | \_      Manage Feeds                         |            |            |          |  2:45 |      |
-   | \_      Manage Tags [3/4]                    |            |            |          | 12:30 |      |
-   | \_        Create and edit Tags               |            |            |          |       | 3:09 |
-   | \_        Tag Items                          |            |            |          |       | 5:07 |
-   | \_        Suggest Tags                       |            |            |          |       | 4:11 |
-   | \_      Integrate Classifier                 |            |            |          |  2:37 |      |
-   | \_        Retrain Classifier                 |            |            |          |       | 0:54 |
-   | \_      Rate Items                           |            |            |          |  5:14 |      |
-   | \_      Resize images                        |            |            |          |  0:17 |      |
-   | \_      Search                               |            |            |          |  1:42 |      |
+   #+CAPTION: Clock summary at [2026-04-20 Mo 15:59]
+   | Headline                                     | Time      |           |          |       |      |
+   |----------------------------------------------+-----------+-----------+----------+-------+------|
+   | *Total time*                                 | *3d 3:25* |           |          |       |      |
+   |----------------------------------------------+-----------+-----------+----------+-------+------|
+   | *Newsroom [21/26]*                           | *3d 3:25* |           |          |       |      |
+   | \_  /Components [21/26]/                     |           | /3d 3:25/ |          |       |      |
+   | \_    Model [2/2]                            |           |           |     3:58 |       |      |
+   | \_      Strip HTML                           |           |           |          |  1:57 |      |
+   | \_      Sanitize HTML                        |           |           |          |  1:26 |      |
+   | \_    Database [0/1]                         |           |           |    10:41 |       |      |
+   | \_      Tags                                 |           |           |          |  1:37 |      |
+   | \_        Tags form a hierarchy              |           |           |          |       | 0:10 |
+   | \_      TagLinks                             |           |           |          |  2:23 |      |
+   | \_      Search [0/0]                         |           |           |          |  2:58 |      |
+   | \_    Engine [1/2]                           |           |           |     4:16 |       |      |
+   | \_    Blacklist [3/3]                        |           |           |     3:35 |       |      |
+   | \_      Save and Sort Blacklist periodically |           |           |          |  0:02 |      |
+   | \_    Cache [1/2]                            |           |           |     3:20 |       |      |
+   | \_      Evict expired values                 |           |           |          |  0:27 |      |
+   | \_    Classifier [0/0]                       |           |           |     2:26 |       |      |
+   | \_    Rating Guesser aka Critic [0/1]        |           |           |     9:40 |       |      |
+   | \_      Testing                              |           |           |          |  2:31 |      |
+   | \_    Web [14/16]                            |           |           | 1d 13:29 |       |      |
+   | \_      Blacklist [2/2]                      |           |           |          |  3:19 |      |
+   | \_        View and edit Blacklist            |           |           |          |       | 2:25 |
+   | \_        Use Blacklist                      |           |           |          |       | 0:54 |
+   | \_      Subscribe to Feeds                   |           |           |          |  3:03 |      |
+   | \_      Manage Feeds                         |           |           |          |  2:45 |      |
+   | \_      Manage Tags [3/4]                    |           |           |          | 12:30 |      |
+   | \_        Create and edit Tags               |           |           |          |       | 3:09 |
+   | \_        Tag Items                          |           |           |          |       | 5:07 |
+   | \_        Suggest Tags                       |           |           |          |       | 4:11 |
+   | \_      Integrate Classifier                 |           |           |          |  2:37 |      |
+   | \_        Retrain Classifier                 |           |           |          |       | 0:54 |
+   | \_      Rate Items                           |           |           |          |  5:14 |      |
+   | \_      Resize images                        |           |           |          |  0:17 |      |
+   | \_      Search                               |           |           |          |  3:23 |      |
    #+END:
-** Components [21/25]
+** Components [21/26]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -82,7 +83,7 @@
      For display in the Web UI, I would like to sanitize the Item Body on the
      server side (ideally caching the result), remove Javascript and such,
      resize images.
-*** Database [0/0]
+*** Database [0/1]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -111,6 +112,34 @@
      CLOCK: [2026-04-09 Do 15:49]--[2026-04-09 Do 17:12] =>  1:23
      CLOCK: [2026-04-08 Mi 11:53]--[2026-04-08 Mi 12:46] =>  0:53
      :END:
+**** TODO Search [0/0]
+     :PROPERTIES:
+     :COOKIE_DATA: todo recursive
+     :VISIBILITY: all
+     :END:
+     :LOGBOOK:
+     CLOCK: [2026-04-20 Mo 15:10]--[2026-04-20 Mo 15:59] =>  0:49
+     CLOCK: [2026-04-20 Mo 14:04]--[2026-04-20 Mo 14:48] =>  0:44
+     CLOCK: [2026-04-20 Mo 12:29]--[2026-04-20 Mo 13:54] =>  1:25
+     :END:
+     I would really like to delegate of much of the heavy lifting for the
+     search to the database engine, because it is probably a lot faster than
+     anything I could come up with.
+     But the fact that searching by tags and period is optional complicates
+     that significantly, unless I resort to generating SQL on the fly,
+     something I would rather avoid.
+     [2026-04-20 Mo 13:55]
+     I think I found a solution that works well enough, but I need to test it.
+     Since I have only four cases (with/without date/tag), I wrote SQL queries
+     for each of those.
+     [2026-04-20 Mo 14:04]
+     I spoke prematurely, the way I handle tags is not working (I attempted
+     passing in a slice of IDs, which is not supported). I'll have to rethink
+     that part.
+     [2026-04-20 Mo 15:09]
+     Ein Paket namens [[https://jmoiron.github.io/sqlx/][sqlx]] bietet eine Art Präprozessor für SQL-Queries mit
+     IN-Parametern, das würde aber nicht gut zusammengehen mit dem Ablauf, wie
+     ich mit der Datenbank spreche.
 *** Engine [1/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
@@ -335,10 +364,16 @@
      it shouldn't be too much work.
 **** TODO [#C] Search
      :LOGBOOK:
+     CLOCK: [2026-04-20 Mo 11:51]--[2026-04-20 Mo 12:29] =>  0:38
+     CLOCK: [2026-04-19 So 00:25]--[2026-04-19 So 01:28] =>  1:03
      CLOCK: [2026-04-18 Sa 22:21]--[2026-04-19 So 00:03] =>  1:42
      :END:
      On of the big points of having tags, of course, is to use them for
      searching.
+     I'm going to have to think about how to present them in the search
+     form. I try to avoid using fancy stuff, but I might want to look into the
+     jQuery-UI subproject, which provides lots of "widgets", which might
+     include a combobox or something like it.
 *** Main [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
