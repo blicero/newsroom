@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-09 14:17:14 krylon>
+// Time-stamp: <2026-04-20 14:13:27 krylon>
 
 package database
 
@@ -109,7 +109,7 @@ func Open(path string) (*Database, error) {
 		db.log.Printf("[DEBUG] Open database %s\n", path)
 	}
 
-	var connstring = fmt.Sprintf("%s?_locking=NORMAL&_journal=WAL&_fk=1&recursive_triggers=0",
+	var connstring = fmt.Sprintf("file:%s?_locking=NORMAL&cache=shared&_journal=WAL&_fk=1&recursive_triggers=0",
 		path)
 
 	if dbExists, err = krylib.Fexists(path); err != nil {
