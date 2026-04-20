@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-09 16:06:00 krylon>
+// Time-stamp: <2026-04-20 13:46:56 krylon>
 
 package database
 
@@ -122,6 +122,64 @@ WHERE rating <> 0
 `,
 	query.ItemCount:     "SELECT COUNT(id) FROM item",
 	query.ItemSetRating: "UPDATE item SET rating = ? WHERE id = ?",
+	query.ItemSearchPlain: `
+SELECT
+    id,
+    feed_id,
+    title,
+    url,
+    rating,
+    timestamp,
+    body
+FROM item
+WHERE (title LIKE ?) OR (body LIKE ?)
+ORDER BY timestamp DESC
+`,
+	query.ItemSearchDate: `
+SELECT
+    id,
+    feed_id,
+    title,
+    url,
+    rating,
+    timestamp,
+    body
+FROM item
+WHERE (timestamp BETWEEN ? AND ?)
+  AND (title LIKE ? OR body LIKE ?)
+ORDER BY timestamp DESC
+`,
+	query.ItemSearchTag: `
+SELECT DISTINCT
+    i.id,
+    i.feed_id,
+    i.title,
+    i.url,
+    i.rating,
+    i.timestamp,
+    i.body
+FROM tag_link l
+INNER JOIN item i ON l.item_id = i.id
+WHERE (l.tag_id IN (?))
+  AND (title LIKE ? OR body LIKE ?)
+ORDER BY timestamp DESC
+`,
+	query.ItemSearchDateTag: `
+SELECT DISTINCT
+    i.id,
+    i.feed_id,
+    i.title,
+    i.url,
+    i.rating,
+    i.timestamp,
+    i.body
+FROM tag_link l
+INNER JOIN item i ON l.item_id = i.id
+WHERE (i.timestamp BETWEEN ? AND ?)
+  AND (l.tag_id IN (?))
+  AND (title LIKE ? OR body LIKE ?)
+ORDER BY timestamp DESC
+`,
 	query.TagAdd: `
 INSERT INTO tag (name, parent)
          VALUES (   ?,      ?)

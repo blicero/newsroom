@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-07 13:03:48 krylon>
+// Time-stamp: <2026-04-20 12:40:02 krylon>
 
 package database
 
@@ -38,6 +38,7 @@ CREATE TABLE item (
 `,
 	"CREATE INDEX item_feed_idx ON item (feed_id)",
 	"CREATE INDEX item_time_idx ON item (timestamp)",
+	"CREATE INDEX item_txt_idx ON item (title, body)",
 	`
 CREATE TABLE tag (
     id			INTEGER PRIMARY KEY,
