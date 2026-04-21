@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-20 15:59:51 krylon>
+# Time-stamp: <2026-04-21 15:02:04 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,21 +14,21 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-20 Mo 15:59]
+   #+CAPTION: Clock summary at [2026-04-21 Di 15:02]
    | Headline                                     | Time      |           |          |       |      |
    |----------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Total time*                                 | *3d 3:25* |           |          |       |      |
+   | *Total time*                                 | *3d 6:31* |           |          |       |      |
    |----------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Newsroom [21/26]*                           | *3d 3:25* |           |          |       |      |
-   | \_  /Components [21/26]/                     |           | /3d 3:25/ |          |       |      |
+   | *Newsroom [21/26]*                           | *3d 6:31* |           |          |       |      |
+   | \_  /Components [21/26]/                     |           | /3d 6:31/ |          |       |      |
    | \_    Model [2/2]                            |           |           |     3:58 |       |      |
    | \_      Strip HTML                           |           |           |          |  1:57 |      |
    | \_      Sanitize HTML                        |           |           |          |  1:26 |      |
-   | \_    Database [0/1]                         |           |           |    10:41 |       |      |
+   | \_    Database [0/1]                         |           |           |    12:11 |       |      |
    | \_      Tags                                 |           |           |          |  1:37 |      |
    | \_        Tags form a hierarchy              |           |           |          |       | 0:10 |
    | \_      TagLinks                             |           |           |          |  2:23 |      |
-   | \_      Search [0/0]                         |           |           |          |  2:58 |      |
+   | \_      Search [0/0]                         |           |           |          |  4:28 |      |
    | \_    Engine [1/2]                           |           |           |     4:16 |       |      |
    | \_    Blacklist [3/3]                        |           |           |     3:35 |       |      |
    | \_      Save and Sort Blacklist periodically |           |           |          |  0:02 |      |
@@ -37,7 +37,7 @@
    | \_    Classifier [0/0]                       |           |           |     2:26 |       |      |
    | \_    Rating Guesser aka Critic [0/1]        |           |           |     9:40 |       |      |
    | \_      Testing                              |           |           |          |  2:31 |      |
-   | \_    Web [14/16]                            |           |           | 1d 13:29 |       |      |
+   | \_    Web [14/16]                            |           |           | 1d 15:05 |       |      |
    | \_      Blacklist [2/2]                      |           |           |          |  3:19 |      |
    | \_        View and edit Blacklist            |           |           |          |       | 2:25 |
    | \_        Use Blacklist                      |           |           |          |       | 0:54 |
@@ -51,7 +51,7 @@
    | \_        Retrain Classifier                 |           |           |          |       | 0:54 |
    | \_      Rate Items                           |           |           |          |  5:14 |      |
    | \_      Resize images                        |           |           |          |  0:17 |      |
-   | \_      Search                               |           |           |          |  3:23 |      |
+   | \_      Search                               |           |           |          |  4:59 |      |
    #+END:
 ** Components [21/26]
    :PROPERTIES:
@@ -118,6 +118,7 @@
      :VISIBILITY: all
      :END:
      :LOGBOOK:
+     CLOCK: [2026-04-21 Di 11:55]--[2026-04-21 Di 13:25] =>  1:30
      CLOCK: [2026-04-20 Mo 15:10]--[2026-04-20 Mo 15:59] =>  0:49
      CLOCK: [2026-04-20 Mo 14:04]--[2026-04-20 Mo 14:48] =>  0:44
      CLOCK: [2026-04-20 Mo 12:29]--[2026-04-20 Mo 13:54] =>  1:25
@@ -137,9 +138,10 @@
      passing in a slice of IDs, which is not supported). I'll have to rethink
      that part.
      [2026-04-20 Mo 15:09]
-     Ein Paket namens [[https://jmoiron.github.io/sqlx/][sqlx]] bietet eine Art Präprozessor für SQL-Queries mit
-     IN-Parametern, das würde aber nicht gut zusammengehen mit dem Ablauf, wie
-     ich mit der Datenbank spreche.
+     There is a package named [[https://jmoiron.github.io/sqlx/][sqlx]] that helps with SQL queries using "IN (?)"
+     parameters. This does break the way I deal with SQL queries throughout
+     the database layer, but it does appear to work. At least in the sense of
+     not breaking any tests or upsetting any linters.
 *** Engine [1/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
@@ -364,6 +366,7 @@
      it shouldn't be too much work.
 **** TODO [#C] Search
      :LOGBOOK:
+     CLOCK: [2026-04-21 Di 13:25]--[2026-04-21 Di 15:01] =>  1:36
      CLOCK: [2026-04-20 Mo 11:51]--[2026-04-20 Mo 12:29] =>  0:38
      CLOCK: [2026-04-19 So 00:25]--[2026-04-19 So 01:28] =>  1:03
      CLOCK: [2026-04-18 Sa 22:21]--[2026-04-19 So 00:03] =>  1:42
