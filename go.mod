@@ -7,6 +7,7 @@ require (
 	github.com/blicero/krylib v0.2.1
 	github.com/blicero/shield v0.0.0-20241004181537-05f336ba3f75
 	github.com/darkoatanasovski/htmltags v1.0.0
+	github.com/davecgh/go-spew v1.1.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/hashicorp/logutils v1.0.0
@@ -21,6 +22,7 @@ require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/garyburd/redigo v1.6.4 // indirect
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
+	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/legion-zver/shield v0.0.0-20160828000627-baf471544b7b // indirect
 	github.com/mmcdole/goxpp v1.1.1-0.20240225020742-a0c311522b23 // indirect

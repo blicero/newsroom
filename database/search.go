@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 20. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-20 14:15:37 krylon>
+// Time-stamp: <2026-04-21 13:00:56 krylon>
 
 package database
 
@@ -13,9 +13,11 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/database/query"
 	"github.com/blicero/newsroom/model"
 	"github.com/blicero/newsroom/model/rating"
+	"github.com/jmoiron/sqlx"
 )
 
 // SearchParms describes a search to be performed on the news Items.
@@ -31,11 +33,15 @@ type SearchParms struct {
 // the search parameters.
 func (db *Database) Search(parm *SearchParms) ([]*model.Item, error) { // nolint: rowserr
 	var (
-		err   error
-		qid   query.ID
-		msg   string
-		stmt  *sql.Stmt
-		items []*model.Item
+		err       error
+		qid       query.ID
+		msg, qstr string
+		stmt      *sql.Stmt
+		items     []*model.Item
+		qargs     []any
+		rows      *sql.Rows
+		tags      []int64
+		tidx      int
 	)
 
 	if parm.DateP && parm.TagP {
@@ -46,6 +52,53 @@ func (db *Database) Search(parm *SearchParms) ([]*model.Item, error) { // nolint
 		qid = query.ItemSearchTag
 	} else {
 		qid = query.ItemSearchPlain
+	}
+
+	if parm.TagP {
+		tags = make([]int64, len(parm.Tags))
+		for tid := range parm.Tags {
+			tags[tidx] = tid
+			tidx++
+		}
+
+		switch qid {
+		case query.ItemSearchTag:
+			qstr, qargs, err = sqlx.In(
+				qdb[qid],
+				tags,
+				parm.Query, parm.Query)
+		case query.ItemSearchDateTag:
+			qstr, qargs, err = sqlx.In(
+				qdb[qid],
+				parm.DateRange[0].Unix(),
+				parm.DateRange[1].Unix(),
+				tags,
+				parm.Query, parm.Query)
+		}
+
+		if err != nil {
+			msg = fmt.Sprintf("Failed to transform SQL query for search: %s",
+				err.Error())
+			db.log.Printf("[ERROR] %s\n", msg)
+			return nil, err
+		} else if common.Debug {
+			db.log.Printf("[DEBUG] Modified SQL for search by Tags:\n\t%s\n",
+				qstr)
+		}
+
+	EXEC_TAG_QUERY:
+		if rows, err = db.db.Query(qstr, qargs...); err != nil {
+			if worthARetry(err) {
+				waitForRetry()
+				goto EXEC_TAG_QUERY
+			}
+			db.log.Printf("[ERROR] Failed Search %s: %s\n",
+				qid,
+				err.Error())
+			return nil, err
+		}
+
+		goto PROCESS // This is nasty!!!!
 	}
 
 GET_QUERY:
@@ -62,12 +115,6 @@ GET_QUERY:
 	} else if db.tx != nil {
 		stmt = db.tx.Stmt(stmt)
 	}
-
-	var (
-		rows *sql.Rows
-		tags []int64
-		tidx int
-	)
 
 EXEC_QUERY:
 	switch qid {
@@ -118,6 +165,7 @@ EXEC_QUERY:
 		}
 	}
 
+PROCESS:
 	defer rows.Close() // nolint: errcheck
 
 	items = make([]*model.Item, 0)
