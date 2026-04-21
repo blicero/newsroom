@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-18 23:15:30 krylon>
+// Time-stamp: <2026-04-21 14:59:17 krylon>
 
 package web
 
@@ -35,6 +35,7 @@ import (
 	"github.com/blicero/newsroom/model"
 	"github.com/blicero/newsroom/model/rating"
 	"github.com/blicero/newsroom/scrub"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 )
 
@@ -205,7 +206,7 @@ func Create(addr string) (*Server, error) {
 	)
 
 	return srv, nil
-} // func Create(addr string, nx *nexus.Nexus) (*Server, error)
+} // func Create(addr string) (*Server, error)
 
 // IsActive returns the Server's active flag.
 func (srv *Server) IsActive() bool {
@@ -612,10 +613,12 @@ func (srv *Server) handleSearchForm(w http.ResponseWriter, r *http.Request) {
 		db   *database.Database
 		tmpl *template.Template
 		data = tmplDataSearch{
-			tmplDataBase: tmplDataBase{
-				Title: "Search",
-				Debug: common.Debug,
-				URL:   r.RequestURI,
+			tmplDataNews: tmplDataNews{
+				tmplDataBase: tmplDataBase{
+					Title: "Search",
+					Debug: common.Debug,
+					URL:   r.RequestURI,
+				},
 			},
 		}
 	)
@@ -641,6 +644,194 @@ func (srv *Server) handleSearchForm(w http.ResponseWriter, r *http.Request) {
 		// We should process the search query.
 		data.Messages = make([]string, 1)
 		data.Messages[0] = "Actually PERFORMING the search is not there, yet."
+		srv.performSearch(db, w, r)
+		return
+	} else if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Couldn't find template %s",
+			tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	w.Header().Set("Cache-Control", noCache)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleSearchForm(w http.ResponseWriter, r *http.Request)
+
+// Since handleSearchForm is long enough as it is, I delegate the actual searching
+// to this method.
+func (srv *Server) performSearch(db *database.Database, w http.ResponseWriter, r *http.Request) {
+	const (
+		tagPrefix = "tag_"
+		tmplName  = "search"
+	)
+
+	var (
+		err              error
+		msg, query       string
+		tmpl             *template.Template
+		tags             = make(map[int64]bool)
+		dateP, tagP      bool
+		dateFrom, dateTo time.Time
+		feeds            []*model.Feed
+	)
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Failed to parse form data: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	msg = spew.Sdump(r.PostForm)
+	srv.log.Printf("[DEBUG] We got a search query:\n\n%s\n\n",
+		msg)
+
+	if r.FormValue("tag_p") == "on" {
+		tagP = true
+		for key := range r.PostForm {
+			var id int64
+			if !strings.HasPrefix(key, tagPrefix) {
+				continue
+			} else if id, err = strconv.ParseInt(key[4:], 10, 64); err != nil {
+				if key == "tag_p" {
+					continue
+				}
+
+				msg = fmt.Sprintf("Failed to parse Tag ID %s: %s",
+					key,
+					err.Error())
+				srv.log.Printf("[ERROR] %s\n", msg)
+				srv.sendErrorMessage(w, msg)
+				return
+			}
+			tags[id] = true
+		}
+	}
+
+	if r.FormValue("date_p") == "on" {
+		dateP = true
+		var dstr = r.FormValue("date_begin")
+		if dateFrom, err = time.Parse(common.TimestampFormatDate, dstr); err != nil {
+			msg = fmt.Sprintf("Failed to parse begin date %q: %s",
+				dstr,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		}
+
+		dstr = r.FormValue("date_to")
+		if dateTo, err = time.Parse(common.TimestampFormatDate, dstr); err != nil {
+			msg = fmt.Sprintf("Failed to parse end date %q: %s",
+				dstr,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		}
+	}
+
+	query = r.FormValue("query")
+
+	var parm = database.SearchParms{
+		DateP: dateP,
+		TagP:  tagP,
+		Query: query,
+	}
+
+	if dateP {
+		parm.DateRange[0] = dateFrom
+		parm.DateRange[1] = dateTo
+	}
+
+	if tagP {
+		parm.Tags = tags
+	}
+
+	var data = tmplDataSearch{
+		tmplDataNews: tmplDataNews{
+			tmplDataBase: tmplDataBase{
+				Title: "Search",
+				Debug: common.Debug,
+				URL:   r.RequestURI,
+			},
+		},
+	}
+
+	if data.Items, err = db.Search(&parm); err != nil {
+		msg = fmt.Sprintf("Search failed: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if data.Tags, err = db.TagGetSorted(); err != nil {
+		msg = fmt.Sprintf("Failed to load Tags: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if feeds, err = db.FeedGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load Feeds: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	data.Feeds = make(map[int64]*model.Feed, len(feeds))
+
+	for _, feed := range feeds {
+		data.Feeds[feed.ID] = feed
+	}
+
+	data.TagMap = make(map[int64]*model.Tag, len(data.Tags))
+
+	for _, tag := range data.Tags {
+		data.TagMap[tag.ID] = tag
+	}
+
+	data.ItemTags = make(map[int64]map[int64]bool, len(data.Items))
+
+	data.TagAdvice = make(map[int64]classify.SuggList, len(data.Items))
+
+	for _, item := range data.Items {
+		var (
+			taglist []*model.Tag
+			tmap    map[int64]bool
+		)
+
+		if taglist, err = db.TagLinkGetByItem(item); err != nil {
+			msg = fmt.Sprintf("Failed to load Tags for Item %q (%d): %s",
+				item.Title,
+				item.ID,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		} else if data.TagAdvice[item.ID], err = srv.adv.Score(item); err != nil {
+			msg = fmt.Sprintf("Failed to calculate Tag Advice for Item %q (%d): %s",
+				item.Title,
+				item.ID,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		}
+
+		tmap = make(map[int64]bool, len(taglist))
+
+		for _, tag := range taglist {
+			tmap[tag.ID] = true
+		}
+
+		data.ItemTags[item.ID] = tmap
 	}
 
 	if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
@@ -658,7 +849,7 @@ func (srv *Server) handleSearchForm(w http.ResponseWriter, r *http.Request) {
 			err.Error())
 		srv.sendErrorMessage(w, msg)
 	}
-} // func (srv *Server) handleSearchForm(w http.ResponseWriter, r *http.Request)
+} // func (srv *Server) performSearch(db *database.Database, w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////////////////////////////
 /// Handle AJAX //////////////////////////////////////////////////////////////

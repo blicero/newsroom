@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 12. 2018 by Benjamin Walkenhorst
 // (c) 2018 Benjamin Walkenhorst
-// Time-stamp: <2026-04-11 12:20:26 krylon>
+// Time-stamp: <2026-04-21 13:16:14 krylon>
 
 package web
 
@@ -60,7 +60,7 @@ var funcmap = template.FuncMap{
 	"positive":         positive,
 	"since":            since,
 	"twice":            twice,
-	"tag_advice_id":    tag_advice_id,
+	"tag_advice_id":    tagAdviceID,
 }
 
 type generator struct {
@@ -337,7 +337,7 @@ func twice(i int) int {
 	return i + i
 } // func twice(s string) string
 
-func tag_advice_id(tagID, itemID int64) string {
+func tagAdviceID(tagID, itemID int64) string {
 	return fmt.Sprintf("tag_advice_%d_%d",
 		tagID,
 		itemID)

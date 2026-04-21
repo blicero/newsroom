@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-04-18 23:03:56 krylon>
+// Time-stamp: <2026-04-21 14:25:04 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
@@ -11,6 +11,7 @@ package web
 import (
 	"github.com/blicero/newsroom/blacklist"
 	"github.com/blicero/newsroom/classify"
+	"github.com/blicero/newsroom/database"
 	"github.com/blicero/newsroom/model"
 )
 
@@ -62,8 +63,6 @@ type tmplDataBlacklist struct {
 }
 
 type tmplDataSearch struct {
-	tmplDataBase
-	Items  []*model.Item
-	Tags   []*model.Tag
-	TagMap map[int64]*model.Tag
+	tmplDataNews
+	Parm database.SearchParms
 }

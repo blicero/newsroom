@@ -1,6 +1,6 @@
 {{ define "search" }}
 {{/* Created on 18. 04. 2026 */}}
-{{/* Time-stamp: <2026-04-19 00:00:26 krylon> */}}
+{{/* Time-stamp: <2026-04-21 13:14:53 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -72,6 +72,27 @@
         </table>
       </form>
     </div>
+
+    {{ if notnil .Items }}
+    <div id="results">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Feed</th>
+            <th>Time</th>
+            <th>Headline</th>
+            <th>Rating</th>
+            <th>Tags</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+
+        <tbody class="items">
+          {{ template "items" . }}
+        </tbody>
+            </table>
+    </div>
+    {{ end }}
 
     {{ template "footer" . }}
   </body>
