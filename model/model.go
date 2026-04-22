@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-10 14:16:57 krylon>
+// Time-stamp: <2026-04-22 12:06:14 krylon>
 
 // Package model defines data types that are used throughout the application.
 package model
@@ -43,7 +43,7 @@ type Item struct {
 	GuessedRating rating.Rating
 	Timestamp     time.Time
 	Body          string
-	stripped      string
+	Stripped      string
 	istr          string
 }
 
@@ -82,8 +82,8 @@ func (i *Item) EffectiveRating() rating.Rating {
 //
 // CAVEAT: Caching is result per Item only at this point.
 func (i *Item) Strip() string {
-	if i.stripped != "" {
-		return i.stripped
+	if i.Stripped != "" {
+		return i.Stripped
 	}
 
 	var (
@@ -98,8 +98,8 @@ func (i *Item) Strip() string {
 		panic(err)
 	}
 
-	i.stripped = nodes.ToString()
-	return i.stripped
+	i.Stripped = nodes.ToString()
+	return i.Stripped
 } // func (i *Item) Strip() string
 
 // Tag is a descriptive bit of text we can attach to Items.
