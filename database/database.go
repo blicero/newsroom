@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-20 14:13:27 krylon>
+// Time-stamp: <2026-04-22 11:37:57 krylon>
 
 package database
 
@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/blicero/krylib"
+	"github.com/blicero/newsroom/cache"
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/database/query"
 	"github.com/blicero/newsroom/logdomain"
@@ -79,6 +80,7 @@ type Database struct {
 	tx            *sql.Tx
 	log           *log.Logger
 	path          string
+	stripCache    *cache.Cache[[]byte]
 	spNameCounter int
 	spNameCache   map[string]string
 	queries       map[query.ID]*sql.Stmt
@@ -140,6 +142,12 @@ func Open(path string) (*Database, error) {
 		}
 		db.log.Printf("[INFO] Database at %s has been initialized\n",
 			path)
+	}
+
+	if db.stripCache, err = cache.New[[]byte]("stripCache"); err != nil {
+		db.log.Printf("[CRITICAL] Cannot open stripCache: %s\n",
+			err.Error())
+		return nil, err
 	}
 
 	return db, nil

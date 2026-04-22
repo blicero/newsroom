@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 08. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-08 12:33:47 krylon>
+// Time-stamp: <2026-04-22 12:31:57 krylon>
 
 package database
 
@@ -54,3 +54,29 @@ func TestItemAdd(t *testing.T) {
 		titems[idx] = item
 	}
 } // func TestItemAdd(t *testing.T)
+
+func TestItemStrip(t *testing.T) {
+	if tdb == nil {
+		t.SkipNow()
+	} else if len(titems) != itemCnt {
+		t.SkipNow()
+	}
+
+	for _, item := range titems {
+		var (
+			err      error
+			stripped string
+		)
+
+		if stripped, err = tdb.Strip(item); err != nil {
+			t.Errorf("Failed to strip Item %q (%d): %s",
+				item.Title,
+				item.ID,
+				err.Error())
+		} else if stripped == "" {
+			t.Errorf("Stripping Item %q (%d) returned an empty string",
+				item.Title,
+				item.ID)
+		}
+	}
+} // func TestItemStrip(t *testing.T)
