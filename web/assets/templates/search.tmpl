@@ -1,6 +1,6 @@
 {{ define "search" }}
 {{/* Created on 18. 04. 2026 */}}
-{{/* Time-stamp: <2026-04-21 13:14:53 krylon> */}}
+{{/* Time-stamp: <2026-04-22 11:23:48 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -75,6 +75,9 @@
 
     {{ if notnil .Items }}
     <div id="results">
+      <script>
+       $(document).ready(() => { scale_images() })
+      </script>
       <table class="table table-striped">
         <thead>
           <tr>
