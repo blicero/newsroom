@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-04-21 14:25:04 krylon>
+// Time-stamp: <2026-04-30 11:43:53 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
@@ -64,5 +64,6 @@ type tmplDataBlacklist struct {
 
 type tmplDataSearch struct {
 	tmplDataNews
-	Parm database.SearchParms
+	Parm     database.SearchParms
+	IsResult bool
 }

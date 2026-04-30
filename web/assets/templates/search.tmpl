@@ -1,6 +1,6 @@
 {{ define "search" }}
 {{/* Created on 18. 04. 2026 */}}
-{{/* Time-stamp: <2026-04-22 11:23:48 krylon> */}}
+{{/* Time-stamp: <2026-04-30 11:55:04 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -73,7 +73,10 @@
       </form>
     </div>
 
-    {{ if notnil .Items }}
+    <hr />
+
+    {{ if .IsResult }}
+    {{ if gt (len .Items) 0 }}
     <div id="results">
       <script>
        $(document).ready(() => { scale_images() })
@@ -95,6 +98,9 @@
         </tbody>
             </table>
     </div>
+    {{ else }}
+    <big>Nothing was found</big>
+    {{ end }}
     {{ end }}
 
     {{ template "footer" . }}
