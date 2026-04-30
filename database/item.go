@@ -2,23 +2,20 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 10. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-22 12:31:10 krylon>
+// Time-stamp: <2026-04-22 13:00:17 krylon>
 
 package database
 
 import (
-	"bytes"
 	"database/sql"
 	"errors"
 	"fmt"
 	"net/url"
-	"strconv"
 	"time"
 
 	"github.com/blicero/newsroom/database/query"
 	"github.com/blicero/newsroom/model"
 	"github.com/blicero/newsroom/model/rating"
-	"github.com/klauspost/compress/zstd"
 )
 
 // ItemAdd adds a news Item to the Database.
@@ -547,63 +544,64 @@ EXEC_QUERY:
 
 // Strip strips an Item and caches the result.
 func (db *Database) Strip(item *model.Item) (string, error) {
-	var (
-		err error
-		buf bytes.Buffer
-		raw *[]byte
-		key string
-	)
+	return item.Strip(), nil
+	// var (
+	// 	err error
+	// 	buf bytes.Buffer
+	// 	raw *[]byte
+	// 	key string
+	// )
 
-	if item.Stripped != "" {
-		return item.Stripped, nil
-	}
+	// if item.Stripped != "" {
+	// 	return item.Stripped, nil
+	// }
 
-	key = strconv.FormatInt(item.ID, 10)
+	// key = strconv.FormatInt(item.ID, 10)
 
-	if raw, err = db.stripCache.Load(key); err != nil {
-		db.log.Printf("[ERROR] Failed to lookup Item %d in stripCache: %s\n",
-			item.ID,
-			err.Error())
-		return "", err
-	} else if raw == nil {
-		var (
-			enc      *zstd.Encoder
-			stripped string
-			in, out  []byte
-		)
+	// if raw, err = db.stripCache.Load(key); err != nil {
+	// 	db.log.Printf("[ERROR] Failed to lookup Item %d in stripCache: %s\n",
+	// 		item.ID,
+	// 		err.Error())
+	// 	return "", err
+	// } else if raw == nil {
+	// 	var (
+	// 		enc      *zstd.Encoder
+	// 		stripped string
+	// 		in, out  []byte
+	// 	)
 
-		if enc, err = zstd.NewWriter(&buf); err != nil {
-			db.log.Printf("[ERROR] Cannot create zstd Encoder: %s\n",
-				err.Error())
-			return "", err
-		}
+	// 	if enc, err = zstd.NewWriter(&buf); err != nil {
+	// 		db.log.Printf("[ERROR] Cannot create zstd Encoder: %s\n",
+	// 			err.Error())
+	// 		return "", err
+	// 	}
 
-		stripped = item.Strip()
-		in = []byte(stripped)
-		enc.EncodeAll(in, out) // ???
+	// 	stripped = item.Strip()
+	// 	in = []byte(stripped)
+	// 	enc.EncodeAll(in, out) // ???
 
-		if err = db.stripCache.Store(key, &out); err != nil {
-			db.log.Printf("[ERROR] Failed to save compressed stripped text of Item %d: %s\n",
-				item.ID,
-				err.Error())
-			return "", err
-		}
+	// 	if err = db.stripCache.Store(key, &out); err != nil {
+	// 		db.log.Printf("[ERROR] Failed to save compressed stripped text of Item %d: %s\n",
+	// 			item.ID,
+	// 			err.Error())
+	// 		return "", err
+	// 	}
 
-		return stripped, nil
-	}
+	// 	return stripped, nil
+	// }
 
-	var (
-		dec *zstd.Decoder
-		out []byte
-	)
+	// var (
+	// 	dec *zstd.Decoder
+	// 	out []byte
+	// )
 
-	if dec, err = zstd.NewReader(bytes.NewBuffer(*raw)); err != nil {
-		db.log.Printf("[ERROR] Cannot create zstd Decoder: %s\n",
-			err.Error())
-		return "", err
-	}
+	// if dec, err = zstd.NewReader(bytes.NewBuffer(*raw)); err != nil {
+	// 	db.log.Printf("[ERROR] Cannot create zstd Decoder: %s\n",
+	// 		err.Error())
+	// 	return "", err
+	// }
 
-	dec.DecodeAll(*raw, out)
-	item.Stripped = string(out)
-	return item.Stripped, nil
+	// dec.DecodeAll(*raw, out)
+	// item.Stripped = string(out)
+	// return item.Stripped, nil
 } // func (db *Database) Strip(item *model.Item) error
