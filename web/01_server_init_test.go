@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 25. 08. 2024 by Benjamin Walkenhorst
 // (c) 2024 Benjamin Walkenhorst
-// Time-stamp: <2026-03-12 14:32:28 krylon>
+// Time-stamp: <2026-04-30 12:41:58 krylon>
 
 package web
 
@@ -17,7 +17,7 @@ func TestServerCreate(t *testing.T) {
 
 	addr = fmt.Sprintf("[::1]:%d", testPort)
 
-	if srv, err = Create(addr); err != nil {
+	if srv, err = Create(addr, nil); err != nil {
 		srv = nil
 		t.Fatalf("Error creating Server: %s",
 			err.Error())

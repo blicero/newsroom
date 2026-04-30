@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 10. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-03-12 14:03:23 krylon>
+// Time-stamp: <2026-04-30 13:08:17 krylon>
 
 // Package engine defines the Engine that manages the subscriptions.
 package engine
@@ -31,6 +31,7 @@ type Engine struct {
 	pool       *database.Pool
 	active     atomic.Bool
 	refreshing atomic.Bool
+	suspended  atomic.Bool
 	workerCnt  int
 }
 
@@ -75,6 +76,16 @@ func (eng *Engine) Start() {
 	go eng.supervisor()
 } // func (eng *Engine) Start()
 
+// Suspend toggles the Engine's activity.
+func (eng *Engine) Suspend(flag bool) {
+	eng.suspended.Store(flag)
+} // func (eng *Engine) Suspend(flag bool)
+
+// IsSuspended returns the Engine's suspended flag.
+func (eng *Engine) IsSuspended() bool {
+	return eng.suspended.Load()
+} // func (eng *Engine) IsSuspended() bool
+
 func (eng *Engine) supervisor() {
 	eng.active.Store(true)
 	defer eng.active.Store(false)
@@ -107,6 +118,10 @@ func (eng *Engine) performRefresh() {
 
 	if !eng.refreshing.CompareAndSwap(false, true) {
 		eng.log.Printf("[TRACE] Refresh is already going on, I'm quitting.\n")
+		return
+	} else if eng.suspended.Load() {
+		eng.refreshing.Store(false)
+		eng.log.Printf("[TRACE] Refresh is suspended, so I'm done already.\n")
 		return
 	}
 

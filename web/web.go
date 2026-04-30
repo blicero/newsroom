@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-30 11:38:47 krylon>
+// Time-stamp: <2026-04-30 13:36:15 krylon>
 
 package web
 
@@ -31,6 +31,7 @@ import (
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/critic"
 	"github.com/blicero/newsroom/database"
+	"github.com/blicero/newsroom/engine"
 	"github.com/blicero/newsroom/logdomain"
 	"github.com/blicero/newsroom/model"
 	"github.com/blicero/newsroom/model/rating"
@@ -58,6 +59,7 @@ type Server struct {
 	adv       *classify.Advisor
 	scrub     *scrub.Scrubber
 	bl        *blacklist.Blacklist
+	eng       *engine.Engine
 	router    *mux.Router
 	tmpl      *template.Template
 	web       http.Server
@@ -65,12 +67,13 @@ type Server struct {
 }
 
 // Create returns a new web Server.
-func Create(addr string) (*Server, error) {
+func Create(addr string, eng *engine.Engine) (*Server, error) {
 	var (
 		err error
 		msg string
 		srv = &Server{
 			addr: addr,
+			eng:  eng,
 			mimeTypes: map[string]string{
 				".css":  "text/css",
 				".map":  "application/json",
@@ -202,6 +205,10 @@ func Create(addr string) (*Server, error) {
 	srv.router.HandleFunc(
 		"/ajax/blacklist/remove",
 		srv.handleAjaxBlacklistRemove,
+	)
+	srv.router.HandleFunc(
+		"/ajax/toggle_refresh",
+		srv.handleAjaxToggleRefresh,
 	)
 
 	return srv, nil
@@ -758,6 +765,7 @@ func (srv *Server) performSearch(db *database.Database, w http.ResponseWriter, r
 				URL:   r.RequestURI,
 			},
 		},
+		IsResult: true,
 	}
 
 	if data.Items, err = db.Search(&parm); err != nil {
@@ -793,16 +801,23 @@ func (srv *Server) performSearch(db *database.Database, w http.ResponseWriter, r
 	}
 
 	data.ItemTags = make(map[int64]map[int64]bool, len(data.Items))
-
 	data.TagAdvice = make(map[int64]classify.SuggList, len(data.Items))
 
-	data.Items = slices.DeleteFunc(data.Items, func(item *model.Item) bool {
-		var bare = item.Strip()
-		if strings.Index(bare, query) == -1 {
-			return true
-		}
-		return false
-	})
+	if common.Debug {
+		srv.log.Printf("[DEBUG] Search for %q yielded %d results\n",
+			query,
+			len(data.Items))
+	}
+
+	// var lquery = strings.ToLower(query)
+
+	// data.Items = slices.DeleteFunc(data.Items, func(item *model.Item) bool {
+	// 	var bare = strings.ToLower(item.Strip())
+	// 	if strings.Index(bare, lquery) == -1 {
+	// 		return false
+	// 	}
+	// 	return true
+	// })
 
 	for _, item := range data.Items {
 		var (
@@ -1580,6 +1595,56 @@ SEND:
 	w.WriteHeader(200)
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Server) handleAjaxBlacklistRemove(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxToggleRefresh(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var (
+		err  error
+		msg  string
+		flag bool
+		buf  []byte
+		res  = ajaxData{
+			Timestamp: time.Now(),
+		}
+	)
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Cannot parse form data: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if flag, err = strconv.ParseBool(r.FormValue("status")); err != nil {
+		msg = fmt.Sprintf("Cannot parse bool from %q: %s",
+			r.FormValue("status"),
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	srv.eng.Suspend(flag)
+	res.Status = true
+	if flag {
+		res.Message = "Engine is suspended now"
+	} else {
+		res.Message = "Engine is running again."
+	}
+
+	if buf, err = json.Marshal(&res); err != nil {
+		msg = fmt.Sprintf("Failed to serialize response: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxToggleRefresh(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
 	var (
