@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 20. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-21 13:00:56 krylon>
+// Time-stamp: <2026-04-22 13:58:14 krylon>
 
 package database
 
@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/blicero/newsroom/common"
@@ -43,6 +44,10 @@ func (db *Database) Search(parm *SearchParms) ([]*model.Item, error) { // nolint
 		tags      []int64
 		tidx      int
 	)
+
+	if !strings.HasPrefix(parm.Query, "%") && !strings.HasSuffix(parm.Query, "%") {
+		parm.Query = "%" + parm.Query + "%"
+	}
 
 	if parm.DateP && parm.TagP {
 		qid = query.ItemSearchDateTag
