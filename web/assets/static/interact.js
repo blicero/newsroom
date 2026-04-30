@@ -1,4 +1,4 @@
-// Time-stamp: <2026-04-18 20:59:44 krylon>
+// Time-stamp: <2026-04-30 12:26:32 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -1163,3 +1163,28 @@ function blacklist_remove(row_id, pat) {
         alert(msg)
     })
 } // function blacklist_add()
+
+function toggle_refresh() {
+    const url = '/ajax/toggle_refresh'
+    const switch_id = "#refresh-switch"
+    const rswitch = $(switch_id)[0]
+    const status = rswitch.checked
+
+    $.post(
+        url,
+        { "status": status },
+        (res) => {
+            if (!res.status) {
+                let msg = `Failed to toggle Refresh status: ${res.message}`
+                msg_add(msg)
+                alert(msg)
+            }
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+        const msg = `Error creating TagLink: ${status} - ${reply}`
+        msg_add(msg, 'ERROR')
+        console.error(msg)
+        alert(msg)
+    })
+}
