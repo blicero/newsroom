@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-04-22 12:36:53 krylon>
+# Time-stamp: <2026-04-30 11:39:43 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,13 +14,13 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-04-22 Mi 12:36]
+   #+CAPTION: Clock summary at [2026-04-30 Do 11:39]
    | Headline                                     | Time      |           |          |       |      |
    |----------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Total time*                                 | *3d 7:56* |           |          |       |      |
+   | *Total time*                                 | *3d 9:16* |           |          |       |      |
    |----------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Newsroom [21/26]*                           | *3d 7:56* |           |          |       |      |
-   | \_  /Components [21/26]/                     |           | /3d 7:56/ |          |       |      |
+   | *Newsroom [21/26]*                           | *3d 9:16* |           |          |       |      |
+   | \_  /Components [21/26]/                     |           | /3d 9:16/ |          |       |      |
    | \_    Model [2/2]                            |           |           |     3:58 |       |      |
    | \_      Strip HTML                           |           |           |          |  1:57 |      |
    | \_      Sanitize HTML                        |           |           |          |  1:26 |      |
@@ -37,7 +37,7 @@
    | \_    Classifier [0/0]                       |           |           |     2:26 |       |      |
    | \_    Rating Guesser aka Critic [0/1]        |           |           |     9:40 |       |      |
    | \_      Testing                              |           |           |          |  2:31 |      |
-   | \_    Web [14/16]                            |           |           | 1d 15:19 |       |      |
+   | \_    Web [14/16]                            |           |           | 1d 16:39 |       |      |
    | \_      Blacklist [2/2]                      |           |           |          |  3:19 |      |
    | \_        View and edit Blacklist            |           |           |          |       | 2:25 |
    | \_        Use Blacklist                      |           |           |          |       | 0:54 |
@@ -51,7 +51,7 @@
    | \_        Retrain Classifier                 |           |           |          |       | 0:54 |
    | \_      Rate Items                           |           |           |          |  5:14 |      |
    | \_      Resize images                        |           |           |          |  0:17 |      |
-   | \_      Search                               |           |           |          |  5:13 |      |
+   | \_      Search                               |           |           |          |  6:33 |      |
    #+END:
 ** Components [21/26]
    :PROPERTIES:
@@ -367,6 +367,7 @@
      it shouldn't be too much work.
 **** TODO [#C] Search
      :LOGBOOK:
+     CLOCK: [2026-04-22 Mi 12:45]--[2026-04-22 Mi 14:05] =>  1:20
      CLOCK: [2026-04-22 Mi 11:10]--[2026-04-22 Mi 11:24] =>  0:14
      CLOCK: [2026-04-21 Di 13:25]--[2026-04-21 Di 15:01] =>  1:36
      CLOCK: [2026-04-20 Mo 11:51]--[2026-04-20 Mo 12:29] =>  0:38
