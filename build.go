@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 02. 2021 by Benjamin Walkenhorst
 // (c) 2021 Benjamin Walkenhorst
-// Time-stamp: <2026-04-13 15:20:10 krylon>
+// Time-stamp: <2026-04-30 11:48:56 krylon>
 
 //go:build ignore
 
@@ -30,6 +30,11 @@ import (
 
 	"github.com/hashicorp/logutils"
 )
+
+// TODO Nilaway uses A LOT of RAM, so I should probably run that sequentially!
+//      At least as an option. The laptop I'm using these days "only" has 8GB
+//      of RAM, and it gets rather swappy when nilaways suddenly gobbles up
+//      like half the RAM.
 
 const logFile = "./dbg.build.log"
 const lintCommand = "mygolint"
