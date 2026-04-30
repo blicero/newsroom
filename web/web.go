@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-21 15:22:16 krylon>
+// Time-stamp: <2026-04-30 11:38:47 krylon>
 
 package web
 
@@ -35,7 +35,6 @@ import (
 	"github.com/blicero/newsroom/model"
 	"github.com/blicero/newsroom/model/rating"
 	"github.com/blicero/newsroom/scrub"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 )
 
@@ -689,10 +688,6 @@ func (srv *Server) performSearch(db *database.Database, w http.ResponseWriter, r
 		return
 	}
 
-	msg = spew.Sdump(r.PostForm)
-	srv.log.Printf("[DEBUG] We got a search query:\n\n%s\n\n",
-		msg)
-
 	if r.FormValue("tag_p") == "on" {
 		tagP = true
 		for key := range r.PostForm {
@@ -739,10 +734,6 @@ func (srv *Server) performSearch(db *database.Database, w http.ResponseWriter, r
 	}
 
 	query = r.FormValue("query")
-
-	if !strings.HasPrefix(query, "%") && !strings.HasSuffix(query, "%") {
-		query = "%" + query + "%"
-	}
 
 	var parm = database.SearchParms{
 		DateP: dateP,
