@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 18. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-11 13:15:25 krylon>
+// Time-stamp: <2026-04-22 12:45:57 krylon>
 
 package cache
 
@@ -37,11 +37,14 @@ type Cache[T any] struct {
 
 // New creates and returns a new Cache of the specified type.
 func New[T any](name string) (*Cache[T], error) {
+	const maxErr = 5
+
 	var (
 		err    error
+		errCnt int
 		dbname string
 		opt    = bbolt.Options{
-			Timeout: time.Millisecond * 500,
+			Timeout: time.Millisecond * 1500,
 		}
 		c = &Cache[T]{name: name}
 	)
@@ -50,7 +53,15 @@ func New[T any](name string) (*Cache[T], error) {
 
 	if c.log, err = common.GetLogger(logdomain.Cache); err != nil {
 		return nil, err
-	} else if c.store, err = bbolt.Open(dbname, fs.ModePerm, &opt); err != nil {
+	}
+
+OPEN:
+	if c.store, err = bbolt.Open(dbname, fs.ModePerm, &opt); err != nil {
+		if err.Error() == "timeout" && errCnt < maxErr {
+			errCnt++
+			time.Sleep(time.Millisecond * 50)
+			goto OPEN
+		}
 		c.log.Printf("[CRITICAL] Failed to open BBolt store at %s: %s\n",
 			dbname,
 			err.Error())
