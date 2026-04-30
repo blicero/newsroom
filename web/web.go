@@ -805,6 +805,14 @@ func (srv *Server) performSearch(db *database.Database, w http.ResponseWriter, r
 
 	data.TagAdvice = make(map[int64]classify.SuggList, len(data.Items))
 
+	data.Items = slices.DeleteFunc(data.Items, func(item *model.Item) bool {
+		var bare = item.Strip()
+		if strings.Index(bare, query) == -1 {
+			return true
+		}
+		return false
+	})
+
 	for _, item := range data.Items {
 		var (
 			taglist []*model.Tag
