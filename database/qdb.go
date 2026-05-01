@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-20 13:46:56 krylon>
+// Time-stamp: <2026-05-01 10:54:56 krylon>
 
 package database
 
@@ -132,7 +132,7 @@ SELECT
     timestamp,
     body
 FROM item
-WHERE (title LIKE ?) OR (body LIKE ?)
+WHERE fulltext LIKE ?
 ORDER BY timestamp DESC
 `,
 	query.ItemSearchDate: `
@@ -146,7 +146,7 @@ SELECT
     body
 FROM item
 WHERE (timestamp BETWEEN ? AND ?)
-  AND (title LIKE ? OR body LIKE ?)
+  AND (fulltext LIKE ?)
 ORDER BY timestamp DESC
 `,
 	query.ItemSearchTag: `
@@ -161,7 +161,7 @@ SELECT DISTINCT
 FROM tag_link l
 INNER JOIN item i ON l.item_id = i.id
 WHERE (l.tag_id IN (?))
-  AND (title LIKE ? OR body LIKE ?)
+  AND (fulltext LIKE ?)
 ORDER BY timestamp DESC
 `,
 	query.ItemSearchDateTag: `
@@ -177,7 +177,7 @@ FROM tag_link l
 INNER JOIN item i ON l.item_id = i.id
 WHERE (i.timestamp BETWEEN ? AND ?)
   AND (l.tag_id IN (?))
-  AND (title LIKE ? OR body LIKE ?)
+  AND (fulltext LIKE ?)
 ORDER BY timestamp DESC
 `,
 	query.TagAdd: `

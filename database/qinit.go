@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-20 12:40:02 krylon>
+// Time-stamp: <2026-05-01 10:54:05 krylon>
 
 package database
 
@@ -31,6 +31,7 @@ CREATE TABLE item (
     rating		INTEGER NOT NULL DEFAULT 0,
     timestamp		INTEGER NOT NULL,
     body		TEXT NOT NULL,
+    fulltext            TEXT NOT NULL GENERATED ALWAYS AS (title || ' ' || body),
     FOREIGN KEY (feed_id) REFERENCES feed (id)
         ON UPDATE RESTRICT
         ON DELETE CASCADE

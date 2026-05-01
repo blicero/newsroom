@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 20. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-22 13:58:14 krylon>
+// Time-stamp: <2026-05-01 10:56:05 krylon>
 
 package database
 
@@ -45,8 +45,12 @@ func (db *Database) Search(parm *SearchParms) ([]*model.Item, error) { // nolint
 		tidx      int
 	)
 
+	db.log.Printf("[DEBUG] Searching for %#v\n", parm)
+
 	if !strings.HasPrefix(parm.Query, "%") && !strings.HasSuffix(parm.Query, "%") {
 		parm.Query = "%" + parm.Query + "%"
+	} else if parm.Query == "" {
+		parm.Query = "%"
 	}
 
 	if parm.DateP && parm.TagP {
@@ -71,14 +75,14 @@ func (db *Database) Search(parm *SearchParms) ([]*model.Item, error) { // nolint
 			qstr, qargs, err = sqlx.In(
 				qdb[qid],
 				tags,
-				parm.Query, parm.Query)
+				parm.Query)
 		case query.ItemSearchDateTag:
 			qstr, qargs, err = sqlx.In(
 				qdb[qid],
 				parm.DateRange[0].Unix(),
 				parm.DateRange[1].Unix(),
 				tags,
-				parm.Query, parm.Query)
+				parm.Query)
 		}
 
 		if err != nil {
@@ -124,12 +128,11 @@ GET_QUERY:
 EXEC_QUERY:
 	switch qid {
 	case query.ItemSearchPlain:
-		rows, err = stmt.Query(parm.Query, parm.Query)
+		rows, err = stmt.Query(parm.Query)
 	case query.ItemSearchDate:
 		rows, err = stmt.Query(
 			parm.DateRange[0].Unix(),
 			parm.DateRange[1].Unix(),
-			parm.Query,
 			parm.Query)
 	case query.ItemSearchTag:
 		tags = make([]int64, len(parm.Tags))
@@ -140,7 +143,6 @@ EXEC_QUERY:
 
 		rows, err = stmt.Query(
 			tags,
-			parm.Query,
 			parm.Query)
 	case query.ItemSearchDateTag:
 		tags = make([]int64, len(parm.Tags))
@@ -153,7 +155,6 @@ EXEC_QUERY:
 			parm.DateRange[0].Unix(),
 			parm.DateRange[1].Unix(),
 			tags,
-			parm.Query,
 			parm.Query)
 	}
 
@@ -207,6 +208,10 @@ PROCESS:
 		item.Timestamp = time.Unix(timestamp, 0)
 		items = append(items, item)
 	}
+
+	db.log.Printf("[DEBUG] Search for %q yielded %d results\n",
+		parm.Query,
+		len(items))
 
 	return items, nil
 } // func (db *Database) Search(parm *SearchParms) ([]*model.Item, error)
