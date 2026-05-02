@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 20. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-01 10:56:05 krylon>
+// Time-stamp: <2026-05-02 13:00:54 krylon>
 
 package database
 
@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"slices"
 	"strings"
 	"time"
 
@@ -64,11 +65,21 @@ func (db *Database) Search(parm *SearchParms) ([]*model.Item, error) { // nolint
 	}
 
 	if parm.TagP {
-		tags = make([]int64, len(parm.Tags))
+		tags = make([]int64, 0)
 		for tid := range parm.Tags {
-			tags[tidx] = tid
-			tidx++
+			var tlist []int64
+
+			if tlist, err = db.expandTagHierarchy(tid); err != nil {
+				db.log.Printf("[ERROR] Failed to load children of Tag %d: %s\n",
+					tid,
+					err.Error())
+				return nil, err
+			}
+
+			tags = append(tags, tlist...)
 		}
+
+		slices.Sort(tags)
 
 		switch qid {
 		case query.ItemSearchTag:
@@ -215,3 +226,44 @@ PROCESS:
 
 	return items, nil
 } // func (db *Database) Search(parm *SearchParms) ([]*model.Item, error)
+
+func (db *Database) expandTagHierarchy(tagID int64) ([]int64, error) {
+	var (
+		err    error
+		idlist []int64
+		root   *model.Tag
+		tags   []*model.Tag
+	)
+
+	// This a little brute force-ish, but I don't want to break my brain
+	// finding a more elegant solution right now. If it turns out to kill
+	// performance, I might have to, but we'll cross that bridge when
+	// we get there.
+
+	if root, err = db.TagGetByID(tagID); err != nil {
+		db.log.Printf("[ERROR] Failed to load Tag %d: %s\n",
+			tagID,
+			err.Error())
+		return nil, err
+	} else if root == nil {
+		err = fmt.Errorf("Tag #%d was not found in Database", tagID)
+		db.log.Printf("[ERROR] %s\n",
+			err.Error())
+		return nil, err
+	} else if tags, err = db.TagGetSorted(); err != nil {
+		db.log.Printf("[ERROR] Failed to get Tag hierarchy: %s\n",
+			err.Error())
+		return nil, err
+	}
+
+	idlist = make([]int64, 1)
+	idlist[0] = tagID
+
+	for _, tag := range tags {
+		if tag.ID != tagID && strings.HasPrefix(tag.FullName, root.FullName) {
+			idlist = append(idlist, tag.ID)
+		}
+	}
+
+	return idlist, nil
+} // func (db *Database) expandTagHierarchy(tagID int64) ([]int64, error)
