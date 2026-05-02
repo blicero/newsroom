@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 02. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-07 15:43:13 krylon>
+// Time-stamp: <2026-05-02 14:06:48 krylon>
 
 package database
 
@@ -365,3 +365,30 @@ EXEC_QUERY:
 	tag.ParentID = parentID
 	return nil
 } // func (db *Database) TagSetParent(tag *model.Tag, parentID int64) error
+
+// TagGetTree returns the Tags organized by hierarchy.
+// func (db *Database) TagGetTree() ([]*model.TagTree, error) {
+// 	var (
+// 		err    error
+// 		tags   []*model.Tag
+// 		forest []*model.TagTree
+// 	)
+
+// 	if tags, err = db.TagGetSorted(); err != nil {
+// 		db.log.Printf("[ERROR] Failed to load Tags: %s\n",
+// 			err.Error())
+// 		return nil, err
+// 	}
+
+// 	forest = make([]*model.TagTree, 0)
+
+// 	for _, tag := range tags {
+// 		if tag.Level == 0 {
+// 			forest = append(
+// 				forest,
+// 				&model.TagTree{
+// 					Tag: *tag,
+// 				})
+// 		}
+// 	}
+// } // func (db *Database) TagGetTree() (*model.TagTree, error)

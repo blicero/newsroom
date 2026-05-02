@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-22 12:06:14 krylon>
+// Time-stamp: <2026-05-02 14:06:48 krylon>
 
 // Package model defines data types that are used throughout the application.
 package model
@@ -138,3 +138,9 @@ type TagLink struct {
 	TagID  int64
 	ItemID int64
 }
+
+// TagTree represents the Tags in a hierarchical fashion.
+// type TagTree struct {
+// 	Tag
+// 	Children []*model.TagTree
+// }
