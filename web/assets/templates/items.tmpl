@@ -1,17 +1,37 @@
 {{ define "items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-04-18 20:56:33 krylon> */}}
+{{/* Time-stamp: <2026-05-04 13:45:29 krylon> */}}
 {{ $feeds := .Feeds }}
 {{ $tags := .Tags }}
 {{ $tagMap := .TagMap }}
 {{ $itemTags := .ItemTags }}
 {{ $advice := .TagAdvice }}
+{{ $bookmarks := .Bookmarks }}
 
 {{ range .Items }}
 {{ $item := . }}
 <tr id="item_row_{{ .ID }}"
   {{- if .IsBoring }}class="boring"{{ end }}>
-  <td>{{ fmt_time_minute .Timestamp }}</td>
+  <td>
+    <div>
+      {{ fmt_time_minute .Timestamp }}
+    </div>
+    <div id="bm_box_{{ .ID }}">
+    {{ if notnil (index $bookmarks .ID) }}
+    <button
+      id="bm_add_{{ .ID }}"
+      type="button"
+      class="btn btn-outline-secondary btn-sm"
+      onclick="bookmark_add({{ .ID }}");" />
+    {{ else }}
+    <button
+      id="bm_del_{{ .ID }}"
+      type="button"
+      class="btn btn-outline-success btn-sm"
+      onclick="bookmark_delete({{ .ID }});" />
+    {{ end }}
+    </div>
+  </td>
   <td>
     <a href="/feed/{{ .FeedID }}">
       {{ (index $feeds .FeedID).Name }}

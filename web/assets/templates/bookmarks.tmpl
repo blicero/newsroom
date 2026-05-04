@@ -1,0 +1,50 @@
+{{ define "bookmarks" }}
+{{/* Created on 04. 05. 2026 */}}
+{{/* Time-stamp: <2026-05-04 13:05:49 krylon> */}}
+<!DOCTYPE html>
+<html>
+  {{ template "head" . }}
+
+  <body>
+    {{ template "intro" . }}
+
+    <hr />
+
+    <div class="body">
+      <table class="table table-primary-sm table-striped">
+        <thead>
+          <tr>
+            <th>ItemID</th>
+            <th>Deadline</th>
+            <th>Comment</th>
+            <th>Finished?</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {{ range .Bookmarks }}
+          <tr>
+            <td>{{ .ItemID }}</td>
+            <td>
+              {{- if not .Deadline.IsZero }}
+              {{ fmt_time_minute .Deadline }}
+              {{ end -}}
+            </td>
+            <td>
+              {{ .Comment }}
+            </td>
+            <td>
+              {{- if .Finished }}
+              {{ fmt_time_minute .FinishedWhen }}
+              {{ end -}}
+            </td>
+          </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+
+    {{ template "footer" . }}
+  </body>
+</html>
+{{ end }}

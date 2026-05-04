@@ -1,4 +1,4 @@
-// Time-stamp: <2026-04-30 12:26:32 krylon>
+// Time-stamp: <2026-05-04 13:40:47 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -1162,7 +1162,71 @@ function blacklist_remove(row_id, pat) {
         console.error(msg)
         alert(msg)
     })
-} // function blacklist_add()
+} // function blacklist_remove(row_id, pat)
+
+function bookmark_add(item_id) {
+    const url = "/ajax/bookmark/add"
+    const data = {
+        "item_id": item_id,
+    }
+
+    $.post(
+        url,
+        data,
+        (res) => {
+            if (res.status) {
+                const btn_id = `#bm_add_${item_id}`
+                const btn = $(btn_id)[0]
+                btn.remove()
+                const bm_box = $(`#bm_box_${item_id}`)[0]
+                const del_btn = `<button
+      id="bm_del_${item_id}"
+      type="button"
+      class="btn btn-outline-success btn-sm"
+      onclick="bookmark_delete(${item_id});" />`
+                bm_box.innerHTML += del_btn
+            }
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+        const msg = `Error deleting TagLink: ${status} - ${reply} - ${xhr}`
+        msg_add(msg, 'ERROR')
+        console.error(msg)
+        alert(msg)
+    })
+} // function bookmark_add(item_id)
+
+function bookmark_delete(item_id) {
+    const url = "/ajax/bookmark/del"
+    const data = {
+        "item_id": item_id,
+    }
+
+    $.post(
+        url,
+        data,
+        (res) => {
+            if (res.status) {
+                const btn_id = `#bm_del_${item_id}`
+                const btn = $(btn_id)[0]
+                btn.remove()
+                const bm_box = $(`#bm_box_${item_id}`)[0]
+                const del_btn = `<button
+      id="bm_add_${item_id}"
+      type="button"
+      class="btn btn-outline-success btn-sm"
+      onclick="bookmark_add(${item_id});" />`
+                bm_box.innerHTML += del_btn
+            }
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+        const msg = `Error deleting TagLink: ${status} - ${reply} - ${xhr}`
+        msg_add(msg, 'ERROR')
+        console.error(msg)
+        alert(msg)
+    })
+} // function bookmark_delete(item_id)
 
 function toggle_refresh() {
     const url = '/ajax/toggle_refresh'
@@ -1187,4 +1251,4 @@ function toggle_refresh() {
         console.error(msg)
         alert(msg)
     })
-}
+} // function toggle_refresh()
