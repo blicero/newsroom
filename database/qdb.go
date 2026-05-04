@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-01 10:54:56 krylon>
+// Time-stamp: <2026-05-04 12:34:16 krylon>
 
 package database
 
@@ -254,5 +254,22 @@ SELECT
     COALESCE(t.parent, 0)
 FROM tag_link l
 INNER JOIN tag t ON l.tag_id = t.id
+`,
+	query.BookmarkAdd: "INSERT INTO read_later (item_id) VALUES (?)",
+	query.BookmarkGetAll: `
+SELECT
+    id,
+    item_id,
+    COALESCE(deadline, 0),
+    COALESCE(comment, ''),
+    finished,
+    COALESCE(finish_stamp, 0)
+FROM read_later
+`,
+	query.BookmarkDelete: "DELETE FROM read_later WHERE id = ?",
+	query.BookmarkMarkFinished: `
+UPDATE read_later
+SET finished = 1, finish_stamp = ?
+WHERE id = ?
 `,
 }
