@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-02 14:19:50 krylon>
+# Time-stamp: <2026-05-04 13:57:08 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,30 +7,32 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [26/32]
+* Newsroom [27/34]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-02 Sa 13:07]
+   #+CAPTION: Clock summary at [2026-05-04 Mo 13:57]
    | Headline                                     | Time       |            |          |       |      |
    |----------------------------------------------+------------+------------+----------+-------+------|
-   | *Total time*                                 | *3d 14:35* |            |          |       |      |
+   | *Total time*                                 | *3d 18:19* |            |          |       |      |
    |----------------------------------------------+------------+------------+----------+-------+------|
-   | *Newsroom [25/31]*                           | *3d 14:35* |            |          |       |      |
-   | \_  /Components [25/31]/                     |            | /3d 14:35/ |          |       |      |
-   | \_    Model [2/2]                            |            |            |     3:58 |       |      |
+   | *Newsroom [27/34]*                           | *3d 18:19* |            |          |       |      |
+   | \_  /Components [27/34]/                     |            | /3d 18:19/ |          |       |      |
+   | \_    Model [3/3]                            |            |            |     4:39 |       |      |
+   | \_      Plant a tree!                        |            |            |          |  0:25 |      |
    | \_      Strip HTML                           |            |            |          |  1:57 |      |
    | \_      Sanitize HTML                        |            |            |          |  1:26 |      |
-   | \_    Database [2/2]                         |            |            |    15:50 |       |      |
+   | \_    Database [3/3]                         |            |            |    17:12 |       |      |
+   | \_      Bookmarks                            |            |            |          |  1:22 |      |
    | \_      Tags                                 |            |            |          |  1:37 |      |
    | \_        Tags form a hierarchy              |            |            |          |       | 0:10 |
    | \_      TagLinks                             |            |            |          |  2:23 |      |
    | \_      Search [1/1]                         |            |            |          |  8:07 |      |
    | \_        Search by Tags hierarchically      |            |            |          |       | 2:28 |
-   | \_    Engine [1/2]                           |            |            |     4:16 |       |      |
+   | \_    Engine [1/1]                           |            |            |     4:16 |       |      |
    | \_    Blacklist [3/3]                        |            |            |     3:35 |       |      |
    | \_      Save and Sort Blacklist periodically |            |            |          |  0:02 |      |
    | \_    Cache [1/2]                            |            |            |     3:20 |       |      |
@@ -38,7 +40,7 @@
    | \_    Classifier [0/0]                       |            |            |     2:26 |       |      |
    | \_    Rating Guesser aka Critic [0/1]        |            |            |     9:40 |       |      |
    | \_      Testing                              |            |            |          |  2:31 |      |
-   | \_    Web [16/20]                            |            |            | 1d 19:30 |       |      |
+   | \_    Web [16/21]                            |            |            | 1d 21:11 |       |      |
    | \_      Blacklist [2/2]                      |            |            |          |  3:19 |      |
    | \_        View and edit Blacklist            |            |            |          |       | 2:25 |
    | \_        Use Blacklist                      |            |            |          |       | 0:54 |
@@ -52,11 +54,13 @@
    | \_        Retrain Classifier                 |            |            |          |       | 0:54 |
    | \_      Rate Items                           |            |            |          |  5:14 |      |
    | \_      Resize images                        |            |            |          |  0:17 |      |
-   | \_      Search [1/3]                         |            |            |          |  7:52 |      |
+   | \_      Search [1/3]                         |            |            |          |  8:31 |      |
    | \_        The curious case of the missing... |            |            |          |       | 0:41 |
+   | \_        Smoother UX                        |            |            |          |       | 0:39 |
    | \_      Suspend refresh                      |            |            |          |  1:32 |      |
+   | \_      Bookmarks                            |            |            |          |  1:02 |      |
    #+END:
-** Components [26/32]
+** Components [27/34]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -67,6 +71,7 @@
     :VISIBILITY: all
     :END:
     :LOGBOOK:
+    CLOCK: [2026-05-02 Sa 14:22]--[2026-05-02 Sa 14:38] =>  0:16
     CLOCK: [2026-03-09 Mo 13:15]--[2026-03-09 Mo 13:50] =>  0:35
     :END:
 **** CANCELLED Plant a tree!
@@ -95,7 +100,7 @@
      For display in the Web UI, I would like to sanitize the Item Body on the
      server side (ideally caching the result), remove Javascript and such,
      resize images.
-*** Database [2/2]
+*** Database [3/3]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -109,6 +114,12 @@
     CLOCK: [2026-03-09 Mo 14:13]--[2026-03-09 Mo 14:55] =>  0:42
     CLOCK: [2026-03-09 Mo 13:50]--[2026-03-09 Mo 14:07] =>  0:17
     :END:
+**** DONE Bookmarks
+     CLOSED: [2026-05-04 Mo 12:56]
+     :LOGBOOK:
+     CLOCK: [2026-05-04 Mo 12:14]--[2026-05-04 Mo 12:56] =>  0:42
+     CLOCK: [2026-05-03 So 15:41]--[2026-05-03 So 16:21] =>  0:40
+     :END:
 **** Tags
      :LOGBOOK:
      CLOCK: [2026-04-07 Di 12:50]--[2026-04-07 Di 13:08] =>  0:18
@@ -169,7 +180,7 @@
       [2026-05-01 Fr 11:33]
       Honestly, I think I can start by manually expanding the tag set before
       performing the query.
-*** Engine [1/2]
+*** Engine [1/1]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -428,8 +439,9 @@
      :LOGBOOK:
      CLOCK: [2026-04-30 Do 12:17]--[2026-04-30 Do 13:49] =>  1:32
      :END:
-**** TODO Later, Bitches
+**** TODO Bookmarks
      :LOGBOOK:
+     CLOCK: [2026-05-04 Mo 12:58]--[2026-05-04 Mo 13:57] =>  0:59
      CLOCK: [2026-05-02 Sa 14:16]--[2026-05-02 Sa 14:19] =>  0:03
      :END:
      I would like to mark Items as read-worthy, lest I forget about them.
