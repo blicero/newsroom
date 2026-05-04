@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-04 13:50:46 krylon>
+// Time-stamp: <2026-05-04 15:10:05 krylon>
 
 package web
 
@@ -206,6 +206,14 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 	srv.router.HandleFunc(
 		"/ajax/blacklist/remove",
 		srv.handleAjaxBlacklistRemove,
+	)
+	srv.router.HandleFunc(
+		"/ajax/bookmark/add",
+		srv.handleAjaxBookmarkAdd,
+	)
+	srv.router.HandleFunc(
+		"/ajax/bookmark/del",
+		srv.handleAjaxBookmarkDelete,
 	)
 	srv.router.HandleFunc(
 		"/ajax/toggle_refresh",
@@ -1654,6 +1662,134 @@ SEND:
 	w.WriteHeader(200)
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Server) handleAjaxBlacklistRemove(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxBookmarkAdd(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var (
+		err          error
+		msg, itemStr string
+		itemID       int64
+		db           *database.Database
+		buf          []byte
+		bookmark     *model.Bookmark
+		res          = ajaxData{
+			Timestamp: time.Now(),
+		}
+	)
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Cannot parse form data: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	itemStr = r.FormValue("item_id")
+
+	if itemID, err = strconv.ParseInt(itemStr, 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse Item ID %q: %s",
+			itemStr,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	bookmark = &model.Bookmark{ItemID: itemID}
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if err = db.BookmarkAdd(bookmark); err != nil {
+		msg = fmt.Sprintf("Failed to create bookmark for Item %d: %s",
+			itemID,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	res.Status = true
+	res.Message = "Success"
+
+	if buf, err = json.Marshal(&res); err != nil {
+		msg = fmt.Sprintf("Failed to serialize response: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxBookmarkAdd(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxBookmarkDelete(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var (
+		err          error
+		msg, itemStr string
+		itemID       int64
+		db           *database.Database
+		buf          []byte
+		bookmark     *model.Bookmark
+		res          = ajaxData{
+			Timestamp: time.Now(),
+		}
+	)
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Cannot parse form data: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	itemStr = r.FormValue("item_id")
+
+	if itemID, err = strconv.ParseInt(itemStr, 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse Item ID %q: %s",
+			itemStr,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	bookmark = &model.Bookmark{ItemID: itemID}
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if err = db.BookmarkDelete(bookmark); err != nil {
+		msg = fmt.Sprintf("Failed to delete bookmark for Item %d: %s",
+			itemID,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	res.Status = true
+	res.Message = "Success"
+
+	if buf, err = json.Marshal(&res); err != nil {
+		msg = fmt.Sprintf("Failed to serialize response: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxBookmarkDelete(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleAjaxToggleRefresh(w http.ResponseWriter, r *http.Request) {
 	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
