@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-04 13:57:08 krylon>
+# Time-stamp: <2026-05-04 15:11:30 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,13 +14,13 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-04 Mo 13:57]
+   #+CAPTION: Clock summary at [2026-05-04 Mo 15:11]
    | Headline                                     | Time       |            |          |       |      |
    |----------------------------------------------+------------+------------+----------+-------+------|
-   | *Total time*                                 | *3d 18:19* |            |          |       |      |
+   | *Total time*                                 | *3d 18:57* |            |          |       |      |
    |----------------------------------------------+------------+------------+----------+-------+------|
-   | *Newsroom [27/34]*                           | *3d 18:19* |            |          |       |      |
-   | \_  /Components [27/34]/                     |            | /3d 18:19/ |          |       |      |
+   | *Newsroom [27/34]*                           | *3d 18:57* |            |          |       |      |
+   | \_  /Components [27/34]/                     |            | /3d 18:57/ |          |       |      |
    | \_    Model [3/3]                            |            |            |     4:39 |       |      |
    | \_      Plant a tree!                        |            |            |          |  0:25 |      |
    | \_      Strip HTML                           |            |            |          |  1:57 |      |
@@ -40,7 +40,7 @@
    | \_    Classifier [0/0]                       |            |            |     2:26 |       |      |
    | \_    Rating Guesser aka Critic [0/1]        |            |            |     9:40 |       |      |
    | \_      Testing                              |            |            |          |  2:31 |      |
-   | \_    Web [16/21]                            |            |            | 1d 21:11 |       |      |
+   | \_    Web [16/21]                            |            |            | 1d 21:49 |       |      |
    | \_      Blacklist [2/2]                      |            |            |          |  3:19 |      |
    | \_        View and edit Blacklist            |            |            |          |       | 2:25 |
    | \_        Use Blacklist                      |            |            |          |       | 0:54 |
@@ -58,7 +58,7 @@
    | \_        The curious case of the missing... |            |            |          |       | 0:41 |
    | \_        Smoother UX                        |            |            |          |       | 0:39 |
    | \_      Suspend refresh                      |            |            |          |  1:32 |      |
-   | \_      Bookmarks                            |            |            |          |  1:02 |      |
+   | \_      Bookmarks                            |            |            |          |  1:40 |      |
    #+END:
 ** Components [27/34]
    :PROPERTIES:
@@ -441,10 +441,12 @@
      :END:
 **** TODO Bookmarks
      :LOGBOOK:
+     CLOCK: [2026-05-04 Mo 14:50]--[2026-05-04 Mo 15:11] =>  0:21
+     CLOCK: [2026-05-04 Mo 14:15]--[2026-05-04 Mo 14:32] =>  0:17
      CLOCK: [2026-05-04 Mo 12:58]--[2026-05-04 Mo 13:57] =>  0:59
      CLOCK: [2026-05-02 Sa 14:16]--[2026-05-02 Sa 14:19] =>  0:03
      :END:
-     I would like to mark Items as read-worthy, lest I forget about them.
+     I would like to bookmark Items.
 *** Main [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
