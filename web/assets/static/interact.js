@@ -1,4 +1,4 @@
-// Time-stamp: <2026-05-04 13:40:47 krylon>
+// Time-stamp: <2026-05-04 14:03:56 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -1183,7 +1183,7 @@ function bookmark_add(item_id) {
       id="bm_del_${item_id}"
       type="button"
       class="btn btn-outline-success btn-sm"
-      onclick="bookmark_delete(${item_id});" />`
+      onclick="bookmark_delete(${item_id});">Finished?</button>`
                 bm_box.innerHTML += del_btn
             }
         },
@@ -1215,7 +1215,7 @@ function bookmark_delete(item_id) {
       id="bm_add_${item_id}"
       type="button"
       class="btn btn-outline-success btn-sm"
-      onclick="bookmark_add(${item_id});" />`
+      onclick="bookmark_add(${item_id});">Bookmark?</button>`
                 bm_box.innerHTML += del_btn
             }
         },
