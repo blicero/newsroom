@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-04 12:33:31 krylon>
+// Time-stamp: <2026-05-04 13:22:41 krylon>
 
 // Package model defines data types that are used throughout the application.
 package model
@@ -147,10 +147,10 @@ type TagLink struct {
 
 // Bookmark represents my intention to read some article at some point in the future.
 type Bookmark struct {
-	ID           int64
-	ItemID       int64
-	Deadline     time.Time
-	Comment      string
-	Finished     bool
-	FinishedWhen time.Time
+	ID           int64     `json:"id"`
+	ItemID       int64     `json:"item_id"`
+	Deadline     time.Time `json:"deadline"`
+	Comment      string    `json:"comment"`
+	Finished     bool      `json:"finished"`
+	FinishedWhen time.Time `json:"finish_stamp"`
 }
