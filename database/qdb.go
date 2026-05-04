@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-04 12:34:16 krylon>
+// Time-stamp: <2026-05-04 12:55:06 krylon>
 
 package database
 
@@ -255,7 +255,7 @@ SELECT
 FROM tag_link l
 INNER JOIN tag t ON l.tag_id = t.id
 `,
-	query.BookmarkAdd: "INSERT INTO read_later (item_id) VALUES (?)",
+	query.BookmarkAdd: "INSERT INTO bookmark (item_id) VALUES (?) RETURNING id",
 	query.BookmarkGetAll: `
 SELECT
     id,
@@ -264,11 +264,11 @@ SELECT
     COALESCE(comment, ''),
     finished,
     COALESCE(finish_stamp, 0)
-FROM read_later
+FROM bookmark
 `,
-	query.BookmarkDelete: "DELETE FROM read_later WHERE id = ?",
+	query.BookmarkDelete: "DELETE FROM bookmark WHERE id = ?",
 	query.BookmarkMarkFinished: `
-UPDATE read_later
+UPDATE bookmark
 SET finished = 1, finish_stamp = ?
 WHERE id = ?
 `,

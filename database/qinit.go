@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-03 15:34:17 krylon>
+// Time-stamp: <2026-05-04 12:42:24 krylon>
 
 package database
 
@@ -41,7 +41,7 @@ CREATE TABLE item (
 	"CREATE INDEX item_time_idx ON item (timestamp)",
 	"CREATE INDEX item_txt_idx ON item (title, body)",
 	`
-CREATE TABLE read_later (
+CREATE TABLE bookmark (
     id			INTEGER PRIMARY KEY,
     item_id		INTEGER UNIQUE NOT NULL,
     deadline		INTEGER,
@@ -53,8 +53,8 @@ CREATE TABLE read_later (
        ON DELETE CASCADE
 ) STRICT
 `,
-	`CREATE UNIQUE INDEX rlater_item_idx ON read_later (item_id)`,
-	`CREATE INDEX rlater_finished_idx ON read_later (finished)`,
+	`CREATE UNIQUE INDEX bookmark_item_idx ON bookmark (item_id)`,
+	`CREATE INDEX bookmark_finished_idx ON bookmark (finished)`,
 	`
 CREATE TABLE tag (
     id			INTEGER PRIMARY KEY,
