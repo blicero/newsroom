@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-30 13:36:15 krylon>
+// Time-stamp: <2026-05-04 13:50:46 krylon>
 
 package web
 
@@ -165,6 +165,7 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 	srv.router.HandleFunc("/blacklist", srv.handleBlacklistView)
 	srv.router.HandleFunc("/retrain_classifier", srv.handleRetrain)
 	srv.router.HandleFunc("/search", srv.handleSearchForm)
+	srv.router.HandleFunc("/bookmarks", srv.handleBookmarks)
 
 	// AJAX Handlers
 	srv.router.HandleFunc(
@@ -312,13 +313,14 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 	const tmplName = "news"
 
 	var (
-		err   error
-		msg   string
-		db    *database.Database
-		tmpl  *template.Template
-		feeds []*model.Feed
-		vars  map[string]string
-		data  = tmplDataNews{
+		err       error
+		msg       string
+		db        *database.Database
+		tmpl      *template.Template
+		feeds     []*model.Feed
+		vars      map[string]string
+		bookmarks []*model.Bookmark
+		data      = tmplDataNews{
 			tmplDataBase: tmplDataBase{
 				Title: "News",
 				Debug: common.Debug,
@@ -378,6 +380,17 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 		srv.log.Printf("[ERROR] %s\n", msg)
 		srv.sendErrorMessage(w, msg)
 		return
+	} else if bookmarks, err = db.BookmarkGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load Bookmarks: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	data.Bookmarks = make(map[int64]*model.Bookmark, len(bookmarks))
+	for _, bookmark := range bookmarks {
+		data.Bookmarks[bookmark.ID] = bookmark
 	}
 
 	data.TagAdvice = make(map[int64]classify.SuggList, len(data.Items))
@@ -868,6 +881,52 @@ func (srv *Server) performSearch(db *database.Database, w http.ResponseWriter, r
 		srv.sendErrorMessage(w, msg)
 	}
 } // func (srv *Server) performSearch(db *database.Database, w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleBookmarks(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	const tmplName = "bookmarks"
+
+	var (
+		err  error
+		msg  string
+		db   *database.Database
+		tmpl *template.Template
+		data = tmplDataBookmarks{
+			tmplDataBase: tmplDataBase{
+				Title: "Bookmarks",
+				Debug: common.Debug,
+				URL:   r.RequestURI,
+			},
+		}
+	)
+
+	if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Couldn't find template %s",
+			tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if data.Bookmarks, err = db.BookmarkGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load Bookmarks from Database: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	w.Header().Set("Cache-Control", noCache)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleBookmarks(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////////////////////////////
 /// Handle AJAX //////////////////////////////////////////////////////////////

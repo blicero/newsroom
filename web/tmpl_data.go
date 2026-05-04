@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-04-30 12:20:22 krylon>
+// Time-stamp: <2026-05-04 13:11:21 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
@@ -40,6 +40,7 @@ type tmplDataNews struct {
 	TagMap     map[int64]*model.Tag
 	ItemTags   map[int64]map[int64]bool
 	TagAdvice  map[int64]classify.SuggList
+	Bookmarks  map[int64]*model.Bookmark
 }
 
 // FirstPage returns true if we are on the first page.
@@ -67,4 +68,9 @@ type tmplDataSearch struct {
 	tmplDataNews
 	Parm     database.SearchParms
 	IsResult bool
+}
+
+type tmplDataBookmarks struct {
+	tmplDataBase
+	Bookmarks []*model.Bookmark
 }
