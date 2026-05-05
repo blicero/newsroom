@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 10. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-22 13:00:17 krylon>
+// Time-stamp: <2026-05-05 12:23:35 krylon>
 
 package database
 
@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/database/query"
 	"github.com/blicero/newsroom/model"
 	"github.com/blicero/newsroom/model/rating"
@@ -273,6 +274,88 @@ EXEC_QUERY:
 
 	return items, nil
 } // func (db *Database) ItemGetAll(limit int64) ([]*model.Item, error)
+
+// ItemGetByPeriod returns all news Items from the given period.
+func (db *Database) ItemGetByPeriod(begin, end time.Time) ([]*model.Item, error) {
+	const qid query.ID = query.ItemGetByPeriod
+	var (
+		err   error
+		msg   string
+		stmt  *sql.Stmt
+		items []*model.Item
+	)
+
+GET_QUERY:
+	if stmt, err = db.getQuery(qid); err != nil {
+		if worthARetry(err) {
+			time.Sleep(retryDelay)
+			goto GET_QUERY
+		} else {
+			db.log.Printf("[ERROR] Error getting query %s: %s",
+				qid,
+				err.Error())
+			return nil, err
+		}
+	} else if db.tx != nil {
+		stmt = db.tx.Stmt(stmt)
+	}
+
+	var rows *sql.Rows
+
+EXEC_QUERY:
+	if rows, err = stmt.Query(begin.Unix(), end.Unix()); err != nil {
+		if worthARetry(err) {
+			time.Sleep(retryDelay)
+			goto EXEC_QUERY
+		} else {
+			msg = fmt.Sprintf("Error querying Items by Period %s--%s: %s",
+				begin.Format(common.TimestampFormatMinute),
+				end.Format(common.TimestampFormatMinute),
+				err.Error())
+			db.log.Println(msg)
+			return nil, errors.New(msg)
+		}
+	} else {
+		defer rows.Close() // nolint: errcheck
+	}
+
+	items = make([]*model.Item, 0)
+
+	for rows.Next() {
+		var (
+			ex                 error
+			ustr               string
+			timestamp, irating int64
+			item               = new(model.Item)
+		)
+
+		if err = rows.Scan(
+			&item.ID,
+			&item.FeedID,
+			&item.Title,
+			&ustr,
+			&irating,
+			&timestamp,
+			&item.Body,
+		); err != nil {
+			msg = fmt.Sprintf("error scanning row: %s", err.Error())
+			db.log.Printf("[ERROR] %s\n", msg)
+			return nil, errors.New(msg)
+		} else if item.URL, err = url.Parse(ustr); err != nil {
+			ex = fmt.Errorf("cannot parse URL %q: %w",
+				ustr,
+				err)
+			db.log.Printf("[ERROR] %s\n", ex.Error())
+			return nil, ex
+		}
+
+		item.Rating = rating.Rating(irating)
+		item.Timestamp = time.Unix(timestamp, 0)
+		items = append(items, item)
+	}
+
+	return items, nil
+} // func (db *Database) ItemGetByPeriod(begin, end time.Time) ([]*model.Item, error)
 
 // ItemGetByFeed loads all Items that belong to the specified Feed.
 func (db *Database) ItemGetByFeed(feed *model.Feed) ([]*model.Item, error) {

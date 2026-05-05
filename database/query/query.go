@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-04 12:34:14 krylon>
+// Time-stamp: <2026-05-05 12:20:33 krylon>
 
 // Package query defines symbolic constants to identify database queries.
 package query
@@ -26,6 +26,7 @@ const (
 	ItemGetByURL
 	ItemGetByFeed
 	ItemGetAll
+	ItemGetByPeriod
 	ItemGetRated
 	ItemCount
 	ItemSetRating
