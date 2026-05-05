@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 02. 2021 by Benjamin Walkenhorst
 // (c) 2021 Benjamin Walkenhorst
-// Time-stamp: <2026-04-30 11:48:56 krylon>
+// Time-stamp: <2026-05-05 11:43:37 krylon>
 
 //go:build ignore
 
@@ -30,11 +30,6 @@ import (
 
 	"github.com/hashicorp/logutils"
 )
-
-// TODO Nilaway uses A LOT of RAM, so I should probably run that sequentially!
-//      At least as an option. The laptop I'm using these days "only" has 8GB
-//      of RAM, and it gets rather swappy when nilaways suddenly gobbles up
-//      like half the RAM.
 
 const logFile = "./dbg.build.log"
 const lintCommand = "mygolint"
@@ -299,8 +294,12 @@ This flag is not case-sensitive.`, strings.Join(orderedSteps, ", ")))
 func dispatch(op string, workers int) error {
 	if l := len(candidates[op]); l == 0 {
 		return nil
-	} else if op == "nilaway" && skipNil {
-		return nil
+	} else if op == "nilaway" {
+		if skipNil {
+			return nil
+		} else {
+			workers = 1
+		}
 	} else if l < workers {
 		workers = l
 	}
