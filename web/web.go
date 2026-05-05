@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-04 15:10:05 krylon>
+// Time-stamp: <2026-05-05 11:30:36 krylon>
 
 package web
 
@@ -212,8 +212,8 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 		srv.handleAjaxBookmarkAdd,
 	)
 	srv.router.HandleFunc(
-		"/ajax/bookmark/del",
-		srv.handleAjaxBookmarkDelete,
+		"/ajax/bookmark/finish",
+		srv.handleAjaxBookmarkFinish,
 	)
 	srv.router.HandleFunc(
 		"/ajax/toggle_refresh",
@@ -925,6 +925,29 @@ func (srv *Server) handleBookmarks(w http.ResponseWriter, r *http.Request) {
 		srv.log.Printf("[ERROR] %s\n", msg)
 		srv.sendErrorMessage(w, msg)
 		return
+	}
+
+	data.Items = make(map[int64]*model.Item, len(data.Bookmarks))
+
+	for _, bookmark := range data.Bookmarks {
+		var item *model.Item
+
+		if item, err = db.ItemGetByID(bookmark.ItemID); err != nil {
+			msg = fmt.Sprintf("Failed to load Item %d: %s",
+				bookmark.ItemID,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		} else if item == nil {
+			msg = fmt.Sprintf("Item %d was not found in Database",
+				bookmark.ItemID)
+			srv.log.Printf("[CANTHAPPEN] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		}
+
+		data.Items[item.ID] = item
 	}
 
 	w.Header().Set("Cache-Control", noCache)
@@ -1727,7 +1750,7 @@ SEND:
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Server) handleAjaxBookmarkAdd(w http.ResponseWriter, r *http.Request)
 
-func (srv *Server) handleAjaxBookmarkDelete(w http.ResponseWriter, r *http.Request) {
+func (srv *Server) handleAjaxBookmarkFinish(w http.ResponseWriter, r *http.Request) {
 	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
 	var (
 		err          error
@@ -1764,7 +1787,7 @@ func (srv *Server) handleAjaxBookmarkDelete(w http.ResponseWriter, r *http.Reque
 	db = srv.pool.Get()
 	defer srv.pool.Put(db)
 
-	if err = db.BookmarkDelete(bookmark); err != nil {
+	if err = db.BookmarkMarkFinished(bookmark); err != nil {
 		msg = fmt.Sprintf("Failed to delete bookmark for Item %d: %s",
 			itemID,
 			err.Error())

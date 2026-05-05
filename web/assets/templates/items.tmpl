@@ -1,6 +1,6 @@
 {{ define "items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-05-04 14:11:37 krylon> */}}
+{{/* Time-stamp: <2026-05-05 11:31:02 krylon> */}}
 {{ $feeds := .Feeds }}
 {{ $tags := .Tags }}
 {{ $tagMap := .TagMap }}
@@ -30,7 +30,7 @@
       id="bm_del_{{ .ID }}"
       type="button"
       class="btn btn-outline-success btn-sm"
-      onclick="bookmark_delete({{ .ID }});">
+      onclick="bookmark_finish({{ .ID }});">
       Finished?
     </button>
     {{ end }}

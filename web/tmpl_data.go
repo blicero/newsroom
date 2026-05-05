@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-05-04 13:11:21 krylon>
+// Time-stamp: <2026-05-05 11:13:57 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
@@ -73,4 +73,5 @@ type tmplDataSearch struct {
 type tmplDataBookmarks struct {
 	tmplDataBase
 	Bookmarks []*model.Bookmark
+	Items     map[int64]*model.Item
 }
