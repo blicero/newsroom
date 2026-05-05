@@ -2,13 +2,14 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-05-05 11:13:57 krylon>
+// Time-stamp: <2026-05-05 12:53:07 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
 package web
 
 import (
+	"github.com/blicero/newsroom/analyze"
 	"github.com/blicero/newsroom/blacklist"
 	"github.com/blicero/newsroom/classify"
 	"github.com/blicero/newsroom/database"
@@ -74,4 +75,10 @@ type tmplDataBookmarks struct {
 	tmplDataBase
 	Bookmarks []*model.Bookmark
 	Items     map[int64]*model.Item
+}
+
+type tmplDataHistogram struct {
+	tmplDataBase
+	Period    analyze.Period
+	Histogram analyze.WordMap
 }

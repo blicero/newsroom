@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-05 11:30:36 krylon>
+// Time-stamp: <2026-05-05 13:47:07 krylon>
 
 package web
 
@@ -26,6 +26,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/blicero/newsroom/analyze"
 	"github.com/blicero/newsroom/blacklist"
 	"github.com/blicero/newsroom/classify"
 	"github.com/blicero/newsroom/common"
@@ -59,6 +60,7 @@ type Server struct {
 	adv       *classify.Advisor
 	scrub     *scrub.Scrubber
 	bl        *blacklist.Blacklist
+	ts        *analyze.TrendScout
 	eng       *engine.Engine
 	router    *mux.Router
 	tmpl      *template.Template
@@ -109,6 +111,10 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 		return nil, err
 	} else if srv.bl, err = blacklist.New(); err != nil {
 		srv.log.Printf("[ERROR] Failed to create Blacklist: %s\n",
+			err.Error())
+		return nil, err
+	} else if srv.ts, err = analyze.NewTrendScout(); err != nil {
+		srv.log.Printf("[ERROR] Failed to create TrendScout: %s\n",
 			err.Error())
 		return nil, err
 	}
@@ -166,6 +172,7 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 	srv.router.HandleFunc("/retrain_classifier", srv.handleRetrain)
 	srv.router.HandleFunc("/search", srv.handleSearchForm)
 	srv.router.HandleFunc("/bookmarks", srv.handleBookmarks)
+	srv.router.HandleFunc("/analysis/histogram/{days:(?:\\d+)$}", srv.handleHistogram)
 
 	// AJAX Handlers
 	srv.router.HandleFunc(
@@ -958,6 +965,72 @@ func (srv *Server) handleBookmarks(w http.ResponseWriter, r *http.Request) {
 		srv.sendErrorMessage(w, msg)
 	}
 } // func (srv *Server) handleBookmarks(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleHistogram(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	const tmplName = "histogram"
+
+	var (
+		err             error
+		msg             string
+		tmpl            *template.Template
+		vars            map[string]string
+		dayCnt          int64
+		now, begin, end time.Time
+		data            = tmplDataHistogram{
+			tmplDataBase: tmplDataBase{
+				Title: "Histogram",
+				Debug: common.Debug,
+				URL:   r.RequestURI,
+			},
+		}
+	)
+
+	vars = mux.Vars(r)
+	if dayCnt, err = strconv.ParseInt(vars["days"], 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse number of days %q: %s",
+			vars["days"],
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	now = time.Now()
+	end = now
+	begin = now.Add(time.Duration(dayCnt) * time.Second * -86400)
+
+	data.Period = analyze.Period{
+		Begin: begin,
+		End:   end,
+	}
+
+	if data.Histogram, err = srv.ts.AnalyzePeriod(&data.Period); err != nil {
+		msg = fmt.Sprintf("Failed to analyze word frequency from %s to %s: %s\n",
+			begin.Format(common.TimestampFormatDate),
+			end.Format(common.TimestampFormatDate),
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Couldn't find template %s",
+			tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	w.Header().Set("Cache-Control", noCache)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleHistogram(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////////////////////////////
 /// Handle AJAX //////////////////////////////////////////////////////////////

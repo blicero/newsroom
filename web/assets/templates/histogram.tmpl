@@ -1,0 +1,36 @@
+{{ define "histogram" }}
+{{/* Created on 05. 05. 2026 */}}
+{{/* Time-stamp: <2026-05-05 12:58:11 krylon> */}}
+<!DOCTYPE html>
+<html>
+  {{ template "head" . }}
+
+  <body>
+    {{ template "intro" . }}
+
+    <hr />
+
+    <h2>Reporting Period is {{ fmt_date .Period.Begin }} to {{ fmt_date .Period.End }}</h2>
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Word</th>
+          <th>#</th>
+      </tr>
+      </thead>
+
+      <tbody>
+        {{ range $word, $cnt := .Histogram }}
+        <tr>
+          <td>{{ $word }}</td>
+          <td>{{ $cnt }}</td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
+
+    {{ template "footer" . }}
+  </body>
+</html>
+{{ end }}
