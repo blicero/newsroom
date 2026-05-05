@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 03. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-04 12:36:25 krylon>
+// Time-stamp: <2026-05-05 11:22:48 krylon>
 
 package database
 
@@ -132,8 +132,12 @@ EXEC_QUERY:
 			return nil, ex
 		}
 
-		bookmark.Deadline = time.Unix(deadline, 0)
-		bookmark.FinishedWhen = time.Unix(finished, 0)
+		if deadline != 0 {
+			bookmark.Deadline = time.Unix(deadline, 0)
+		}
+		if finished != 0 {
+			bookmark.FinishedWhen = time.Unix(finished, 0)
+		}
 		bookmarks = append(bookmarks, bookmark)
 	}
 
