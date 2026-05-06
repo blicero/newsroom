@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-06 12:56:33 krylon>
+# Time-stamp: <2026-05-06 13:09:27 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -470,6 +470,7 @@
     [[github.com/james-bowman/nlp][nlp]] should be a good starting point.
 **** TODO Frequent words
      :LOGBOOK:
+     CLOCK: [2026-05-06 Mi 13:00]--[2026-05-06 Mi 13:09] =>  0:09
      CLOCK: [2026-05-06 Mi 10:27]--[2026-05-06 Mi 12:56] =>  2:29
      CLOCK: [2026-05-05 Di 12:02]--[2026-05-05 Di 15:02] =>  3:00
      :END:
