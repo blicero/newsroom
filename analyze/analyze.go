@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 05. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-06 12:43:30 krylon>
+// Time-stamp: <2026-05-06 13:07:06 krylon>
 
 //go:generate ./mkstopwords.pl -o stopwords_gen.go -d testdata
 
@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	sepPat = `[[:^alpha:]]+`
+	sepPat = `[^A-Za-zÄÖÜßäöü]+`
 	char   = `^[[:alpha:]]+$`
 )
 
