@@ -2,7 +2,9 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 05. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-05 14:10:05 krylon>
+// Time-stamp: <2026-05-06 12:43:30 krylon>
+
+//go:generate ./mkstopwords.pl -o stopwords_gen.go -d testdata
 
 // Package analyze provides analysis of the news Items.
 package analyze
@@ -11,6 +13,8 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/blicero/newsroom/common"
@@ -20,7 +24,7 @@ import (
 )
 
 const (
-	sepPat = `\W+`
+	sepPat = `[[:^alpha:]]+`
 	char   = `^[[:alpha:]]+$`
 )
 
@@ -68,6 +72,27 @@ func (p *Period) Next() *Period {
 	}
 } // func (p *Period) Next() *Period
 
+type WordMap map[string]int64
+
+// Word is a word (duh!) and the number of times it occured in a given period.
+// Sorry about the name.
+type Word struct {
+	Word  string
+	Count int
+}
+
+func wordCmp(w1, w2 Word) int {
+	if w1.Count < w2.Count {
+		return 1
+	} else if w1.Count > w2.Count {
+		return -1
+	}
+
+	return 0
+} // func wordCmp(w1, w2 Word) int
+
+type WordList []Word
+
 // TrendScout looks for the most frequent words in a given period, and how the
 // distribution changed compared to earlier periods.
 type TrendScout struct {
@@ -76,8 +101,6 @@ type TrendScout struct {
 	char *regexp.Regexp
 	pool *database.Pool
 }
-
-type WordMap map[string]int64
 
 // NewTrendScout creates a new TrendScout
 func NewTrendScout() (*TrendScout, error) {
@@ -107,23 +130,35 @@ func NewTrendScout() (*TrendScout, error) {
 	return ts, nil
 } // func NewTrendScout() (*TrendScout, error)
 
-func (ts *TrendScout) AnalyzePeriod(p *Period) (WordMap, error) {
+func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 	var (
 		err       error
 		items     []*model.Item
 		histogram WordMap
 		db        *database.Database
+		feeds     []*model.Feed
+		lngMap    map[int64]string
 	)
 
 	db = ts.pool.Get()
 	defer ts.pool.Put(db)
 
-	if items, err = db.ItemGetByPeriod(p.Begin, p.End); err != nil {
+	if feeds, err = db.FeedGetAll(); err != nil {
+		ts.log.Printf("[ERROR] Cannot load list of Feeds: %s\n",
+			err.Error())
+		return nil, err
+	} else if items, err = db.ItemGetByPeriod(p.Begin, p.End); err != nil {
 		ts.log.Printf("[ERROR] Failed to load news for Period %s to %s: %s\n",
 			p.Begin.Format(common.TimestampFormatMinute),
 			p.End.Format(common.TimestampFormatMinute),
 			err.Error())
 		return nil, err
+	}
+
+	lngMap = make(map[int64]string, len(feeds))
+
+	for _, feed := range feeds {
+		lngMap[feed.ID] = feed.Language
 	}
 
 	histogram = make(WordMap)
@@ -132,15 +167,27 @@ func (ts *TrendScout) AnalyzePeriod(p *Period) (WordMap, error) {
 		var (
 			content = item.Strip()
 			words   = ts.sep.Split(content, -1)
+			lng     = lngMap[item.FeedID]
 		)
 
 		for _, w := range words {
-			if !ts.char.MatchString(w) || len(w) < 2 {
-				continue
+			if ts.char.MatchString(w) && !stopwords[lng][strings.ToLower(w)] {
+				histogram[w]++
 			}
-			histogram[w]++
 		}
 	}
 
-	return histogram, nil
+	var list = make(WordList, 0, len(histogram))
+
+	for w, c := range histogram {
+		list = append(list, Word{Word: w, Count: int(c)})
+	}
+
+	slices.SortFunc(list, wordCmp)
+
+	if len(list) > cnt {
+		return list[:cnt], nil
+	}
+
+	return list, nil
 } // func (ts *TrendScout) AnalyzePeriod(p *Period) (WordMap, error)
