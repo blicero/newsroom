@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-05 13:47:07 krylon>
+// Time-stamp: <2026-05-06 10:41:12 krylon>
 
 package web
 
@@ -968,7 +968,10 @@ func (srv *Server) handleBookmarks(w http.ResponseWriter, r *http.Request) {
 
 func (srv *Server) handleHistogram(w http.ResponseWriter, r *http.Request) {
 	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
-	const tmplName = "histogram"
+	const (
+		tmplName  = "histogram"
+		wordCount = 50
+	)
 
 	var (
 		err             error
@@ -1005,7 +1008,7 @@ func (srv *Server) handleHistogram(w http.ResponseWriter, r *http.Request) {
 		End:   end,
 	}
 
-	if data.Histogram, err = srv.ts.AnalyzePeriod(&data.Period); err != nil {
+	if data.Words, err = srv.ts.AnalyzePeriod(&data.Period, wordCount); err != nil {
 		msg = fmt.Sprintf("Failed to analyze word frequency from %s to %s: %s\n",
 			begin.Format(common.TimestampFormatDate),
 			end.Format(common.TimestampFormatDate),
