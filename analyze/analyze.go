@@ -2,14 +2,13 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 05. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-07 10:47:25 krylon>
-
-//go:generate ./mkstopwords.pl -o stopwords_gen.go -d testdata
+// Time-stamp: <2026-05-07 12:15:06 krylon>
 
 // Package analyze provides analysis of the news Items.
 package analyze
 
 import (
+	"embed"
 	"fmt"
 	"log"
 	"regexp"
@@ -22,6 +21,9 @@ import (
 	"github.com/blicero/newsroom/logdomain"
 	"github.com/blicero/newsroom/model"
 )
+
+//go:embed corpus
+var corpus embed.FS
 
 const (
 	sepPat = `[^A-Za-zÄÖÜßäöü]+`
