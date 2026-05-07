@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 05. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-06 13:07:06 krylon>
+// Time-stamp: <2026-05-07 10:47:25 krylon>
 
 //go:generate ./mkstopwords.pl -o stopwords_gen.go -d testdata
 
@@ -138,6 +138,8 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 		db        *database.Database
 		feeds     []*model.Feed
 		lngMap    map[int64]string
+		nameMap   map[int64]string
+		hackID    int64
 	)
 
 	db = ts.pool.Get()
@@ -156,22 +158,39 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 	}
 
 	lngMap = make(map[int64]string, len(feeds))
+	nameMap = make(map[int64]string, len(feeds))
 
 	for _, feed := range feeds {
 		lngMap[feed.ID] = feed.Language
+		nameMap[feed.ID] = strings.ToLower(feed.Name)
+		if feed.Name == "Hacker News" {
+			hackID = feed.ID
+		}
 	}
 
 	histogram = make(WordMap)
 
 	for _, item := range items {
-		var (
+		var content string
+
+		if item.FeedID == hackID {
+			content = item.Title
+		} else {
 			content = item.Strip()
-			words   = ts.sep.Split(content, -1)
-			lng     = lngMap[item.FeedID]
+		}
+
+		var (
+			words = ts.sep.Split(content, -1)
+			lng   = lngMap[item.FeedID]
 		)
 
 		for _, w := range words {
-			if ts.char.MatchString(w) && !stopwords[lng][strings.ToLower(w)] {
+			var l = strings.ToLower(w)
+			if l == nameMap[item.FeedID] {
+				continue
+			}
+
+			if ts.char.MatchString(w) && !stopwords[lng][l] {
 				histogram[w]++
 			}
 		}
