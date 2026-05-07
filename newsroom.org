@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-07 10:50:50 krylon>
+# Time-stamp: <2026-05-07 11:24:49 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -420,7 +420,7 @@
      CLOCK: [2026-04-19 So 00:25]--[2026-04-19 So 01:28] =>  1:03
      CLOCK: [2026-04-18 Sa 22:21]--[2026-04-19 So 00:03] =>  1:42
      :END:
-     On of the big points of having tags, of course, is to use them for
+     One of the big points of having tags, of course, is to use them for
      searching.
      I'm going to have to think about how to present them in the search
      form. I try to avoid using fancy stuff, but I might want to look into the
