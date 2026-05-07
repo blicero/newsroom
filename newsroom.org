@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-07 11:24:49 krylon>
+# Time-stamp: <2026-05-07 14:55:11 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,20 +7,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [30/36]
+* Newsroom [36/39]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-07 Do 10:50]
+   #+CAPTION: Clock summary at [2026-05-07 Do 14:55]
    | Headline                                     | Time      |           |          |       |      |
    |----------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Total time*                                 | *4d 1:20* |           |          |       |      |
+   | *Total time*                                 | *4d 3:45* |           |          |       |      |
    |----------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Newsroom [30/36]*                           | *4d 1:20* |           |          |       |      |
-   | \_  /Components [30/36]/                     |           | /4d 1:19/ |          |       |      |
+   | *Newsroom [36/39]*                           | *4d 3:45* |           |          |       |      |
+   | \_  /Components [36/39]/                     |           | /4d 3:44/ |          |       |      |
    | \_    Model [3/3]                            |           |           |     4:39 |       |      |
    | \_      Plant a tree!                        |           |           |          |  0:25 |      |
    | \_      Strip HTML                           |           |           |          |  1:57 |      |
@@ -35,10 +35,10 @@
    | \_    Engine [1/1]                           |           |           |     4:16 |       |      |
    | \_    Blacklist [3/3]                        |           |           |     3:35 |       |      |
    | \_      Save and Sort Blacklist periodically |           |           |          |  0:02 |      |
-   | \_    Cache [1/2]                            |           |           |     3:20 |       |      |
+   | \_    Cache [2/2]                            |           |           |     3:20 |       |      |
    | \_      Evict expired values                 |           |           |          |  0:27 |      |
    | \_    Classifier [0/0]                       |           |           |     2:26 |       |      |
-   | \_    Rating Guesser aka Critic [0/1]        |           |           |     9:40 |       |      |
+   | \_    Rating Guesser aka Critic [1/1]        |           |           |     9:40 |       |      |
    | \_      Testing                              |           |           |          |  2:31 |      |
    | \_    Web [18/21]                            |           |           | 1d 22:12 |       |      |
    | \_      Blacklist [2/2]                      |           |           |          |  3:19 |      |
@@ -46,7 +46,7 @@
    | \_        Use Blacklist                      |           |           |          |       | 0:54 |
    | \_      Subscribe to Feeds                   |           |           |          |  3:03 |      |
    | \_      Manage Feeds                         |           |           |          |  2:45 |      |
-   | \_      Manage Tags [3/4]                    |           |           |          | 12:30 |      |
+   | \_      Manage Tags [4/4]                    |           |           |          | 12:30 |      |
    | \_        Create and edit Tags               |           |           |          |       | 3:09 |
    | \_        Tag Items                          |           |           |          |       | 5:07 |
    | \_        Suggest Tags                       |           |           |          |       | 4:11 |
@@ -59,14 +59,15 @@
    | \_        Smoother UX                        |           |           |          |       | 0:39 |
    | \_      Suspend refresh                      |           |           |          |  1:32 |      |
    | \_      Bookmarks                            |           |           |          |  2:03 |      |
-   | \_    Trendy [0/1]                           |           |           |     5:54 |       |      |
-   | \_      Frequent words                       |           |           |          |  5:53 |      |
+   | \_    Trendy [3/4]                           |           |           |     8:19 |       |      |
+   | \_      Frequent words [3/3]                 |           |           |          |  8:18 |      |
+   | \_        Embedded Stopwords                 |           |           |          |       | 2:25 |
    | \_    build script [1/1]                     |           |           |     0:05 |       |      |
    | \_      Run nilaway sequentially             |           |           |          |  0:05 |      |
    | \_  /Features [0/0]/                         |           | /0:01/    |          |       |      |
    | \_    Analysis paralysis [0/0]               |           |           |     0:01 |       |      |
    #+END:
-** Components [30/36]
+** Components [36/39]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -241,7 +242,7 @@
      Items already in the database.
 
      So I will apply the filter when loading Items for display.
-*** Cache [1/2]
+*** Cache [2/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -253,7 +254,8 @@
     I am trying to use Go generics so I can use the same code for several
     purposes. But I have very little experience with Go generics, so I expect
     some trouble.
-**** TODO Variable TTL
+**** CANCELLED Variable TTL
+     CLOSED: [2026-05-07 Do 11:48]
 **** DONE Evict expired values
      CLOSED: [2026-04-10 Fr 13:33]
      :LOGBOOK:
@@ -269,7 +271,7 @@
     CLOCK: [2026-04-10 Fr 12:38]--[2026-04-10 Fr 13:06] =>  0:28
     CLOCK: [2026-04-09 Do 14:53]--[2026-04-09 Do 15:49] =>  0:56
     :END:
-*** Rating Guesser aka Critic [0/1]
+*** Rating Guesser aka Critic [1/1]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -286,7 +288,8 @@
     CLOCK: [2026-03-18 Mi 12:33]--[2026-03-18 Mi 12:40] =>  0:07
     CLOCK: [2026-03-16 Mo 16:56]--[2026-03-16 Mo 19:10] =>  2:14
     :END:
-**** TODO Attempt replacing the RWMutex with a sync.Map
+**** CANCELLED Attempt replacing the RWMutex with a sync.Map
+     CLOSED: [2026-05-07 Do 11:49]
 **** Testing
      :LOGBOOK:
      CLOCK: [2026-03-30 Mo 18:45]--[2026-03-30 Mo 21:16] =>  2:31
@@ -334,7 +337,7 @@
      :LOGBOOK:
      CLOCK: [2026-04-04 Sa 16:52]--[2026-04-04 Sa 19:37] =>  2:45
      :END:
-**** DONE Manage Tags [3/4]
+**** DONE Manage Tags [4/4]
      CLOSED: [2026-04-13 Mo 12:11]
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
@@ -350,7 +353,8 @@
       CLOCK: [2026-04-07 Di 14:48]--[2026-04-07 Di 16:20] =>  1:32
       CLOCK: [2026-04-07 Di 13:19]--[2026-04-07 Di 14:21] =>  1:02
       :END:
-****** TODO Rename Tags
+****** SUSPENDED [#G] Rename Tags
+       CLOSED: [2026-05-07 Do 11:49]
        In a previous incarnation of this app, I ran into trouble when trying
        to rename Tags, because the name was used in this Classifier.
        I proactively tackled this issue by using the stringified Tag ID
@@ -456,7 +460,7 @@
      CLOCK: [2026-05-02 Sa 14:16]--[2026-05-02 Sa 14:19] =>  0:03
      :END:
      I would like to bookmark Items.
-*** Trendy [0/1]
+*** Trendy [3/4]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -468,20 +472,34 @@
     Automatically detecting that several Items refer to the same event would
     be really cool, too.
     [[github.com/james-bowman/nlp][nlp]] should be a good starting point.
-**** TODO Frequent words
+**** TODO Frequent words [3/3]
+     :PROPERTIES:
+     :COOKIE_DATA: todo recursive
+     :VISIBILITY:
+     :END:
      :LOGBOOK:
      CLOCK: [2026-05-07 Do 10:35]--[2026-05-07 Do 10:50] =>  0:15
      CLOCK: [2026-05-06 Mi 13:00]--[2026-05-06 Mi 13:09] =>  0:09
      CLOCK: [2026-05-06 Mi 10:27]--[2026-05-06 Mi 12:56] =>  2:29
      CLOCK: [2026-05-05 Di 12:02]--[2026-05-05 Di 15:02] =>  3:00
      :END:
-***** Update [2026-05-06 Mi 12:54]
+***** DONE Umlaute
+      CLOSED: [2026-05-07 Do 11:27]
       I made some progress, but Go's regex engine treats German Umlaute as
       nonword-characters. Which results in, say, "Präsident" turning into "Pr"
       and "sident". I am not sure how to handle this.
-***** Update [2026-05-06 Mi 13:14]
+***** DONE Noise words
+      CLOSED: [2026-05-07 Do 11:27]
       Hacker News RSS body is just a link that says "Comments". So the most
       frequent word is ... "Comments".
+***** DONE Embedded Stopwords
+      CLOSED: [2026-05-07 Do 14:54]
+      :LOGBOOK:
+      CLOCK: [2026-05-07 Do 12:45]--[2026-05-07 Do 14:54] =>  2:09
+      CLOCK: [2026-05-07 Do 12:09]--[2026-05-07 Do 12:25] =>  0:16
+      :END:
+      I think I should move from code generation to embedding the stopword
+      lists.
 *** Main [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
