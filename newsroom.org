@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-06 13:09:27 krylon>
+# Time-stamp: <2026-05-07 10:50:50 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,13 +14,13 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-06 Mi 12:56]
+   #+CAPTION: Clock summary at [2026-05-07 Do 10:50]
    | Headline                                     | Time      |           |          |       |      |
    |----------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Total time*                                 | *4d 0:56* |           |          |       |      |
+   | *Total time*                                 | *4d 1:20* |           |          |       |      |
    |----------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Newsroom [30/36]*                           | *4d 0:56* |           |          |       |      |
-   | \_  /Components [30/36]/                     |           | /4d 0:55/ |          |       |      |
+   | *Newsroom [30/36]*                           | *4d 1:20* |           |          |       |      |
+   | \_  /Components [30/36]/                     |           | /4d 1:19/ |          |       |      |
    | \_    Model [3/3]                            |           |           |     4:39 |       |      |
    | \_      Plant a tree!                        |           |           |          |  0:25 |      |
    | \_      Strip HTML                           |           |           |          |  1:57 |      |
@@ -59,8 +59,8 @@
    | \_        Smoother UX                        |           |           |          |       | 0:39 |
    | \_      Suspend refresh                      |           |           |          |  1:32 |      |
    | \_      Bookmarks                            |           |           |          |  2:03 |      |
-   | \_    Trendy [0/1]                           |           |           |     5:30 |       |      |
-   | \_      Frequent words                       |           |           |          |  5:29 |      |
+   | \_    Trendy [0/1]                           |           |           |     5:54 |       |      |
+   | \_      Frequent words                       |           |           |          |  5:53 |      |
    | \_    build script [1/1]                     |           |           |     0:05 |       |      |
    | \_      Run nilaway sequentially             |           |           |          |  0:05 |      |
    | \_  /Features [0/0]/                         |           | /0:01/    |          |       |      |
@@ -470,14 +470,18 @@
     [[github.com/james-bowman/nlp][nlp]] should be a good starting point.
 **** TODO Frequent words
      :LOGBOOK:
+     CLOCK: [2026-05-07 Do 10:35]--[2026-05-07 Do 10:50] =>  0:15
      CLOCK: [2026-05-06 Mi 13:00]--[2026-05-06 Mi 13:09] =>  0:09
      CLOCK: [2026-05-06 Mi 10:27]--[2026-05-06 Mi 12:56] =>  2:29
      CLOCK: [2026-05-05 Di 12:02]--[2026-05-05 Di 15:02] =>  3:00
      :END:
-     Update [2026-05-06 Mi 12:54] - I made some progress, but Go's regex
-     engine treats German Umlaute as nonword-characters. Which results in,
-     say, "Präsident" turning into "Pr" and "sident". I am not sure how to
-     handle this.
+***** Update [2026-05-06 Mi 12:54]
+      I made some progress, but Go's regex engine treats German Umlaute as
+      nonword-characters. Which results in, say, "Präsident" turning into "Pr"
+      and "sident". I am not sure how to handle this.
+***** Update [2026-05-06 Mi 13:14]
+      Hacker News RSS body is just a link that says "Comments". So the most
+      frequent word is ... "Comments".
 *** Main [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
