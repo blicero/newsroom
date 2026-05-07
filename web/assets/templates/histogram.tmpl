@@ -1,6 +1,6 @@
 {{ define "histogram" }}
 {{/* Created on 05. 05. 2026 */}}
-{{/* Time-stamp: <2026-05-06 10:41:45 krylon> */}}
+{{/* Time-stamp: <2026-05-07 12:05:54 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -10,7 +10,7 @@
 
     <hr />
 
-    <h2>Reporting Period is {{ fmt_date .Period.Begin }} to {{ fmt_date .Period.End }}</h2>
+    <h2>{{ fmt_date .Period.Begin }} to {{ fmt_date .Period.End }}</h2>
 
     <table class="table table-striped">
       <thead>
