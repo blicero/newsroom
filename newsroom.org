@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-08 12:40:09 krylon>
+# Time-stamp: <2026-05-08 13:02:59 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,20 +7,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [39/43]
+* Newsroom [41/44]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-08 Fr 12:40]
+   #+CAPTION: Clock summary at [2026-05-08 Fr 13:02]
    | Headline                                     | Time      |           |          |       |      |
    |----------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Total time*                                 | *4d 4:50* |           |          |       |      |
+   | *Total time*                                 | *4d 5:10* |           |          |       |      |
    |----------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Newsroom [39/43]*                           | *4d 4:50* |           |          |       |      |
-   | \_  /Components [39/43]/                     |           | /4d 4:49/ |          |       |      |
+   | *Newsroom [41/44]*                           | *4d 5:10* |           |          |       |      |
+   | \_  /Components [41/44]/                     |           | /4d 5:09/ |          |       |      |
    | \_    Model [3/3]                            |           |           |     4:39 |       |      |
    | \_      Plant a tree!                        |           |           |          |  0:25 |      |
    | \_      Strip HTML                           |           |           |          |  1:57 |      |
@@ -40,7 +40,7 @@
    | \_    Classifier [0/0]                       |           |           |     2:26 |       |      |
    | \_    Rating Guesser aka Critic [1/1]        |           |           |     9:40 |       |      |
    | \_      Testing                              |           |           |          |  2:31 |      |
-   | \_    Web [20/23]                            |           |           | 1d 22:20 |       |      |
+   | \_    Web [21/24]                            |           |           | 1d 22:40 |       |      |
    | \_      Blacklist [2/2]                      |           |           |          |  3:19 |      |
    | \_        View and edit Blacklist            |           |           |          |       | 2:25 |
    | \_        Use Blacklist                      |           |           |          |       | 0:54 |
@@ -59,9 +59,10 @@
    | \_        Smoother UX                        |           |           |          |       | 0:39 |
    | \_      Suspend refresh                      |           |           |          |  1:32 |      |
    | \_      Bookmarks                            |           |           |          |  2:03 |      |
-   | \_      Analysis [1/2]                       |           |           |          |  0:08 |      |
+   | \_      Analysis [2/2]                       |           |           |          |  0:28 |      |
    | \_        Choose time window                 |           |           |          |       | 0:08 |
-   | \_    Trendy [5/6]                           |           |           |     9:16 |       |      |
+   | \_        Add links for words that are Tags  |           |           |          |       | 0:20 |
+   | \_    Trendy [6/6]                           |           |           |     9:16 |       |      |
    | \_      Frequent words [5/5]                 |           |           |          |  9:15 |      |
    | \_        Embedded Stopwords                 |           |           |          |       | 2:25 |
    | \_        Use weights for Items marked as... |           |           |          |       | 0:36 |
@@ -71,7 +72,7 @@
    | \_  /Features [0/0]/                         |           | /0:01/    |          |       |      |
    | \_    Analysis paralysis [0/0]               |           |           |     0:01 |       |      |
    #+END:
-** Components [39/43]
+** Components [41/44]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -304,7 +305,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [20/23]
+*** Web [21/24]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -340,6 +341,11 @@
      CLOSED: [2026-04-07 Di 13:16]
      :LOGBOOK:
      CLOCK: [2026-04-04 Sa 16:52]--[2026-04-04 Sa 19:37] =>  2:45
+     :END:
+**** TODO View for Tags
+     :PROPERTIES:
+     :COOKIE_DATA: todo recursive
+     :VISIBILITY:
      :END:
 **** DONE Manage Tags [4/4]
      CLOSED: [2026-04-13 Mo 12:11]
@@ -464,14 +470,18 @@
      CLOCK: [2026-05-02 Sa 14:16]--[2026-05-02 Sa 14:19] =>  0:03
      :END:
      I would like to bookmark Items.
-**** Analysis [1/2]
+**** Analysis [2/2]
 ***** DONE Choose time window
       CLOSED: [2026-05-08 Fr 11:58]
       :LOGBOOK:
       CLOCK: [2026-05-08 Fr 11:50]--[2026-05-08 Fr 11:58] =>  0:08
       :END:
-***** TODO Add links for words that are Tags
-*** Trendy [5/6]
+***** DONE Add links for words that are Tags
+      CLOSED: [2026-05-08 Fr 13:02]
+      :LOGBOOK:
+      CLOCK: [2026-05-08 Fr 12:42]--[2026-05-08 Fr 13:02] =>  0:20
+      :END:
+*** Trendy [6/6]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -483,7 +493,8 @@
     Automatically detecting that several Items refer to the same event would
     be really cool, too.
     [[github.com/james-bowman/nlp][nlp]] should be a good starting point.
-**** TODO Frequent words [5/5]
+**** DONE Frequent words [5/5]
+     CLOSED: [2026-05-08 Fr 13:01]
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
      :VISIBILITY:
