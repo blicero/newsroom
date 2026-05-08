@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 05. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-07 12:15:06 krylon>
+// Time-stamp: <2026-05-08 12:12:57 krylon>
 
 // Package analyze provides analysis of the news Items.
 package analyze
@@ -20,6 +20,7 @@ import (
 	"github.com/blicero/newsroom/database"
 	"github.com/blicero/newsroom/logdomain"
 	"github.com/blicero/newsroom/model"
+	"github.com/blicero/newsroom/model/rating"
 )
 
 //go:embed corpus
@@ -74,13 +75,13 @@ func (p *Period) Next() *Period {
 	}
 } // func (p *Period) Next() *Period
 
-type WordMap map[string]int64
+type WordMap map[string]float64
 
 // Word is a word (duh!) and the number of times it occured in a given period.
 // Sorry about the name.
 type Word struct {
 	Word  string
-	Count int
+	Count float64
 }
 
 func wordCmp(w1, w2 Word) int {
@@ -142,6 +143,8 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 		lngMap    map[int64]string
 		nameMap   map[int64]string
 		hackID    int64
+		tags      []*model.Tag
+		tagMap    map[string]bool
 	)
 
 	db = ts.pool.Get()
@@ -157,8 +160,13 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 			p.End.Format(common.TimestampFormatMinute),
 			err.Error())
 		return nil, err
+	} else if tags, err = db.TagGetSorted(); err != nil {
+		ts.log.Printf("[ERROR] Failed to load all Tags: %s\n",
+			err.Error())
+		return nil, err
 	}
 
+	tagMap = make(map[string]bool, len(tags))
 	lngMap = make(map[int64]string, len(feeds))
 	nameMap = make(map[int64]string, len(feeds))
 
@@ -168,6 +176,10 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 		if feed.Name == "Hacker News" {
 			hackID = feed.ID
 		}
+	}
+
+	for _, tag := range tags {
+		tagMap[strings.ToLower(tag.Name)] = true
 	}
 
 	histogram = make(WordMap)
@@ -184,7 +196,33 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 		var (
 			words = ts.sep.Split(content, -1)
 			lng   = lngMap[item.FeedID]
+			score float64
+			wtags []*model.Tag
+			tmap  map[string]bool
 		)
+
+		if wtags, err = db.TagLinkGetByItem(item); err != nil {
+			ts.log.Printf("[ERROR] Failed to load Tags for Item %q (%d): %s\n",
+				item.Title,
+				item.ID,
+				err.Error())
+			return nil, err
+		}
+
+		tmap = make(map[string]bool, len(wtags))
+
+		for _, tag := range wtags {
+			tmap[tag.Name] = true
+		}
+
+		switch item.Rating {
+		case rating.Unrated:
+			score = 1.0
+		case rating.Boring:
+			score = 0.75
+		case rating.Interesting:
+			score = 1.25
+		}
 
 		for _, w := range words {
 			var l = strings.ToLower(w)
@@ -193,7 +231,10 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 			}
 
 			if ts.char.MatchString(w) && !stopwords[lng][l] {
-				histogram[w]++
+				histogram[w] += score
+				if tagMap[l] && tmap[l] {
+					histogram[w] += 0.25
+				}
 			}
 		}
 	}
@@ -201,7 +242,7 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 	var list = make(WordList, 0, len(histogram))
 
 	for w, c := range histogram {
-		list = append(list, Word{Word: w, Count: int(c)})
+		list = append(list, Word{Word: w, Count: c})
 	}
 
 	slices.SortFunc(list, wordCmp)
