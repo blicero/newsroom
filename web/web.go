@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-06 10:41:12 krylon>
+// Time-stamp: <2026-05-08 11:54:58 krylon>
 
 package web
 
@@ -172,7 +172,7 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 	srv.router.HandleFunc("/retrain_classifier", srv.handleRetrain)
 	srv.router.HandleFunc("/search", srv.handleSearchForm)
 	srv.router.HandleFunc("/bookmarks", srv.handleBookmarks)
-	srv.router.HandleFunc("/analysis/histogram/{days:(?:\\d+)$}", srv.handleHistogram)
+	srv.router.HandleFunc("/analysis/histogram/{days:(?:\\d+)}/{offset:(?:\\d+)$}", srv.handleHistogram)
 
 	// AJAX Handlers
 	srv.router.HandleFunc(
@@ -978,7 +978,7 @@ func (srv *Server) handleHistogram(w http.ResponseWriter, r *http.Request) {
 		msg             string
 		tmpl            *template.Template
 		vars            map[string]string
-		dayCnt          int64
+		dayCnt, offset  int64
 		now, begin, end time.Time
 		data            = tmplDataHistogram{
 			tmplDataBase: tmplDataBase{
@@ -997,6 +997,13 @@ func (srv *Server) handleHistogram(w http.ResponseWriter, r *http.Request) {
 		srv.log.Printf("[ERROR] %s\n", msg)
 		srv.sendErrorMessage(w, msg)
 		return
+	} else if offset, err = strconv.ParseInt(vars["offset"], 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse offset %q: %s",
+			vars["offset"],
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
 	}
 
 	now = time.Now()
@@ -1006,6 +1013,12 @@ func (srv *Server) handleHistogram(w http.ResponseWriter, r *http.Request) {
 	data.Period = analyze.Period{
 		Begin: begin,
 		End:   end,
+	}
+
+	if offset > 0 {
+		for range offset {
+			data.Period = *data.Period.Previous()
+		}
 	}
 
 	if data.Words, err = srv.ts.AnalyzePeriod(&data.Period, wordCount); err != nil {
