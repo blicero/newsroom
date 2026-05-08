@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 08. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-08 12:32:09 krylon>
+// Time-stamp: <2026-05-08 12:57:35 krylon>
 
 package analyze
 
@@ -17,7 +17,11 @@ func (at antithesaurus) substitute(word string) string {
 } // func (at antithesaurus) substitute(word string) string)
 
 var dict = antithesaurus{
-	"US":        "USA",
-	"Hormuz":    "Hormus",
-	"president": "President",
+	"US":          "USA",
+	"Hormuz":      "Hormus",
+	"president":   "President",
+	"Deutschland": "Germany",
+	"AI":          "Artificial Intelligence",
+	"KI":          "Artificial Intelligence",
+	"Russland":    "Russia",
 }
