@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 05. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-08 12:12:57 krylon>
+// Time-stamp: <2026-05-08 12:32:54 krylon>
 
 // Package analyze provides analysis of the news Items.
 package analyze
@@ -225,6 +225,7 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 		}
 
 		for _, w := range words {
+			w = dict.substitute(w)
 			var l = strings.ToLower(w)
 			if l == nameMap[item.FeedID] {
 				continue
