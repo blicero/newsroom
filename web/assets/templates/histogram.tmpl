@@ -1,6 +1,6 @@
 {{ define "histogram" }}
 {{/* Created on 05. 05. 2026 */}}
-{{/* Time-stamp: <2026-05-08 11:35:15 krylon> */}}
+{{/* Time-stamp: <2026-05-08 12:55:30 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -21,10 +21,20 @@
       </thead>
 
       <tbody>
+        {{ $tags := .Tags }}
         {{ range .Words }}
         <tr>
-          <td>{{ .Word }}</td>
-          <td>{{ fmt_float .Count }}</td>
+          <td>
+            {{ $word := .Word }}
+            {{ $cnt := .Count }}
+            {{ $tag := index $tags .Word }}
+            {{ with $tag }}
+            <a href="/tag/{{ $tag.ID }}">{{ $word }}</a>
+            {{ else }}
+            {{ $word }}
+            {{ end }}
+          </td>
+          <td>{{ fmt_float $cnt }}</td>
         </tr>
         {{ end }}
       </tbody>

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-08 11:54:58 krylon>
+// Time-stamp: <2026-05-08 12:47:11 krylon>
 
 package web
 
@@ -975,6 +975,7 @@ func (srv *Server) handleHistogram(w http.ResponseWriter, r *http.Request) {
 
 	var (
 		err             error
+		db              *database.Database
 		msg             string
 		tmpl            *template.Template
 		vars            map[string]string
@@ -1029,6 +1030,25 @@ func (srv *Server) handleHistogram(w http.ResponseWriter, r *http.Request) {
 		srv.log.Printf("[ERROR] %s\n", msg)
 		srv.sendErrorMessage(w, msg)
 		return
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	var tagList []*model.Tag
+
+	if tagList, err = db.TagGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load all Tags: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	data.Tags = make(map[string]*model.Tag, len(tagList))
+
+	for _, tag := range tagList {
+		data.Tags[tag.Name] = tag
 	}
 
 	if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
