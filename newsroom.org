@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-09 11:55:47 krylon>
+# Time-stamp: <2026-05-09 12:21:01 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,20 +7,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [42/44]
+* Newsroom [42/45]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-09 Sa 11:55]
+   #+CAPTION: Clock summary at [2026-05-09 Sa 12:20]
    | Headline                                     | Time      |           |         |       |      |
    |----------------------------------------------+-----------+-----------+---------+-------+------|
-   | *Total time*                                 | *4d 9:12* |           |         |       |      |
+   | *Total time*                                 | *4d 9:13* |           |         |       |      |
    |----------------------------------------------+-----------+-----------+---------+-------+------|
-   | *Newsroom [42/44]*                           | *4d 9:12* |           |         |       |      |
-   | \_  /Components [42/44]/                     |           | /4d 9:11/ |         |       |      |
+   | *Newsroom [42/45]*                           | *4d 9:13* |           |         |       |      |
+   | \_  /Components [42/45]/                     |           | /4d 9:12/ |         |       |      |
    | \_    Model [3/3]                            |           |           |    4:39 |       |      |
    | \_      Plant a tree!                        |           |           |         |  0:25 |      |
    | \_      Strip HTML                           |           |           |         |  1:57 |      |
@@ -63,7 +63,8 @@
    | \_      Analysis [2/2]                       |           |           |         |  0:28 |      |
    | \_        Choose time window                 |           |           |         |       | 0:08 |
    | \_        Add links for words that are Tags  |           |           |         |       | 0:20 |
-   | \_    Trendy [6/6]                           |           |           |    9:16 |       |      |
+   | \_    Trendy [6/7]                           |           |           |    9:17 |       |      |
+   | \_      Changes                              |           |           |         |  0:01 |      |
    | \_      Frequent words [5/5]                 |           |           |         |  9:15 |      |
    | \_        Embedded Stopwords                 |           |           |         |       | 2:25 |
    | \_        Use weights for Items marked as... |           |           |         |       | 0:36 |
@@ -73,7 +74,7 @@
    | \_  /Features [0/0]/                         |           | /0:01/    |         |       |      |
    | \_    Analysis paralysis [0/0]               |           |           |    0:01 |       |      |
    #+END:
-** Components [42/44]
+** Components [42/45]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -487,7 +488,7 @@
       :LOGBOOK:
       CLOCK: [2026-05-08 Fr 12:42]--[2026-05-08 Fr 13:02] =>  0:20
       :END:
-*** Trendy [6/6]
+*** Trendy [6/7]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -499,6 +500,12 @@
     Automatically detecting that several Items refer to the same event would
     be really cool, too.
     [[github.com/james-bowman/nlp][nlp]] should be a good starting point.
+**** TODO Changes
+     :LOGBOOK:
+     CLOCK: [2026-05-09 Sa 12:19]--[2026-05-09 Sa 12:20] =>  0:01
+     :END:
+     Looking into how the most frequent words change over time would be
+     interesting, too. At that point I might get to draw some charts, even.
 **** DONE Frequent words [5/5]
      CLOSED: [2026-05-08 Fr 13:01]
      :PROPERTIES:
