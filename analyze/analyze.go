@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 05. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-09 14:26:32 krylon>
+// Time-stamp: <2026-05-09 15:21:09 krylon>
 
 // Package analyze provides analysis of the news Items.
 package analyze
@@ -14,6 +14,8 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/blicero/newsroom/common"
@@ -269,3 +271,52 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 
 	return list, nil
 } // func (ts *TrendScout) AnalyzePeriod(p *Period) (WordMap, error)
+
+// AnalyzeDelta calculates the changes in word frequencies between two Periods.
+func (ts *TrendScout) AnalyzeDelta(p1, p2 *Period, cnt int) (DeltaList, error) {
+	var (
+		err    error
+		wg     sync.WaitGroup
+		errCnt atomic.Int64
+		wlists [2]WordList
+	)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		var (
+			ex    error
+			wlist WordList
+		)
+
+		if wlist, ex = ts.AnalyzePeriod(p1, cnt); ex != nil {
+			errCnt.Add(1)
+			ts.log.Printf("[ERROR] Failed to analyze Period %s: %s\n",
+				p1,
+				err.Error())
+		} else {
+			wlists[0] = wlist
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		var (
+			ex    error
+			wlist WordList
+		)
+
+		if wlist, ex = ts.AnalyzePeriod(p2, cnt); ex != nil {
+			errCnt.Add(1)
+			ts.log.Printf("[ERROR] Failed to analyze Period %s: %s\n",
+				p2,
+				err.Error())
+		} else {
+			wlists[1] = wlist
+		}
+	}()
+
+} // func (ts *TrendScout) AnalyzeDelta(p1, p2 *Period, cnt int) (DeltaList, error)
