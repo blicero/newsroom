@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 05. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-08 12:32:54 krylon>
+// Time-stamp: <2026-05-09 14:26:32 krylon>
 
 // Package analyze provides analysis of the news Items.
 package analyze
@@ -95,6 +95,21 @@ func wordCmp(w1, w2 Word) int {
 } // func wordCmp(w1, w2 Word) int
 
 type WordList []Word
+
+// Delta is a word and its frequency in two different time periods.
+type Delta struct {
+	Word  string
+	Count [2]float64
+}
+
+// Change returns how much the frequency of a word has changed from one Period
+// to the other.
+func (d Delta) Change() float64 {
+	return d.Count[1] - d.Count[0]
+}
+
+// DeltaList is a list of Delta, analogous to the WordList
+type DeltaList []Delta
 
 // TrendScout looks for the most frequent words in a given period, and how the
 // distribution changed compared to earlier periods.
