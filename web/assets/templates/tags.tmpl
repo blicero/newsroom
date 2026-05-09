@@ -1,6 +1,6 @@
 {{ define "tags" }}
 {{/* Created on 07. 04. 2026 */}}
-{{/* Time-stamp: <2026-04-18 22:08:26 krylon> */}}
+{{/* Time-stamp: <2026-05-09 11:32:46 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -42,7 +42,9 @@
             <td>{{ .Parent }}</td>
             <td>
               {{ nbsp (twice .Level) }}
-              {{ .Name }}
+              <a href="/tag/{{ .ID }}">
+                {{ .Name }}
+              </a>
               <button type="button"
                 class="btn btn-success btn-sm"
                 onclick="edit_tag({{ .ID }}, {{ .ParentID }}, '{{ .Name }}');">

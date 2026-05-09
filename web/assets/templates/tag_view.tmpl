@@ -1,0 +1,36 @@
+{{ define "tag_view" }}
+{{/* Created on 08. 05. 2026 */}}
+{{/* Time-stamp: <2026-05-09 11:51:08 krylon> */}}
+<!DOCTYPE html>
+<html>
+  {{ template "head" . }}
+
+  <body>
+    {{ template "intro" . }}
+
+    <h1>{{ .Tag.Name }}</h1>
+
+
+    <div>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Feed</th>
+            <th>Time</th>
+            <th>Headline</th>
+            <th>Rating</th>
+            <th>Tags</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+
+        <tbody class="items">
+          {{ template "items" . }}
+        </tbody>
+      </table>
+    </div>
+
+    {{ template "footer" . }}
+  </body>
+</html>
+{{ end }}

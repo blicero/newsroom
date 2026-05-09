@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-08 12:47:11 krylon>
+// Time-stamp: <2026-05-09 11:49:44 krylon>
 
 package web
 
@@ -168,6 +168,7 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 	srv.router.HandleFunc("/news/{pageno:(?:\\d+)}/{cnt:(?:\\d+)$}", srv.handleNews)
 	srv.router.HandleFunc("/feed/all", srv.handleSubscriptions)
 	srv.router.HandleFunc("/tag/all", srv.handleTagsView)
+	srv.router.HandleFunc("/tag/{id:(?:\\d+)$}", srv.handleTagView)
 	srv.router.HandleFunc("/blacklist", srv.handleBlacklistView)
 	srv.router.HandleFunc("/retrain_classifier", srv.handleRetrain)
 	srv.router.HandleFunc("/search", srv.handleSearchForm)
@@ -586,6 +587,184 @@ func (srv *Server) handleTagsView(w http.ResponseWriter, r *http.Request) {
 		srv.sendErrorMessage(w, msg)
 	}
 } // func (srv *Server) handleTagsView(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleTagView(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	const tmplName = "tag_view"
+
+	var (
+		err       error
+		msg       string
+		db        *database.Database
+		tmpl      *template.Template
+		feeds     []*model.Feed
+		tid       int64
+		vars      map[string]string
+		bookmarks []*model.Bookmark
+		data      = tmplDataTagView{
+			tmplDataNews: tmplDataNews{
+				tmplDataBase: tmplDataBase{
+					Title: "News",
+					Debug: common.Debug,
+					URL:   r.URL.String(),
+				},
+			},
+		}
+	)
+
+	vars = mux.Vars(r)
+
+	if tid, err = strconv.ParseInt(vars["id"], 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse Tag ID %q: %s",
+			vars["id"],
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Could not find template %q", tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if feeds, err = db.FeedGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load Feeds from Database: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if data.TotalCount, err = db.ItemCount(); err != nil {
+		msg = fmt.Sprintf("Failed to query total count of Items: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if data.Tags, err = db.TagGetSorted(); err != nil {
+		msg = fmt.Sprintf("Failed to load all Tags: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if bookmarks, err = db.BookmarkGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load Bookmarks: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	data.Bookmarks = make(map[int64]*model.Bookmark, len(bookmarks))
+	for _, bookmark := range bookmarks {
+		data.Bookmarks[bookmark.ID] = bookmark
+	}
+
+	data.TagAdvice = make(map[int64]classify.SuggList, len(data.Items))
+	data.ItemTags = make(map[int64]map[int64]bool, len(data.Items))
+	data.TagMap = make(map[int64]*model.Tag, len(data.Tags))
+	for _, tag := range data.Tags {
+		data.TagMap[tag.ID] = tag
+		if tag.ID == tid {
+			data.Tag = tag
+		}
+	}
+
+	if data.Items, err = db.TagLinkGetByTag(data.Tag); err != nil {
+		msg = fmt.Sprintf("Failed to load Items for Tag %s: %s\n",
+			data.Tag.Name,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	var blHit int
+
+	defer func() {
+		if blHit > 0 {
+			srv.bl.Save()
+		}
+	}()
+
+	data.Items = slices.DeleteFunc(data.Items, func(item *model.Item) bool {
+		if srv.bl.Match(item) {
+			srv.bl.Sort()
+			blHit++
+			return true
+		}
+		return false
+	})
+
+	data.Count = int64(len(data.Items))
+
+	for _, item := range data.Items {
+		if err = srv.scrub.Scrub(item); err != nil {
+			srv.log.Printf("[ERROR] Failed to scrub Item %d (%s): %s\n",
+				item.ID,
+				item.Title,
+				err.Error())
+		}
+
+		if !item.IsRated() {
+			if item.GuessedRating, err = srv.cls.Classify(item); err != nil {
+				srv.log.Printf("[ERROR] Failed to classify Item %d (%s): %s\n",
+					item.ID,
+					item.Title,
+					err.Error())
+				item.GuessedRating = rating.Unrated
+			}
+		}
+
+		var itemTags []*model.Tag
+
+		if itemTags, err = db.TagLinkGetByItem(item); err != nil {
+			msg = fmt.Sprintf("Failed to load Tags for Item %q (%d): %s",
+				item.Title,
+				item.ID,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		} else if data.TagAdvice[item.ID], err = srv.adv.Score(item); err != nil {
+			msg = fmt.Sprintf("Failed to calculate Tag Advice for Item %q (%d): %s",
+				item.Title,
+				item.ID,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		}
+
+		// data.ItemTags[item.ID] = make(map[int64]bool, len(itemTags))
+		var itags = make(map[int64]bool, len(itemTags))
+		for _, tag := range itemTags {
+			itags[tag.ID] = true
+		}
+
+		data.ItemTags[item.ID] = itags
+	}
+
+	srv.log.Printf("[DEBUG] data.Count == %d, len(data.Items) == %d\n",
+		data.Count,
+		len(data.Items))
+	data.MaxPage = data.TotalCount / data.Count
+	data.Feeds = make(map[int64]*model.Feed, len(feeds))
+
+	for _, feed := range feeds {
+		data.Feeds[feed.ID] = feed
+	}
+
+	w.Header().Set("Cache-Control", noCache)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleTagView(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleRetrain(w http.ResponseWriter, r *http.Request) {
 	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)

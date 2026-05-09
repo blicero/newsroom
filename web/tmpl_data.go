@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-05-08 12:43:12 krylon>
+// Time-stamp: <2026-05-08 14:27:47 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
@@ -58,6 +58,11 @@ type tmplDataTags struct {
 	tmplDataBase
 	Tag  *model.Tag
 	Tags []*model.Tag
+}
+
+type tmplDataTagView struct {
+	tmplDataNews
+	Tag *model.Tag
 }
 
 type tmplDataBlacklist struct {

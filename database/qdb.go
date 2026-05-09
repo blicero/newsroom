@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-05 13:33:50 krylon>
+// Time-stamp: <2026-05-09 11:52:06 krylon>
 
 package database
 
@@ -259,6 +259,7 @@ SELECT
 FROM tag_link l
 INNER JOIN item i ON l.item_id = i.id
 WHERE l.tag_id = ?
+ORDER BY i.timestamp DESC
 `,
 	query.TagLinkGetMap: `
 SELECT
