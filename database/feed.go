@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-04 18:21:09 krylon>
+// Time-stamp: <2026-05-11 11:29:52 krylon>
 
 package database
 
@@ -387,7 +387,7 @@ EXEC_QUERY:
 			waitForRetry()
 			goto EXEC_QUERY
 		} else {
-			ex = fmt.Errorf("cannot update interval of Feed %s (%d): %w",
+			ex = fmt.Errorf("cannot update last refresh of Feed %s (%d): %w",
 				feed.Name,
 				feed.ID,
 				err)
