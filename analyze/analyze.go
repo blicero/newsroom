@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 05. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-09 15:21:09 krylon>
+// Time-stamp: <2026-05-11 11:34:04 krylon>
 
 // Package analyze provides analysis of the news Items.
 package analyze
@@ -59,10 +59,11 @@ func (p *Period) Duration() time.Duration {
 
 func (p *Period) String() string {
 	return fmt.Sprintf("Period{%s -- %s}",
-		p.Begin.Format(common.TimestampFormatMinute),
-		p.End.Format(common.TimestampFormatMinute))
+		p.Begin.Format(common.TimestampFormatDate),
+		p.End.Format(common.TimestampFormatDate))
 } // func (p *Period) String() string
 
+// Previous returns the Period prior to the receiver.
 func (p *Period) Previous() *Period {
 	return &Period{
 		Begin: p.Begin.Add(-p.Duration()),
@@ -70,6 +71,7 @@ func (p *Period) Previous() *Period {
 	}
 } // func (p *Period) Previous() *Period
 
+// Next returns the Period following the receiver.
 func (p *Period) Next() *Period {
 	return &Period{
 		Begin: p.End,
@@ -77,6 +79,7 @@ func (p *Period) Next() *Period {
 	}
 } // func (p *Period) Next() *Period
 
+// WordMap maps a word to its frequency in a given Period.
 type WordMap map[string]float64
 
 // Word is a word (duh!) and the number of times it occured in a given period.
@@ -96,6 +99,7 @@ func wordCmp(w1, w2 Word) int {
 	return 0
 } // func wordCmp(w1, w2 Word) int
 
+// WordList is a list of words and their frequencies in a given Period.
 type WordList []Word
 
 // Delta is a word and its frequency in two different time periods.
@@ -150,6 +154,7 @@ func NewTrendScout() (*TrendScout, error) {
 	return ts, nil
 } // func NewTrendScout() (*TrendScout, error)
 
+// AnalyzePeriod calculates the frequencies of words in a given Period.
 func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 	var (
 		err       error
@@ -281,10 +286,7 @@ func (ts *TrendScout) AnalyzeDelta(p1, p2 *Period, cnt int) (DeltaList, error) {
 		wlists [2]WordList
 	)
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		var (
 			ex    error
 			wlist WordList
@@ -298,12 +300,9 @@ func (ts *TrendScout) AnalyzeDelta(p1, p2 *Period, cnt int) (DeltaList, error) {
 		} else {
 			wlists[0] = wlist
 		}
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		var (
 			ex    error
 			wlist WordList
@@ -317,6 +316,68 @@ func (ts *TrendScout) AnalyzeDelta(p1, p2 *Period, cnt int) (DeltaList, error) {
 		} else {
 			wlists[1] = wlist
 		}
-	}()
+	})
 
+	wg.Wait()
+
+	if errCnt.Load() > 0 {
+		return nil, fmt.Errorf("Ran into %d errors gathering data",
+			errCnt.Load())
+	}
+
+	var dmap = make(map[string]Delta)
+
+	for _, word := range wlists[0] {
+		var d = Delta{
+			Word:  word.Word,
+			Count: [2]float64{word.Count, 0},
+		}
+
+		dmap[word.Word] = d
+	}
+
+	for _, word := range wlists[1] {
+		var (
+			d  Delta
+			ok bool
+		)
+
+		if d, ok = dmap[word.Word]; !ok {
+			d = Delta{
+				Word: word.Word,
+				Count: [2]float64{
+					0,
+					word.Count,
+				},
+			}
+		} else {
+			d.Count[1] = word.Count
+		}
+
+		dmap[word.Word] = d
+	}
+
+	var dlist = make(DeltaList, 0, len(dmap))
+
+	for _, delta := range dmap {
+		dlist = append(dlist, delta)
+	}
+
+	slices.SortFunc(dlist, func(a, b Delta) int {
+		var x = a.Change() - b.Change()
+
+		if x > 0 {
+			return -1
+		} else if x < 0 {
+			return 1
+		}
+
+		return 0
+	})
+
+	if len(dlist) > cnt {
+		return dlist[:cnt], nil
+	}
+
+	return dlist, nil
 } // func (ts *TrendScout) AnalyzeDelta(p1, p2 *Period, cnt int) (DeltaList, error)

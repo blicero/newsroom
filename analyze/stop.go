@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-07 14:34:34 krylon>
+// Time-stamp: <2026-05-11 11:10:35 krylon>
 
 package analyze
 
@@ -45,7 +45,7 @@ func init() {
 			path       = filepath.Join(root, file.Name())
 		)
 
-		lang = namePat.FindAllStringSubmatch(file.Name(), -1)[0][1]
+		lang = namePat.FindAllStringSubmatch(file.Name(), -1)[0][1] // nolint: nilaway
 
 		if contentRaw, err = corpus.ReadFile(path); err != nil {
 			fmt.Fprintf(
