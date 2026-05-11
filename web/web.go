@@ -18,6 +18,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"slices"
 	"strconv"
 	"strings"
@@ -93,7 +94,7 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 
 	if srv.log, err = common.GetLogger(logdomain.Web); err != nil {
 		return nil, err
-	} else if srv.pool, err = database.NewPool(4); err != nil {
+	} else if srv.pool, err = database.NewPool(runtime.NumCPU() * 2); err != nil {
 		srv.log.Printf("[CRITICAL] Cannot open database pool: %s\n",
 			err.Error())
 		return nil, err
@@ -113,7 +114,7 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 		srv.log.Printf("[ERROR] Failed to create Blacklist: %s\n",
 			err.Error())
 		return nil, err
-	} else if srv.ts, err = analyze.NewTrendScout(); err != nil {
+	} else if srv.ts, err = analyze.NewTrendScout(srv.pool); err != nil {
 		srv.log.Printf("[ERROR] Failed to create TrendScout: %s\n",
 			err.Error())
 		return nil, err

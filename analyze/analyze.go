@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 05. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-11 11:34:04 krylon>
+// Time-stamp: <2026-05-11 13:19:12 krylon>
 
 // Package analyze provides analysis of the news Items.
 package analyze
@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"runtime"
 	"slices"
 	"strings"
 	"sync"
@@ -127,7 +128,7 @@ type TrendScout struct {
 }
 
 // NewTrendScout creates a new TrendScout
-func NewTrendScout() (*TrendScout, error) {
+func NewTrendScout(pool *database.Pool) (*TrendScout, error) {
 	var (
 		err error
 		ts  = new(TrendScout)
@@ -145,7 +146,11 @@ func NewTrendScout() (*TrendScout, error) {
 			char,
 			err.Error())
 		return nil, err
-	} else if ts.pool, err = database.NewPool(4); err != nil {
+	}
+
+	if pool != nil {
+		ts.pool = pool
+	} else if ts.pool, err = database.NewPool(runtime.NumCPU()); err != nil {
 		ts.log.Printf("[CRITICAL] Cannot create database pool: %s\n",
 			err.Error())
 		return nil, err
