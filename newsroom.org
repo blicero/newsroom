@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-11 11:37:36 krylon>
+# Time-stamp: <2026-05-11 12:16:39 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,7 +7,7 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [42/45]
+* Newsroom [43/46]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
@@ -74,7 +74,7 @@
    | \_  /Features [0/0]/                         |            | /0:01/     |         |       |      |
    | \_    Analysis paralysis [0/0]               |            |            |    0:01 |       |      |
    #+END:
-** Components [42/45]
+** Components [43/46]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -488,7 +488,7 @@
       :LOGBOOK:
       CLOCK: [2026-05-08 Fr 12:42]--[2026-05-08 Fr 13:02] =>  0:20
       :END:
-*** Trendy [6/7]
+*** Trendy [7/8]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -500,7 +500,15 @@
     Automatically detecting that several Items refer to the same event would
     be really cool, too.
     [[github.com/james-bowman/nlp][nlp]] should be a good starting point.
-**** TODO Changes
+**** TODO Trend analysis [0/0]
+     :PROPERTIES:
+     :COOKIE_DATA: todo recursive
+     :VISIBILITY:
+     :END:
+     I would like to compute the frequencies over a series of Periods, then
+     render a chart from that data somehow.
+**** DONE Changes
+     CLOSED: [2026-05-11 Mo 12:16]
      :LOGBOOK:
      CLOCK: [2026-05-11 Mo 10:47]--[2026-05-11 Mo 11:37] =>  0:50
      CLOCK: [2026-05-09 Sa 14:19]--[2026-05-09 Sa 15:37] =>  1:18
