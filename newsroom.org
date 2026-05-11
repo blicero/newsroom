@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-09 15:38:05 krylon>
+# Time-stamp: <2026-05-11 11:37:36 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,13 +14,13 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-09 Sa 15:38]
+   #+CAPTION: Clock summary at [2026-05-11 Mo 11:37]
    | Headline                                     | Time       |            |         |       |      |
    |----------------------------------------------+------------+------------+---------+-------+------|
-   | *Total time*                                 | *4d 12:28* |            |         |       |      |
+   | *Total time*                                 | *4d 13:18* |            |         |       |      |
    |----------------------------------------------+------------+------------+---------+-------+------|
-   | *Newsroom [42/45]*                           | *4d 12:28* |            |         |       |      |
-   | \_  /Components [42/45]/                     |            | /4d 12:27/ |         |       |      |
+   | *Newsroom [42/45]*                           | *4d 13:18* |            |         |       |      |
+   | \_  /Components [42/45]/                     |            | /4d 13:17/ |         |       |      |
    | \_    Model [3/3]                            |            |            |    4:39 |       |      |
    | \_      Plant a tree!                        |            |            |         |  0:25 |      |
    | \_      Strip HTML                           |            |            |         |  1:57 |      |
@@ -63,8 +63,8 @@
    | \_      Analysis [2/2]                       |            |            |         |  0:28 |      |
    | \_        Choose time window                 |            |            |         |       | 0:08 |
    | \_        Add links for words that are Tags  |            |            |         |       | 0:20 |
-   | \_    Trendy [6/7]                           |            |            |   12:32 |       |      |
-   | \_      Changes                              |            |            |         |  3:16 |      |
+   | \_    Trendy [6/7]                           |            |            |   13:22 |       |      |
+   | \_      Changes                              |            |            |         |  4:06 |      |
    | \_      Frequent words [5/5]                 |            |            |         |  9:15 |      |
    | \_        Embedded Stopwords                 |            |            |         |       | 2:25 |
    | \_        Use weights for Items marked as... |            |            |         |       | 0:36 |
@@ -502,6 +502,7 @@
     [[github.com/james-bowman/nlp][nlp]] should be a good starting point.
 **** TODO Changes
      :LOGBOOK:
+     CLOCK: [2026-05-11 Mo 10:47]--[2026-05-11 Mo 11:37] =>  0:50
      CLOCK: [2026-05-09 Sa 14:19]--[2026-05-09 Sa 15:37] =>  1:18
      CLOCK: [2026-05-09 Sa 12:19]--[2026-05-09 Sa 14:17] =>  1:58
      :END:
