@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-05-08 14:27:47 krylon>
+// Time-stamp: <2026-05-11 11:15:38 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
@@ -86,5 +86,12 @@ type tmplDataHistogram struct {
 	tmplDataBase
 	Period analyze.Period
 	Words  analyze.WordList
+	Tags   map[string]*model.Tag
+}
+
+type tmplDataDelta struct {
+	tmplDataBase
+	Period [2]analyze.Period
+	Words  analyze.DeltaList
 	Tags   map[string]*model.Tag
 }

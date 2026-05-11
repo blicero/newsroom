@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-09 11:49:44 krylon>
+// Time-stamp: <2026-05-11 11:19:55 krylon>
 
 package web
 
@@ -174,6 +174,7 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 	srv.router.HandleFunc("/search", srv.handleSearchForm)
 	srv.router.HandleFunc("/bookmarks", srv.handleBookmarks)
 	srv.router.HandleFunc("/analysis/histogram/{days:(?:\\d+)}/{offset:(?:\\d+)$}", srv.handleHistogram)
+	srv.router.HandleFunc("/analysis/delta/{days:(?:\\d+)}/{offset:(?:\\d+)$}", srv.handleDelta)
 
 	// AJAX Handlers
 	srv.router.HandleFunc(
@@ -1246,6 +1247,111 @@ func (srv *Server) handleHistogram(w http.ResponseWriter, r *http.Request) {
 		srv.sendErrorMessage(w, msg)
 	}
 } // func (srv *Server) handleHistogram(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleDelta(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	const (
+		tmplName  = "trend"
+		wordCount = 50
+	)
+
+	var (
+		err             error
+		db              *database.Database
+		msg             string
+		tmpl            *template.Template
+		vars            map[string]string
+		dayCnt, offset  int64
+		now, begin, end time.Time
+		data            = tmplDataDelta{
+			tmplDataBase: tmplDataBase{
+				Title: "Histogram",
+				Debug: common.Debug,
+				URL:   r.RequestURI,
+			},
+		}
+	)
+
+	vars = mux.Vars(r)
+	if dayCnt, err = strconv.ParseInt(vars["days"], 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse number of days %q: %s",
+			vars["days"],
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if offset, err = strconv.ParseInt(vars["offset"], 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse offset %q: %s",
+			vars["offset"],
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	now = time.Now()
+	end = now
+	begin = now.Add(time.Duration(dayCnt) * time.Second * -86400)
+
+	data.Period[1] = analyze.Period{
+		Begin: begin,
+		End:   end,
+	}
+
+	data.Period[0] = *data.Period[1].Previous()
+
+	if offset > 0 {
+		for range offset {
+			data.Period[1] = data.Period[0]
+			data.Period[0] = *data.Period[1].Previous()
+		}
+	}
+
+	if data.Words, err = srv.ts.AnalyzeDelta(&data.Period[0], &data.Period[1], wordCount); err != nil {
+		msg = fmt.Sprintf("Failed to analyze word frequency from %s to %s: %s\n",
+			begin.Format(common.TimestampFormatDate),
+			end.Format(common.TimestampFormatDate),
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	var tagList []*model.Tag
+
+	if tagList, err = db.TagGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load all Tags: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	data.Tags = make(map[string]*model.Tag, len(tagList))
+
+	for _, tag := range tagList {
+		data.Tags[tag.Name] = tag
+	}
+
+	if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Couldn't find template %s",
+			tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	w.Header().Set("Cache-Control", noCache)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleDelta(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////////////////////////////
 /// Handle AJAX //////////////////////////////////////////////////////////////
