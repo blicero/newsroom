@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 18. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-22 12:45:57 krylon>
+// Time-stamp: <2026-05-13 12:23:02 krylon>
 
 package cache
 
@@ -141,7 +141,7 @@ func (c *Cache[T]) Load(key string) (*T, error) {
 				c.name)
 		} else if valbuf = bucket.Get(keybuf); valbuf == nil {
 			c.log.Printf("[DEBUG] Key %s was not found in Cache.\n",
-				c.name)
+				key)
 		}
 
 		return nil
