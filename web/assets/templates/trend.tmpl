@@ -1,6 +1,6 @@
 {{ define "trend" }}
 {{/* Created on 05. 05. 2026 */}}
-{{/* Time-stamp: <2026-05-11 11:23:21 krylon> */}}
+{{/* Time-stamp: <2026-05-13 12:45:52 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -11,36 +11,12 @@
     <hr />
 
     <h2>
-      Delta between {{ index .Period 0 }} and {{ index .Period 1 }}
+      Trend over {{ .ICnt }} periods of {{ .Days }} Days
     </h2>
 
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Word</th>
-          <th>#</th>
-      </tr>
-      </thead>
-
-      <tbody>
-        {{ $tags := .Tags }}
-        {{ range .Words }}
-        <tr>
-          <td>
-            {{ $word := .Word }}
-            {{ $cnt := .Change }}
-            {{ $tag := index $tags .Word }}
-            {{ with $tag }}
-            <a href="/tag/{{ $tag.ID }}">{{ $word }}</a>
-            {{ else }}
-            {{ $word }}
-            {{ end }}
-          </td>
-          <td>{{ fmt_float $cnt }}</td>
-        </tr>
-        {{ end }}
-      </tbody>
-    </table>
+    <div id="chart">
+      <img src="/analysis/chart/{{ .Days }}/{{ .ICnt }}" />
+    </div>
 
     {{ template "footer" . }}
   </body>

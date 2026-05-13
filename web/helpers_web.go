@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2019 by Benjamin Walkenhorst
 // (c) 2019 Benjamin Walkenhorst
-// Time-stamp: <2026-03-14 13:08:32 krylon>
+// Time-stamp: <2026-05-13 12:38:43 krylon>
 //
 // Helper functions for use by the HTTP request handlers
 
@@ -39,3 +39,15 @@ func (srv *Server) baseData(title string, r *http.Request) tmplDataBase { // nol
 		URL:   r.URL.String(),
 	}
 } // func (srv *Server) baseData(title string, r *http.Request) tmplDataBase
+
+func generateChartTicks(n int) []float64 {
+	var (
+		ticks = make([]float64, n)
+	)
+
+	for i := range n {
+		ticks[i] = float64(i)
+	}
+
+	return ticks
+} // func generateChartTicks(n int) []float64

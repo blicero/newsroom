@@ -2,13 +2,15 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-05-11 11:15:38 krylon>
+// Time-stamp: <2026-05-12 11:46:13 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
 package web
 
 import (
+	"time"
+
 	"github.com/blicero/newsroom/analyze"
 	"github.com/blicero/newsroom/blacklist"
 	"github.com/blicero/newsroom/classify"
@@ -95,3 +97,17 @@ type tmplDataDelta struct {
 	Words  analyze.DeltaList
 	Tags   map[string]*model.Tag
 }
+
+type tmplDataTrend struct {
+	tmplDataBase
+	Interval  time.Duration
+	WordCount int64
+	ICnt      int64
+	Series    *analyze.Series
+	Tags      map[string]*model.Tag
+}
+
+// Days returns the Interval in days.
+func (dt *tmplDataTrend) Days() int64 {
+	return int64(dt.Interval.Hours()) / 24
+} // func (dt *tmplDataTrend) Days() int64

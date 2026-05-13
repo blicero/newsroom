@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-11 13:20:58 krylon>
+// Time-stamp: <2026-05-13 12:48:18 krylon>
 
 package web
 
@@ -27,6 +27,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/Strubbl/go-chart/v2"
 	"github.com/blicero/newsroom/analyze"
 	"github.com/blicero/newsroom/blacklist"
 	"github.com/blicero/newsroom/classify"
@@ -176,6 +177,8 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 	srv.router.HandleFunc("/bookmarks", srv.handleBookmarks)
 	srv.router.HandleFunc("/analysis/histogram/{days:(?:\\d+)}/{offset:(?:\\d+)$}", srv.handleHistogram)
 	srv.router.HandleFunc("/analysis/delta/{days:(?:\\d+)}/{offset:(?:\\d+)$}", srv.handleDelta)
+	srv.router.HandleFunc("/analysis/trend/{days:(?:\\d+)}/{icnt:(?:\\d+)$}", srv.handleTrendAnalysis)
+	srv.router.HandleFunc("/analysis/chart/{days:(?:\\d+)}/{icnt:(?:\\d+)$}", srv.handleTrendChart)
 
 	// AJAX Handlers
 	srv.router.HandleFunc(
@@ -1362,16 +1365,15 @@ func (srv *Server) handleTrendAnalysis(w http.ResponseWriter, r *http.Request) {
 	)
 
 	var (
-		err             error
-		db              *database.Database
-		msg             string
-		tmpl            *template.Template
-		vars            map[string]string
-		dayCnt, offset  int64
-		now, begin, end time.Time
-		data            = tmplDataDelta{
+		err          error
+		db           *database.Database
+		msg          string
+		tmpl         *template.Template
+		vars         map[string]string
+		dayCnt, icnt int64
+		data         = tmplDataTrend{
 			tmplDataBase: tmplDataBase{
-				Title: "Histogram",
+				Title: "Trend",
 				Debug: common.Debug,
 				URL:   r.RequestURI,
 			},
@@ -1386,7 +1388,7 @@ func (srv *Server) handleTrendAnalysis(w http.ResponseWriter, r *http.Request) {
 		srv.log.Printf("[ERROR] %s\n", msg)
 		srv.sendErrorMessage(w, msg)
 		return
-	} else if offset, err = strconv.ParseInt(vars["offset"], 10, 64); err != nil {
+	} else if icnt, err = strconv.ParseInt(vars["icnt"], 10, 64); err != nil {
 		msg = fmt.Sprintf("Cannot parse offset %q: %s",
 			vars["offset"],
 			err.Error())
@@ -1395,28 +1397,13 @@ func (srv *Server) handleTrendAnalysis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	now = time.Now()
-	end = now
-	begin = now.Add(time.Duration(dayCnt) * time.Second * -86400)
-
-	data.Period[1] = analyze.Period{
-		Begin: begin,
-		End:   end,
-	}
-
-	data.Period[0] = *data.Period[1].Previous()
-
-	if offset > 0 {
-		for range offset {
-			data.Period[1] = data.Period[0]
-			data.Period[0] = *data.Period[1].Previous()
-		}
-	}
-
-	if data.Words, err = srv.ts.AnalyzeDelta(&data.Period[0], &data.Period[1], wordCount); err != nil {
-		msg = fmt.Sprintf("Failed to analyze word frequency from %s to %s: %s\n",
-			begin.Format(common.TimestampFormatDate),
-			end.Format(common.TimestampFormatDate),
+	data.Interval = time.Hour * 24 * time.Duration(dayCnt)
+	data.WordCount = wordCount
+	data.ICnt = icnt
+	if data.Series, err = srv.ts.ComputeSeries(data.Interval, int(icnt), wordCount); err != nil {
+		msg = fmt.Sprintf("Failed to compute Series of %d x %s: %s",
+			icnt,
+			data.Interval,
 			err.Error())
 		srv.log.Printf("[ERROR] %s\n", msg)
 		srv.sendErrorMessage(w, msg)
@@ -1458,6 +1445,82 @@ func (srv *Server) handleTrendAnalysis(w http.ResponseWriter, r *http.Request) {
 		srv.sendErrorMessage(w, msg)
 	}
 } // func (srv *Server) handleTrendAnalysis(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleTrendChart(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	const (
+		wordCount = 10
+	)
+
+	var (
+		err          error
+		msg          string
+		vars         map[string]string
+		dayCnt, icnt int64
+		interval     time.Duration
+		series       *analyze.Series
+	)
+
+	vars = mux.Vars(r)
+	if dayCnt, err = strconv.ParseInt(vars["days"], 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse number of days %q: %s",
+			vars["days"],
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if icnt, err = strconv.ParseInt(vars["icnt"], 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse offset %q: %s",
+			vars["offset"],
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	interval = time.Hour * 24 * time.Duration(dayCnt)
+
+	if series, err = srv.ts.ComputeSeries(interval, int(icnt), wordCount); err != nil {
+		msg = fmt.Sprintf("Failed to compute Series of %d x %s: %s",
+			icnt,
+			interval,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	var graph = chart.Chart{
+		Title: fmt.Sprintf("Word freq over %d periods of %d days",
+			icnt,
+			dayCnt),
+		Background: chart.Style{
+			Padding: chart.Box{
+				Top:  20,
+				Left: 20,
+			},
+		},
+		Series: make([]chart.Series, 0, wordCount),
+	}
+
+	for word, values := range series.Frequencies {
+		var s = chart.ContinuousSeries{
+			Name:    word,
+			XValues: generateChartTicks(len(values)),
+			YValues: values,
+		}
+
+		graph.Series = append(graph.Series, s)
+	}
+
+	graph.Elements = []chart.Renderable{
+		chart.Legend(&graph),
+	}
+
+	w.Header().Set("Cache-Control", noCache)
+	w.Header().Set("Content-Type", "image/png")
+	graph.Render(chart.PNG, w)
+} // func (srv *Server) handleTrendChart(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////////////////////////////
 /// Handle AJAX //////////////////////////////////////////////////////////////

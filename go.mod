@@ -4,6 +4,7 @@ go 1.25.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.0
+	github.com/Strubbl/go-chart/v2 v2.1.17
 	github.com/blicero/krylib v0.2.1
 	github.com/blicero/shield v0.0.0-20241004181537-05f336ba3f75
 	github.com/darkoatanasovski/htmltags v1.0.0
@@ -19,10 +20,8 @@ require (
 )
 
 require (
-	github.com/Strubbl/go-chart/v2 v2.1.17 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/garyburd/redigo v1.6.4 // indirect
-	github.com/go-echarts/go-echarts/v2 v2.7.2 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
