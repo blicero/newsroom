@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-13 13:04:48 krylon>
+# Time-stamp: <2026-05-13 13:59:15 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,19 +7,19 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [46/49]
+* Newsroom [47/50]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-13 Mi 13:04]
+   #+CAPTION: Clock summary at [2026-05-13 Mi 13:59]
    | Headline                                         | Time       |            |         |       |      |
    |--------------------------------------------------+------------+------------+---------+-------+------|
-   | *Total time*                                     | *4d 16:49* |            |         |       |      |
+   | *Total time*                                     | *4d 17:13* |            |         |       |      |
    |--------------------------------------------------+------------+------------+---------+-------+------|
-   | *Newsroom [46/49]*                               | *4d 16:49* |            |         |       |      |
+   | *Newsroom [47/50]*                               | *4d 17:13* |            |         |       |      |
    | \_  /Components [46/48]/                         |            | /4d 16:48/ |         |       |      |
    | \_    Model [3/3]                                |            |            |    4:39 |       |      |
    | \_      Plant a tree!                            |            |            |         |  0:25 |      |
@@ -74,7 +74,9 @@
    | \_        Synonyms                               |            |            |         |       | 0:21 |
    | \_    build script [1/1]                         |            |            |    0:05 |       |      |
    | \_      Run nilaway sequentially                 |            |            |         |  0:05 |      |
-   | \_  /Features [0/1]/                             |            | /0:01/     |         |       |      |
+   | \_  /Features [1/2]/                             |            | /0:25/     |         |       |      |
+   | \_    Performance [1/1]                          |            |            |    0:24 |       |      |
+   | \_      Profiler                                 |            |            |         |  0:24 |      |
    | \_    Analysis paralysis [0/0]                   |            |            |    0:01 |       |      |
    #+END:
 ** Components [46/48]
@@ -609,16 +611,28 @@
      :END:
      Nilaway consumes *huge* quantities of RAM, I would like to not run it in
      parallel.
-** Features [0/1]
+** Features [1/2]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
    :END:
-*** TODO Performance
+*** TODO Performance [1/1]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
     One reason to rewrite my news ticker *again*, in Go, was to achieve better
     performance. The program runs on a puny second generation Raspberry Pi, so
     performance is a serious consideration.
     I should do some profiling.
+**** DONE Profiler
+     CLOSED: [2026-05-13 Mi 13:58]
+     :LOGBOOK:
+     CLOCK: [2026-05-13 Mi 13:34]--[2026-05-13 Mi 13:58] =>  0:24
+     :END:
+     Go includes a profiler in the standard library, I just need to enable it,
+     if needed.
+     [2026-05-13 Mi 13:58] That was easy.
 *** Rating
 *** Tagging
 *** Search
