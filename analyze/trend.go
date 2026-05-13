@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 11. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-11 13:08:05 krylon>
+// Time-stamp: <2026-05-13 12:33:18 krylon>
 
 package analyze
 
@@ -34,8 +34,14 @@ func (ts *TrendScout) ComputeSeries(interval time.Duration, icnt, wcnt int) (*Se
 		}
 	)
 
-	end = time.Now()
+	end = time.Now().Truncate(time.Hour * 24)
 	begin = end.Add(-interval)
+
+	end = end.Add(time.Second * 86400)
+
+	ts.log.Printf("[TRACE] Compute Series %s -- %s\n",
+		begin.Format(common.TimestampFormat),
+		end.Format(common.TimestampFormat))
 
 	for i := icnt - 1; i >= 0; i-- {
 		series.Periods[i] = Period{Begin: begin, End: end}
