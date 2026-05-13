@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 05. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-11 13:19:12 krylon>
+// Time-stamp: <2026-05-13 12:24:23 krylon>
 
 // Package analyze provides analysis of the news Items.
 package analyze
@@ -19,6 +19,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/blicero/newsroom/cache"
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/database"
 	"github.com/blicero/newsroom/logdomain"
@@ -30,8 +31,9 @@ import (
 var corpus embed.FS
 
 const (
-	sepPat = `[^A-Za-zÄÖÜßäöü]+`
-	char   = `^[[:alpha:]]+$`
+	sepPat    = `[^A-Za-zÄÖÜßäöü]+`
+	char      = `^[[:alpha:]]+$`
+	cacheName = "analyze_wl"
 )
 
 // Period represents a timespan.
@@ -121,10 +123,11 @@ type DeltaList []Delta
 // TrendScout looks for the most frequent words in a given period, and how the
 // distribution changed compared to earlier periods.
 type TrendScout struct {
-	log  *log.Logger
-	sep  *regexp.Regexp
-	char *regexp.Regexp
-	pool *database.Pool
+	log     *log.Logger
+	sep     *regexp.Regexp
+	char    *regexp.Regexp
+	pool    *database.Pool
+	wlCache *cache.Cache[WordList]
 }
 
 // NewTrendScout creates a new TrendScout
@@ -144,6 +147,11 @@ func NewTrendScout(pool *database.Pool) (*TrendScout, error) {
 	} else if ts.char, err = regexp.Compile(char); err != nil {
 		ts.log.Printf("[CRITICAL] Cannot compile regex for characters %q: %s\n",
 			char,
+			err.Error())
+		return nil, err
+	} else if ts.wlCache, err = cache.New[WordList](cacheName); err != nil {
+		ts.log.Printf("[CRITICAL] Cannot open Cache %s: %s\n",
+			cacheName,
 			err.Error())
 		return nil, err
 	}
@@ -172,7 +180,22 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 		hackID    int64
 		tags      []*model.Tag
 		tagMap    map[string]bool
+		cacheKey  string
+		wl        *WordList
 	)
+
+	cacheKey = fmt.Sprintf("%016x--%016x",
+		p.Begin.Unix(),
+		p.End.Unix())
+
+	if wl, err = ts.wlCache.Load(cacheKey); err != nil {
+		ts.log.Printf("[ERROR] Failed to look up data for Period %s in cache: %s\n",
+			p,
+			err.Error())
+		return nil, err
+	} else if wl != nil && *wl != nil {
+		return *wl, nil
+	}
 
 	db = ts.pool.Get()
 	defer ts.pool.Put(db)
@@ -276,7 +299,16 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 	slices.SortFunc(list, wordCmp)
 
 	if len(list) > cnt {
-		return list[:cnt], nil
+		// return list[:cnt], nil
+		list = list[:cnt]
+	}
+
+	ts.log.Printf("[TRACE] Store Period %s in cache\n",
+		cacheKey)
+	if err = ts.wlCache.Store(cacheKey, &list); err != nil {
+		ts.log.Printf("[ERROR] Failed to store data for Period %s in cache: %s\n",
+			p,
+			err.Error())
 	}
 
 	return list, nil
