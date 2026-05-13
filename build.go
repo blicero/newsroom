@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 02. 2021 by Benjamin Walkenhorst
 // (c) 2021 Benjamin Walkenhorst
-// Time-stamp: <2026-05-06 11:30:55 krylon>
+// Time-stamp: <2026-05-12 12:32:42 krylon>
 
 //go:build ignore
 
@@ -61,7 +61,6 @@ var candidates = map[string][]string{
 		"logdomain",
 		"model/rating",
 		"database/query",
-		"analyze",
 	},
 	"vet": {
 		"logdomain",
