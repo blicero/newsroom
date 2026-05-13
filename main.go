@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-30 12:37:43 krylon>
+// Time-stamp: <2026-05-13 13:39:30 krylon>
 
 package main
 
@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"runtime/pprof"
 	"syscall"
 	"time"
 
@@ -22,12 +23,13 @@ import (
 
 func main() {
 	var (
-		err    error
-		eng    *engine.Engine
-		srv    *web.Server
-		ticker *time.Ticker
-		addr   string
-		sigQ   = make(chan os.Signal, 1)
+		err     error
+		eng     *engine.Engine
+		srv     *web.Server
+		ticker  *time.Ticker
+		addr    string
+		profOut string
+		sigQ    = make(chan os.Signal, 1)
 	)
 
 	fmt.Printf("%s %s, built on %s\n",
@@ -36,7 +38,36 @@ func main() {
 		common.BuildStamp.Format(common.TimestampFormat))
 
 	flag.StringVar(&addr, "addr", fmt.Sprintf("[::1]:%d", common.WebPort), "The IP address for the web UI to listen on")
+	flag.StringVar(&profOut, "prof", "", "if non-empty, write profiling information to the named file")
 	flag.Parse()
+
+	if profOut != "" {
+		var profH *os.File
+
+		fmt.Printf("Writing profiling data to %s\n",
+			profOut)
+
+		if profH, err = os.Create(profOut); err != nil {
+			fmt.Fprintf(
+				os.Stderr,
+				"Failed to open %s: %s\n",
+				profOut,
+				err.Error())
+			os.Exit(1)
+		}
+
+		defer profH.Close() // nolint: errcheck
+
+		if err = pprof.StartCPUProfile(profH); err != nil {
+			fmt.Fprintf(
+				os.Stderr,
+				"Error starting CPU profile: %s\n",
+				err.Error())
+			os.Exit(1)
+		}
+
+		defer pprof.StopCPUProfile()
+	}
 
 	if eng, err = engine.Create(runtime.NumCPU()); err != nil {
 		fmt.Fprintf(
