@@ -1,4 +1,4 @@
-// Time-stamp: <2026-05-15 12:48:11 krylon>
+// Time-stamp: <2026-05-16 13:16:10 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -911,17 +911,22 @@ function search_do() {
     let tags = []
 
     for (var t in search_tags) {
-        tags.push(t)
+        if (search_tags[t]) {
+            tags.push(parseInt(t))
+        }
+    }
+
+    const data = {
+        "query" : query,
+        "tags"  : tags,
+        "tag_p" : (tags.length > 0),
+        "date_p": date_p,
+        "period": (date_p ? [ period["from"], period["end"] ] : []),
     }
 
     $.post(
         url,
-        {
-            "query" : query,
-            "tags"  : tags,
-            "date_p": date_p,
-            "period": period,
-        },
+        { "data": JSON.stringify(data) },
         (res) => {
             if (res.status) {
                 $("#result_bin")[0].innerHTML = res.payload
@@ -943,6 +948,7 @@ function search_reset() {
     $("#result_bin")[0].innerHTML = ""
     $("#tag_bin")[0].innerHTML = ""
     $("#search_text")[0].value = ""
+    search_tags = {}
 } // function search_reset()
 
 // function search_tag_add() {

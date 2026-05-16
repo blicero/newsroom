@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-15 13:07:33 krylon>
+// Time-stamp: <2026-05-16 13:02:08 krylon>
 
 package web
 
@@ -2433,11 +2433,21 @@ SEND:
 
 func (srv *Server) handleAjaxSearch(w http.ResponseWriter, r *http.Request) {
 	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+
+	type searchData struct {
+		Query  string      `json:"query"`
+		Tags   []int64     `json:"tags"`
+		Period []time.Time `json:"period"`
+		TagP   bool        `json:"tag_p"`
+		DateP  bool        `json:"date_p"`
+	}
+
 	var (
-		err error
-		msg string
-		buf []byte
-		res = ajaxData{
+		err   error
+		msg   string
+		buf   []byte
+		sData searchData
+		res   = ajaxData{
 			Timestamp: time.Now(),
 		}
 	)
@@ -2452,6 +2462,18 @@ func (srv *Server) handleAjaxSearch(w http.ResponseWriter, r *http.Request) {
 
 	srv.log.Printf("[DEBUG] Behold: %#v\n",
 		r.Form)
+
+	if err = json.Unmarshal([]byte(r.FormValue("data")), &sData); err != nil {
+		msg = fmt.Sprintf("Failed to parse search data: %s\n\n%s\n",
+			err.Error(),
+			r.FormValue("data"))
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	srv.log.Printf("[DEBUG] We got this search query: %#v\n",
+		sData)
 
 	res.Status = true
 	res.Message = "IMPLEMENT ME!"
