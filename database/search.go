@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 20. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-02 13:00:54 krylon>
+// Time-stamp: <2026-05-16 14:58:03 krylon>
 
 package database
 
@@ -240,20 +240,20 @@ func (db *Database) expandTagHierarchy(tagID int64) ([]int64, error) {
 	// performance, I might have to, but we'll cross that bridge when
 	// we get there.
 
-	if root, err = db.TagGetByID(tagID); err != nil {
-		db.log.Printf("[ERROR] Failed to load Tag %d: %s\n",
-			tagID,
-			err.Error())
-		return nil, err
-	} else if root == nil {
-		err = fmt.Errorf("Tag #%d was not found in Database", tagID)
-		db.log.Printf("[ERROR] %s\n",
-			err.Error())
-		return nil, err
-	} else if tags, err = db.TagGetSorted(); err != nil {
+	if tags, err = db.TagGetSorted(); err != nil {
 		db.log.Printf("[ERROR] Failed to get Tag hierarchy: %s\n",
 			err.Error())
 		return nil, err
+	}
+
+	for _, tag := range tags {
+		if tag.ID == tagID {
+			root = tag
+		}
+	}
+
+	if root == nil {
+		return nil, fmt.Errorf("tag %d was not found in database", tagID)
 	}
 
 	idlist = make([]int64, 1)
