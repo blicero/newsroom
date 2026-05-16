@@ -1,6 +1,6 @@
 {{ define "search" }}
 {{/* Created on 18. 04. 2026 */}}
-{{/* Time-stamp: <2026-04-30 11:55:04 krylon> */}}
+{{/* Time-stamp: <2026-05-15 13:03:27 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -23,65 +23,89 @@
            "Fancy" stuff, like hiding unused parts of the form, come later.
            (... yeah, right)
       -->
-      <form action="/search" method="post">
-        <table>
-          <tr>
-            <td>
-              <label for="date_p">Filter by time?</label>
-              <input type="checkbox" name="date_p" />
-            </td>
-            <td>
-              <label for="date_begin">From:</label>
-              <input type="date" name="date_begin" />
-            </td>
-            <td>
-              <label for="date_to">To:</label>
-              <input type="date" name="date_to" />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <label for="tag_p">Filter by tags?</label>
-              <input type="checkbox" name="tag_p" />
-            </td>
-            <td colspan="2">
-              <!--
-                   Okay, this is not only not pretty (that much was to be expected),
-                   it is disgusting, confusing, ...
-                   But as I noted above, for now, that is not the point.
-              -->
-              <fieldset>
-                {{ range .Tags }}
-                <label for="tag_{{ .ID }}">{{ .Name }}</label>
-                <input type="checkbox" name="tag_{{ .ID }}" />
-                {{ end }}
-              </fieldset>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="3">
-              <input type="search" name="query" />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="3">
-              <input type="reset" value="Reset" />
-              <input type="submit" value="Search" />
-            </td>
-          </tr>
-        </table>
-      </form>
+      <table>
+        <tr>
+          <td>
+            <input type="checkbox" name="date_p" id="date_p" />
+            <label for="date_p">Filter by time?</label>
+          </td>
+          <td>
+            <label for="date_begin">From:</label>
+            <input type="date" name="date_begin" id="date_begin" />
+          </td>
+          <td>
+            <label for="date_to">To:</label>
+            <input type="date" name="date_to" id="date_to" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label for="tag_p">Filter by tags?</label>
+            <input type="checkbox" name="tag_p" id="tag_p" />
+          </td>
+          <td>
+            <script>
+             const tags = {
+                     {{ range .Tags }}
+                     {{ .ID }}: '{{ .Name }}',
+                     {{ end }}
+             }
+            </script>
+            <select id="search_tag_menu">
+              <option value="0">--</option>
+              {{ range .Tags }}
+              <option value="{{ .ID }}">
+                {{ nbsp (twice .Level) }}{{ .Name }}
+              </option>
+              {{ end }}
+            </select>
+            <button
+              type="button"
+              class="btn btn-success btn-sm"
+              onclick="add_tag_to_search_bin();">
+              Add
+            </button>
+          </td>
+          <td id="tag_bin">
+        </tr>td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <input
+              id="search"
+              type="search"
+              name="query"
+              autocomplete="off" />
+        </tr>td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <button
+              type="button"
+              class="btn btn-sm btn-danger"
+              onlick="search_reset();">
+              Reset
+            </button>
+            <button
+              type=" button"
+              class="btn btn-sm btn-success"
+              onclick="search_do();">
+              Search
+            </button>
+          </td>
+        </tr>
+      </table>
     </div>
 
     <hr />
 
-    {{ if .IsResult }}
-    {{ if gt (len .Items) 0 }}
-    <div id="results">
-      <script>
-       $(document).ready(() => { scale_images() })
-      </script>
-      <table class="table table-striped">
+    <div id="result_bin">
+      <!-- <script>
+           $(document).ready(() => { scale_images() })
+           </script> -->
+      <table
+        class="table table-striped"
+        hidden="true">
         <thead>
           <tr>
             <th>Feed</th>
@@ -93,15 +117,11 @@
           </tr>
         </thead>
 
-        <tbody class="items">
-          {{ template "items" . }}
+        <tbody class="items" id="search_result_table">
+
         </tbody>
-            </table>
+      </table>
     </div>
-    {{ else }}
-    <big>Nothing was found</big>
-    {{ end }}
-    {{ end }}
 
     {{ template "footer" . }}
   </body>

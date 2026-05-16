@@ -1,4 +1,4 @@
-// Time-stamp: <2026-05-05 11:30:52 krylon>
+// Time-stamp: <2026-05-15 12:48:11 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -661,6 +661,10 @@ function feed_interval_cancel(feed_id, interval) {
 `
 } // function feed_interval_cancel(feed_id, interval)
 
+////////////////////////////////////////////////////////////////////////
+/// Blacklist //////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
 var bl_pat_valid_res = false
 
 function bl_pat_valid_notify() {
@@ -839,6 +843,10 @@ function bl_item_delete(item_id) {
     })
 } // function bl_item_delete(item_id)
 
+////////////////////////////////////////////////////////////////////////
+/// Search /////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
 var search_tags = {}
 
 function add_tag_to_search_bin() {
@@ -847,7 +855,9 @@ function add_tag_to_search_bin() {
     const selected_tag_item = $(menu_id)[0].selectedOptions[0]
     const tag_id = selected_tag_item.value
     const tag_name = selected_tag_item.label.trim()
+    const tag_p = $('#tag_p')[0]
 
+    tag_p.checked = true
     search_tags[tag_id] = true
 
     const tag_label = `<span id="tag_${tag_id}">
@@ -869,35 +879,35 @@ function remove_tag_from_bin(tag_id) {
 
 function search_do() {
     const url = "/ajax/search"
-    const input_id = "#search_text"
-    const txt = $(input_id)[0].value
-    const date_p_id = "#search_by_date_p"
+    const input_id = "#search"
+    const query = $(input_id)[0].value
+    const date_p_id = "#date_p"
     const date_p = $(date_p_id)[0].checked
-    const by_date = { "from": "", "to": "" }
+    const period = { "begin": "", "end": "" }
 
-    if (txt == "") {
+    if (query == "") {
         const msg = "No search text was given"
         msg_add(msg, 'ERROR')
         alert(msg)
         return
     } else if (date_p) {
-        by_date["from"] = $("#date_from")[0].value
-        by_date["to"] = $("#date_to")[0].value
+        period["begin"] = $("#date_begin")[0].value
+        period["to"] = $("#date_to")[0].value
 
-        if (by_date.from == "" || by_date.to == "") {
+        if (period.from == "" || period.end == "") {
             const msg = "You need to specify a valid period to filter by!"
             msg_add(msg, 'ERROR')
             alert(msg)
             return
-        } else if (by_date.from > by_date.to) {
-            const msg = `Invalid search period: ${by_date.from} -- ${by_date.to}`
+        } else if (period.from > period.end) {
+            const msg = `Invalid search period: ${period.from} -- ${period.end}`
             msg_add(msg, 'ERROR')
             alert(msg)
             return
         }
     }
 
-    const mode = $("#and")[0].checked
+    // const mode = $("#and")[0].checked
     let tags = []
 
     for (var t in search_tags) {
@@ -907,11 +917,10 @@ function search_do() {
     $.post(
         url,
         {
-            "txt": txt,
-            "mode": mode ? "and" : "or",
-            "tags": tags.join("/"),
+            "query" : query,
+            "tags"  : tags,
             "date_p": date_p,
-            "period": `${by_date.from}--${by_date.to}`,
+            "period": period,
         },
         (res) => {
             if (res.status) {
@@ -935,6 +944,36 @@ function search_reset() {
     $("#tag_bin")[0].innerHTML = ""
     $("#search_text")[0].value = ""
 } // function search_reset()
+
+// function search_tag_add() {
+//     const sel_id = '#tag_menu'
+//     const tag_id = $(sel_id)[0].value
+
+//     search_tag_list[parseInt(tag_id)] = true
+
+//     const tag_cb_id = '#tag_p'
+//     const tag_cb = $(tag_cb_id)[0]
+//     tag_cb.checked = true
+
+//     const tag_disp = `
+// <span id="tag_${tag_id}">
+//   ${tags[tag_id]}
+//   &nbsp;
+//   <img src="/static/delete.png"
+//        onclick="search_tag_remove(${tag_id})" />
+// </span>
+// `
+//     const tag_cell_id = '#search_tags'
+//     const tag_cell = $(tag_cell_id)[0]
+//     tag_cell.innerHTML += tag_disp
+// } // function search_tag_add()
+
+function search_tag_remove(tag_id) {
+    const span_id = `tag_${tag_id}`
+    const span = $(span_id)[0]
+    span.remove()
+    search_tag_list[parseInt(tag_id)] = false
+} // function search_tag_remove(tag_id)
 
 ////////////////////////////////////////////////////////////////////////
 /// Handlers for subscribing to Feeds //////////////////////////////////

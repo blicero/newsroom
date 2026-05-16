@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-13 12:48:18 krylon>
+// Time-stamp: <2026-05-15 13:07:33 krylon>
 
 package web
 
@@ -231,6 +231,10 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 	srv.router.HandleFunc(
 		"/ajax/toggle_refresh",
 		srv.handleAjaxToggleRefresh,
+	)
+	srv.router.HandleFunc(
+		"/ajax/search",
+		srv.handleAjaxSearch,
 	)
 
 	return srv, nil
@@ -2426,6 +2430,47 @@ SEND:
 	w.WriteHeader(200)
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Server) handleAjaxToggleRefresh(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxSearch(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var (
+		err error
+		msg string
+		buf []byte
+		res = ajaxData{
+			Timestamp: time.Now(),
+		}
+	)
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Failed to parse form data: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	srv.log.Printf("[DEBUG] Behold: %#v\n",
+		r.Form)
+
+	res.Status = true
+	res.Message = "IMPLEMENT ME!"
+	res.Payload = "<big>Abobo</big>"
+
+	if buf, err = json.Marshal(&res); err != nil {
+		msg = fmt.Sprintf("Failed to serialize response: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxSearch(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
 	var (
