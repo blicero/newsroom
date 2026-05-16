@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-13 13:59:15 krylon>
+# Time-stamp: <2026-05-16 12:31:55 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,13 +14,13 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-13 Mi 13:59]
+   #+CAPTION: Clock summary at [2026-05-16 Sa 12:31]
    | Headline                                         | Time       |            |         |       |      |
    |--------------------------------------------------+------------+------------+---------+-------+------|
-   | *Total time*                                     | *4d 17:13* |            |         |       |      |
+   | *Total time*                                     | *4d 19:26* |            |         |       |      |
    |--------------------------------------------------+------------+------------+---------+-------+------|
-   | *Newsroom [47/50]*                               | *4d 17:13* |            |         |       |      |
-   | \_  /Components [46/48]/                         |            | /4d 16:48/ |         |       |      |
+   | *Newsroom [47/50]*                               | *4d 19:26* |            |         |       |      |
+   | \_  /Components [46/48]/                         |            | /4d 19:01/ |         |       |      |
    | \_    Model [3/3]                                |            |            |    4:39 |       |      |
    | \_      Plant a tree!                            |            |            |         |  0:25 |      |
    | \_      Strip HTML                               |            |            |         |  1:57 |      |
@@ -40,7 +40,7 @@
    | \_    Classifier [0/0]                           |            |            |    2:26 |       |      |
    | \_    Rating Guesser aka Critic [1/1]            |            |            |    9:40 |       |      |
    | \_      Testing                                  |            |            |         |  2:31 |      |
-   | \_    Web [24/26]                                |            |            | 2d 5:19 |       |      |
+   | \_    Web [24/26]                                |            |            | 2d 7:32 |       |      |
    | \_      Blacklist [2/2]                          |            |            |         |  3:19 |      |
    | \_        View and edit Blacklist                |            |            |         |       | 2:25 |
    | \_        Use Blacklist                          |            |            |         |       | 0:54 |
@@ -55,8 +55,9 @@
    | \_        Retrain Classifier                     |            |            |         |       | 0:54 |
    | \_      Rate Items                               |            |            |         |  5:14 |      |
    | \_      Resize images                            |            |            |         |  0:17 |      |
-   | \_      Search [1/3]                             |            |            |         |  8:31 |      |
+   | \_      Search [1/3]                             |            |            |         | 10:44 |      |
    | \_        The curious case of the missing...     |            |            |         |       | 0:41 |
+   | \_        Nicer UI for picking Tags              |            |            |         |       | 2:13 |
    | \_        Smoother UX                            |            |            |         |       | 0:39 |
    | \_      Suspend refresh                          |            |            |         |  1:32 |      |
    | \_      Bookmarks                                |            |            |         |  2:03 |      |
@@ -460,7 +461,13 @@
       I still get far fewer search results - often none at all - than I should
       be getting. I'll attempt to figure out what is going wrong here.
 ***** TODO Nicer UI for picking Tags
+      :LOGBOOK:
+      CLOCK: [2026-05-15 Fr 11:07]--[2026-05-15 Fr 13:20] =>  2:13
+      :END:
       This is going to take some serious thinking.
+      [2026-05-15 Fr 11:07] I think I am going to go with a menu, like in the
+      tag selection for news Items, and display chosen Tags with
+      delete-buttons next to that.
 ***** TODO Smoother UX
       :LOGBOOK:
       CLOCK: [2026-05-02 Sa 13:07]--[2026-05-02 Sa 13:46] =>  0:39
