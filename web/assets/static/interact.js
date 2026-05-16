@@ -1,4 +1,4 @@
-// Time-stamp: <2026-05-16 13:16:10 krylon>
+// Time-stamp: <2026-05-16 14:54:59 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -892,14 +892,14 @@ function search_do() {
         return
     } else if (date_p) {
         period["begin"] = $("#date_begin")[0].value
-        period["to"] = $("#date_to")[0].value
+        period["end"] = $("#date_end")[0].value
 
-        if (period.from == "" || period.end == "") {
+        if (period.begin == "" || period.end == "") {
             const msg = "You need to specify a valid period to filter by!"
             msg_add(msg, 'ERROR')
             alert(msg)
             return
-        } else if (period.from > period.end) {
+        } else if (period.begin > period.end) {
             const msg = `Invalid search period: ${period.from} -- ${period.end}`
             msg_add(msg, 'ERROR')
             alert(msg)
@@ -907,7 +907,6 @@ function search_do() {
         }
     }
 
-    // const mode = $("#and")[0].checked
     let tags = []
 
     for (var t in search_tags) {
@@ -921,7 +920,7 @@ function search_do() {
         "tags"  : tags,
         "tag_p" : (tags.length > 0),
         "date_p": date_p,
-        "period": (date_p ? [ period["from"], period["end"] ] : []),
+        "period": (date_p ? [ period.begin, period.end ] : []),
     }
 
     $.post(
@@ -929,7 +928,8 @@ function search_do() {
         { "data": JSON.stringify(data) },
         (res) => {
             if (res.status) {
-                $("#result_bin")[0].innerHTML = res.payload
+                $("#search_result_tbody")[0].innerHTML = res.payload
+                $("#search_result_table")[0].hidden = false
             } else {
                 msg_add(res.message, 'ERROR')
                 alert(res.message)

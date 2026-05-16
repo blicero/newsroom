@@ -2,11 +2,12 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-16 13:02:08 krylon>
+// Time-stamp: <2026-05-16 15:05:46 krylon>
 
 package web
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
 	"errors"
@@ -965,8 +966,8 @@ func (srv *Server) performSearch(db *database.Database, w http.ResponseWriter, r
 	}
 
 	if dateP {
-		parm.DateRange[0] = dateFrom
-		parm.DateRange[1] = dateTo
+		parm.Period[0] = dateFrom
+		parm.Period[1] = dateTo
 	}
 
 	if tagP {
@@ -2432,22 +2433,29 @@ SEND:
 } // func (srv *Server) handleAjaxToggleRefresh(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleAjaxSearch(w http.ResponseWriter, r *http.Request) {
+	const tmplName = "items"
 	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
 
 	type searchData struct {
-		Query  string      `json:"query"`
-		Tags   []int64     `json:"tags"`
-		Period []time.Time `json:"period"`
-		TagP   bool        `json:"tag_p"`
-		DateP  bool        `json:"date_p"`
+		Query  string   `json:"query"`
+		Tags   []int64  `json:"tags"`
+		Period []string `json:"period"`
+		TagP   bool     `json:"tag_p"`
+		DateP  bool     `json:"date_p"`
 	}
 
 	var (
-		err   error
-		msg   string
-		buf   []byte
-		sData searchData
-		res   = ajaxData{
+		err        error
+		db         *database.Database
+		msg, fData string
+		buf        []byte
+		tbuf       bytes.Buffer
+		sData      searchData
+		parm       database.SearchParms
+		feeds      []*model.Feed
+		data       tmplDataNews
+		tmpl       *template.Template
+		res        = ajaxData{
 			Timestamp: time.Now(),
 		}
 	)
@@ -2460,10 +2468,9 @@ func (srv *Server) handleAjaxSearch(w http.ResponseWriter, r *http.Request) {
 		goto SEND
 	}
 
-	srv.log.Printf("[DEBUG] Behold: %#v\n",
-		r.Form)
+	fData = r.FormValue("data")
 
-	if err = json.Unmarshal([]byte(r.FormValue("data")), &sData); err != nil {
+	if err = json.Unmarshal([]byte(fData), &sData); err != nil {
 		msg = fmt.Sprintf("Failed to parse search data: %s\n\n%s\n",
 			err.Error(),
 			r.FormValue("data"))
@@ -2472,12 +2479,107 @@ func (srv *Server) handleAjaxSearch(w http.ResponseWriter, r *http.Request) {
 		goto SEND
 	}
 
-	srv.log.Printf("[DEBUG] We got this search query: %#v\n",
-		sData)
+	parm.DateP = sData.DateP
+	parm.TagP = sData.TagP
+	parm.Query = sData.Query
+
+	if parm.DateP && len(sData.Period) == 2 {
+		if parm.Period[0], err = time.Parse(
+			common.TimestampFormatDate,
+			sData.Period[0]); err != nil {
+			msg = fmt.Sprintf(
+				"Cannot parse begin date of search period %q: %s",
+				sData.Period[0],
+				err.Error(),
+			)
+			srv.log.Printf("[ERROR] %s\n", msg)
+			buf = errJSON(msg)
+			goto SEND
+		} else if parm.Period[1], err = time.Parse(
+			common.TimestampFormatDate,
+			sData.Period[1]); err != nil {
+			msg = fmt.Sprintf(
+				"Cannot parse end date of search period %q: %s",
+				sData.Period[1],
+				err.Error(),
+			)
+			srv.log.Printf("[ERROR] %s\n", msg)
+			buf = errJSON(msg)
+			goto SEND
+		}
+
+		parm.Period[1] = parm.Period[1].Add(time.Second * 86399)
+	}
+
+	parm.Tags = make(map[int64]bool, len(sData.Tags))
+
+	for _, tid := range sData.Tags {
+		parm.Tags[tid] = true
+	}
+
+	data = tmplDataNews{
+		tmplDataBase: tmplDataBase{
+			Title: "Search",
+			Debug: common.Debug,
+			URL:   r.RequestURI,
+		},
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if data.Items, err = db.Search(&parm); err != nil {
+		msg = fmt.Sprintf("Database search failed: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if data.Tags, err = db.TagGetSorted(); err != nil {
+		msg = fmt.Sprintf("Failed to load Tags: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if feeds, err = db.FeedGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load Feeds: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	srv.log.Printf("[DEBUG] Search yielded %d results\n",
+		len(data.Items))
+
+	data.Feeds = make(map[int64]*model.Feed, len(feeds))
+
+	for _, feed := range feeds {
+		data.Feeds[feed.ID] = feed
+	}
+
+	data.TagMap = make(map[int64]*model.Tag, len(data.Tags))
+
+	for _, tag := range data.Tags {
+		data.TagMap[tag.ID] = tag
+	}
+
+	if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Couldn't find template %s",
+			tmplName)
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if err = tmpl.Execute(&tbuf, &data); err != nil {
+		msg = fmt.Sprintf("Failed to render template: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
 
 	res.Status = true
-	res.Message = "IMPLEMENT ME!"
-	res.Payload = "<big>Abobo</big>"
+	res.Message = "Success"
+	res.Payload = tbuf.String()
 
 	if buf, err = json.Marshal(&res); err != nil {
 		msg = fmt.Sprintf("Failed to serialize response: %s",

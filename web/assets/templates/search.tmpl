@@ -1,6 +1,6 @@
 {{ define "search" }}
 {{/* Created on 18. 04. 2026 */}}
-{{/* Time-stamp: <2026-05-16 13:07:39 krylon> */}}
+{{/* Time-stamp: <2026-05-16 14:54:13 krylon> */}}
 <!DOCTYPE html>
 <html>
   {{ template "head" . }}
@@ -34,8 +34,8 @@
             <input type="date" name="date_begin" id="date_begin" />
           </td>
           <td>
-            <label for="date_to">To:</label>
-            <input type="date" name="date_to" id="date_to" />
+            <label for="date_end">To:</label>
+            <input type="date" name="date_end" id="date_end" />
           </td>
         </tr>
         <tr>
@@ -103,6 +103,7 @@
            $(document).ready(() => { scale_images() })
            </script> -->
       <table
+        id="search_result_table"
         class="table table-striped"
         hidden="true">
         <thead>
@@ -116,7 +117,7 @@
           </tr>
         </thead>
 
-        <tbody class="items" id="search_result_table">
+        <tbody class="items" id="search_result_tbody">
 
         </tbody>
       </table>
