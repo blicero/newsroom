@@ -24,11 +24,11 @@ import (
 
 // SearchParms describes a search to be performed on the news Items.
 type SearchParms struct {
-	DateP     bool
-	DateRange [2]time.Time
-	TagP      bool
-	Tags      map[int64]bool
-	Query     string
+	DateP  bool
+	Period [2]time.Time
+	TagP   bool
+	Tags   map[int64]bool
+	Query  string
 }
 
 // Search performs a search on the database, returning Items that match
@@ -90,8 +90,8 @@ func (db *Database) Search(parm *SearchParms) ([]*model.Item, error) { // nolint
 		case query.ItemSearchDateTag:
 			qstr, qargs, err = sqlx.In(
 				qdb[qid],
-				parm.DateRange[0].Unix(),
-				parm.DateRange[1].Unix(),
+				parm.Period[0].Unix(),
+				parm.Period[1].Unix(),
 				tags,
 				parm.Query)
 		}
@@ -142,8 +142,8 @@ EXEC_QUERY:
 		rows, err = stmt.Query(parm.Query)
 	case query.ItemSearchDate:
 		rows, err = stmt.Query(
-			parm.DateRange[0].Unix(),
-			parm.DateRange[1].Unix(),
+			parm.Period[0].Unix(),
+			parm.Period[1].Unix(),
 			parm.Query)
 	case query.ItemSearchTag:
 		tags = make([]int64, len(parm.Tags))
@@ -163,8 +163,8 @@ EXEC_QUERY:
 		}
 
 		rows, err = stmt.Query(
-			parm.DateRange[0].Unix(),
-			parm.DateRange[1].Unix(),
+			parm.Period[0].Unix(),
+			parm.Period[1].Unix(),
 			tags,
 			parm.Query)
 	}

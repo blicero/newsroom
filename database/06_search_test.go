@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 20. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-20 14:00:14 krylon>
+// Time-stamp: <2026-05-16 13:39:35 krylon>
 
 package database
 
@@ -37,7 +37,7 @@ func TestSearch(t *testing.T) {
 			parm: SearchParms{
 				Query: "%Bla%",
 				DateP: true,
-				DateRange: [2]time.Time{
+				Period: [2]time.Time{
 					time.Now().Add(time.Second * -86400),
 					time.Now().Add(time.Second * 86400),
 				},
@@ -48,7 +48,7 @@ func TestSearch(t *testing.T) {
 			parm: SearchParms{
 				Query: "%Bla%",
 				DateP: true,
-				DateRange: [2]time.Time{
+				Period: [2]time.Time{
 					time.Now().Add(time.Second * 86400),
 					time.Now().Add(time.Second * -86400),
 				},
