@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 02. 2021 by Benjamin Walkenhorst
 // (c) 2021 Benjamin Walkenhorst
-// Time-stamp: <2026-05-12 12:32:42 krylon>
+// Time-stamp: <2026-05-18 13:14:15 krylon>
 
 //go:build ignore
 
@@ -71,6 +71,7 @@ var candidates = map[string][]string{
 		"database",
 		"engine",
 		"web",
+		"classify",
 		"cache",
 		"scrub",
 		"critic",
@@ -87,6 +88,7 @@ var candidates = map[string][]string{
 		"engine",
 		"web",
 		"cache",
+		"classify",
 		"scrub",
 		"critic",
 		"blacklist",
@@ -100,6 +102,7 @@ var candidates = map[string][]string{
 		"engine",
 		"web",
 		"cache",
+		"classify",
 		"scrub",
 		"critic",
 		"blacklist",
