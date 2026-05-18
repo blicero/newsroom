@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 08. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-04-11 13:18:48 krylon>
+// Time-stamp: <2026-05-18 14:09:09 krylon>
 
 package database
 
@@ -341,3 +341,61 @@ EXEC_QUERY:
 
 	return linkMap, nil
 } // func (db *Database) TagLinkGetMap() (map[model.Tag][]*model.Item, error)
+
+// TagLinkGetByPeriod returns a map of the Tags that are linked to Items from
+// the given period, with their respective frequencies.
+func (db *Database) TagLinkGetByPeriod(begin, end time.Time) (map[int64]int64, error) {
+	const qid query.ID = query.TagLinkGetByPeriod
+	var (
+		err  error
+		msg  string
+		stmt *sql.Stmt
+	)
+
+GET_QUERY:
+	if stmt, err = db.getQuery(qid); err != nil {
+		if worthARetry(err) {
+			waitForRetry()
+			goto GET_QUERY
+		} else {
+			db.log.Printf("[ERROR] Error getting query %s: %s",
+				qid,
+				err.Error())
+			return nil, err
+		}
+	} else if db.tx != nil {
+		stmt = db.tx.Stmt(stmt)
+	}
+
+	var rows *sql.Rows
+
+EXEC_QUERY:
+	if rows, err = stmt.Query(begin.Unix(), end.Unix()); err != nil {
+		if worthARetry(err) {
+			time.Sleep(retryDelay)
+			goto EXEC_QUERY
+		} else {
+			msg = fmt.Sprintf("Error querying Tag Links by period: %s",
+				err.Error())
+			db.log.Println(msg)
+			return nil, errors.New(msg)
+		}
+	}
+
+	defer rows.Close() // nolint: errcheck
+
+	var tags = make(map[int64]int64)
+
+	for rows.Next() {
+		var tagID int64
+		if err = rows.Scan(&tagID); err != nil {
+			msg = fmt.Sprintf("error scanning row: %s", err.Error())
+			db.log.Printf("[ERROR] %s\n", msg)
+			return nil, errors.New(msg)
+		}
+
+		tags[tagID]++
+	}
+
+	return tags, nil
+} // func (db *Database) TagLinkGetByPeriod(begin, end time.Time) (map[int64]int64, error)
