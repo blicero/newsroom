@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-16 15:12:47 krylon>
+# Time-stamp: <2026-05-18 13:53:54 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,20 +7,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [49/50]
+* Newsroom [50/52]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-16 Sa 15:12]
+   #+CAPTION: Clock summary at [2026-05-18 Mo 13:53]
    | Headline                                         | Time       |            |          |       |      |
    |--------------------------------------------------+------------+------------+----------+-------+------|
-   | *Total time*                                     | *4d 22:05* |            |          |       |      |
+   | *Total time*                                     | *4d 22:12* |            |          |       |      |
    |--------------------------------------------------+------------+------------+----------+-------+------|
-   | *Newsroom [49/50]*                               | *4d 22:05* |            |          |       |      |
-   | \_  /Components [48/48]/                         |            | /4d 21:40/ |          |       |      |
+   | *Newsroom [50/52]*                               | *4d 22:12* |            |          |       |      |
+   | \_  /Components [49/50]/                         |            | /4d 21:47/ |          |       |      |
    | \_    Model [3/3]                                |            |            |     4:39 |       |      |
    | \_      Plant a tree!                            |            |            |          |  0:25 |      |
    | \_      Strip HTML                               |            |            |          |  1:57 |      |
@@ -40,7 +40,9 @@
    | \_    Classifier [0/0]                           |            |            |     2:26 |       |      |
    | \_    Rating Guesser aka Critic [1/1]            |            |            |     9:40 |       |      |
    | \_      Testing                                  |            |            |          |  2:31 |      |
-   | \_    Web [26/26]                                |            |            | 2d 10:11 |       |      |
+   | \_    Web [27/27]                                |            |            | 2d 10:18 |       |      |
+   | \_      Menu [1/1]                               |            |            |          |  0:07 |      |
+   | \_        Submenu for Analysis                   |            |            |          |       | 0:07 |
    | \_      Blacklist [2/2]                          |            |            |          |  3:19 |      |
    | \_        View and edit Blacklist                |            |            |          |       | 2:25 |
    | \_        Use Blacklist                          |            |            |          |       | 0:54 |
@@ -66,7 +68,7 @@
    | \_        Choose time window                     |            |            |          |       | 0:08 |
    | \_        Add links for words that are Tags      |            |            |          |       | 0:20 |
    | \_        Trend analysis over longer periods,... |            |            |          |       | 2:21 |
-   | \_    Trendy [8/8]                               |            |            |    14:16 |       |      |
+   | \_    Trendy [8/9]                               |            |            |    14:16 |       |      |
    | \_      Trend analysis [0/0]                     |            |            |          |  0:54 |      |
    | \_      Changes                                  |            |            |          |  4:06 |      |
    | \_      Frequent words [5/5]                     |            |            |          |  9:15 |      |
@@ -80,7 +82,7 @@
    | \_      Profiler                                 |            |            |          |  0:24 |      |
    | \_    Analysis paralysis [0/0]                   |            |            |     0:01 |       |      |
    #+END:
-** Components [48/48]
+** Components [49/50]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -313,7 +315,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [26/26]
+*** Web [27/27]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -324,6 +326,18 @@
     CLOCK: [2026-03-12 Do 14:50]--[2026-03-12 Do 17:26] =>  2:36
     CLOCK: [2026-03-12 Do 14:16]--[2026-03-12 Do 14:40] =>  0:24
     :END:
+**** Menu [1/1]
+     :PROPERTIES:
+     :COOKIE_DATA: todo recursive
+     :VISIBILITY: all
+     :END:
+***** DONE Submenu for Analysis
+      CLOSED: [2026-05-18 Mo 13:48]
+      :LOGBOOK:
+      CLOCK: [2026-05-18 Mo 13:41]--[2026-05-18 Mo 13:48] =>  0:07
+      :END:
+      I want a popup menu, like I have for subscribing to Feeds, for the link
+      to Analyses.
 **** DONE Blacklist [2/2]
      CLOSED: [2026-04-14 Di 14:32]
 ***** DONE View and edit Blacklist
@@ -524,7 +538,7 @@
       ...
       But it is *far* too complex for me.
       [[https://github.com/Strubbl/go-chart][go-chart]] appears to be a nicer approach.
-*** Trendy [8/8]
+*** Trendy [8/9]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -536,6 +550,15 @@
     Automatically detecting that several Items refer to the same event would
     be really cool, too.
     [[github.com/james-bowman/nlp][nlp]] should be a good starting point.
+**** TODO Tags [0/0]
+     :PROPERTIES:
+     :COOKIE_DATA: todo recursive
+     :VISIBILITY: all
+     :END:
+     How about showing all the Tags that I have used in a given period? 🤔
+     I do not currently track /when/ a Tag has been attached to an Item.
+     I could just show the Tags that have been attached to Items from a given
+     period? 
 **** DONE Trend analysis [0/0]
      CLOSED: [2026-05-13 Mi 13:04]
      :PROPERTIES:
