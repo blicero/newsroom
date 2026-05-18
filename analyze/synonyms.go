@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 08. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-08 12:57:35 krylon>
+// Time-stamp: <2026-05-18 15:42:26 krylon>
 
 package analyze
 
@@ -24,4 +24,5 @@ var dict = antithesaurus{
 	"AI":          "Artificial Intelligence",
 	"KI":          "Artificial Intelligence",
 	"Russland":    "Russia",
+	"EU":          "Europa",
 }
