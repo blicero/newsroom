@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-16 15:05:46 krylon>
+// Time-stamp: <2026-05-18 15:14:40 krylon>
 
 package web
 
@@ -180,6 +180,7 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 	srv.router.HandleFunc("/analysis/delta/{days:(?:\\d+)}/{offset:(?:\\d+)$}", srv.handleDelta)
 	srv.router.HandleFunc("/analysis/trend/{days:(?:\\d+)}/{icnt:(?:\\d+)$}", srv.handleTrendAnalysis)
 	srv.router.HandleFunc("/analysis/chart/{days:(?:\\d+)}/{icnt:(?:\\d+)$}", srv.handleTrendChart)
+	srv.router.HandleFunc("/analysis/tags/{days:(?:\\d+)}/{offset:(?:\\d+)$}", srv.handleTagsByPeriod)
 
 	// AJAX Handlers
 	srv.router.HandleFunc(
@@ -1526,6 +1527,119 @@ func (srv *Server) handleTrendChart(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/png")
 	graph.Render(chart.PNG, w)
 } // func (srv *Server) handleTrendChart(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleTagsByPeriod(w http.ResponseWriter, r *http.Request) {
+	const tmplName = "tags_by_period"
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+
+	var (
+		err             error
+		db              *database.Database
+		msg             string
+		tmpl            *template.Template
+		vars            map[string]string
+		dayCnt, offset  int64
+		now, begin, end time.Time
+		data            = tmplDataTagsByPeriod{
+			tmplDataBase: tmplDataBase{
+				Title: "Tags by Period",
+				Debug: common.Debug,
+				URL:   r.RequestURI,
+			},
+		}
+	)
+
+	vars = mux.Vars(r)
+	if dayCnt, err = strconv.ParseInt(vars["days"], 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse number of days %q: %s",
+			vars["days"],
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if offset, err = strconv.ParseInt(vars["offset"], 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse offset %q: %s",
+			vars["offset"],
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	now = time.Now()
+	end = now
+	begin = now.Add(time.Duration(dayCnt) * time.Second * -86400)
+
+	data.Period = analyze.Period{
+		Begin: begin.Truncate(time.Second * 86400),
+		End:   end.Truncate(time.Second * 86400).Add(time.Second * 86399),
+	}
+
+	if offset > 0 {
+		for range offset {
+			data.Period = *data.Period.Previous()
+		}
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	var freqMap map[int64]int64
+
+	if data.Tags, err = db.TagGetSorted(); err != nil {
+		msg = fmt.Sprintf("Cannot get sorted list of Tags: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if freqMap, err = db.TagLinkGetByPeriod(
+		data.Period.Begin,
+		data.Period.End); err != nil {
+		msg = fmt.Sprintf("Failed to get Tags for Period %s: %s",
+			data.Period,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	data.TagMap = make(map[int64]*model.Tag, len(data.Tags))
+
+	for _, tag := range data.Tags {
+		data.TagMap[tag.ID] = tag
+	}
+
+	data.Frequencies = make([]frequency[*model.Tag], len(freqMap))
+	var idx int
+
+	for tid, cnt := range freqMap {
+		data.Frequencies[idx] = frequency[*model.Tag]{
+			Val: data.TagMap[tid],
+			Cnt: cnt,
+		}
+		idx++
+	}
+
+	slices.SortFunc(data.Frequencies, func(a, b frequency[*model.Tag]) int {
+		return -a.cmp(&b)
+	})
+
+	if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Couldn't find template %s",
+			tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	w.Header().Set("Cache-Control", noCache)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleTagsByPeriod(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////////////////////////////
 /// Handle AJAX //////////////////////////////////////////////////////////////

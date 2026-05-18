@@ -1,0 +1,38 @@
+{{ define "tags_by_period" }}
+{{/* Created on 18. 05. 2026 */}}
+{{/* Time-stamp: <2026-05-18 15:21:56 krylon> */}}
+<!DOCTYPE html>
+<html>
+  {{ template "head" . }}
+
+  <body>
+    {{ template "intro" . }}
+
+    <hr />
+
+    <h2>{{ fmt_date .Period.Begin }} to {{ fmt_date .Period.End }}</h2>
+
+    Tag Count: {{ .TagCnt }} / Link Count: {{ .TotalLinkCnt }}
+
+    <table class="table table-striped freqtable">
+      <thead>
+        <tr>
+          <th>Tag</th>
+          <th>#</th>
+        </tr>
+      </thead>
+      {{ range .Frequencies }}
+      <tr>
+        <td>
+          <a href="/tag/{{ .Val.ID }}">{{ .Val.Name }}</a>
+        </td>
+        <td class="cnt">
+          {{ .Cnt }}
+        </td>
+      {{ end }}
+    </table>
+
+    {{ template "footer" . }}
+  </body>
+</html>
+{{ end }}

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-05-12 11:46:13 krylon>
+// Time-stamp: <2026-05-18 15:20:56 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
@@ -111,3 +111,40 @@ type tmplDataTrend struct {
 func (dt *tmplDataTrend) Days() int64 {
 	return int64(dt.Interval.Hours()) / 24
 } // func (dt *tmplDataTrend) Days() int64
+
+type frequency[T any] struct {
+	Val T
+	Cnt int64
+}
+
+func (f *frequency[T]) cmp(g *frequency[T]) int {
+	if f.Cnt < g.Cnt {
+		return -1
+	} else if f.Cnt > g.Cnt {
+		return 1
+	}
+
+	return 0
+} // func (f *frequency[T]) cmp(g *frequency[T]) int
+
+type tmplDataTagsByPeriod struct {
+	tmplDataBase
+	Period      analyze.Period
+	Tags        []*model.Tag
+	TagMap      map[int64]*model.Tag
+	Frequencies []frequency[*model.Tag]
+}
+
+func (tp *tmplDataTagsByPeriod) TagCnt() int {
+	return len(tp.Frequencies)
+} // func (tp *tmplDataTagsByPeriod) TagCnt() int
+
+func (tp *tmplDataTagsByPeriod) TotalLinkCnt() int {
+	var cnt int64
+
+	for _, f := range tp.Frequencies {
+		cnt += f.Cnt
+	}
+
+	return int(cnt)
+} // func (tp *tmplDataTagsByPeriod) TotalLinkCnt() int
