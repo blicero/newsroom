@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 12. 2018 by Benjamin Walkenhorst
 // (c) 2018 Benjamin Walkenhorst
-// Time-stamp: <2026-05-05 12:54:27 krylon>
+// Time-stamp: <2026-05-19 11:33:36 krylon>
 
 package web
 
@@ -57,7 +57,9 @@ var funcmap = template.FuncMap{
 	"truncate":         truncateHTML,
 	"intRange":         intRange,
 	"inc":              inc,
+	"iinc":             iinc,
 	"dec":              dec,
+	"idec":             idec,
 	"positive":         positive,
 	"since":            since,
 	"twice":            twice,
@@ -326,9 +328,17 @@ func inc(n int64) int64 {
 	return n + 1
 } // func inc(n int64) int64
 
+func iinc(n int) int {
+	return n + 1
+} // func iinc(n int) int
+
 func dec(n int64) int64 {
 	return n - 1
 } // func dec(n int64) int64
+
+func idec(n int) int {
+	return n - 1
+} // func idec(n int) int
 
 func positive(n int64) bool {
 	return n > 0
