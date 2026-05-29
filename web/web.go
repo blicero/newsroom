@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-18 15:14:40 krylon>
+// Time-stamp: <2026-05-29 12:33:25 krylon>
 
 package web
 
@@ -54,21 +54,22 @@ var assets embed.FS
 
 // Server provides a web-based UI
 type Server struct {
-	addr      string
-	log       *log.Logger
-	pool      *database.Pool // nolint: unused
-	lock      sync.RWMutex   // nolint: unused
-	active    atomic.Bool
-	cls       *critic.Critic
-	adv       *classify.Advisor
-	scrub     *scrub.Scrubber
-	bl        *blacklist.Blacklist
-	ts        *analyze.TrendScout
-	eng       *engine.Engine
-	router    *mux.Router
-	tmpl      *template.Template
-	web       http.Server
-	mimeTypes map[string]string
+	addr       string
+	hideBoring bool
+	log        *log.Logger
+	pool       *database.Pool // nolint: unused
+	lock       sync.RWMutex   // nolint: unused
+	active     atomic.Bool
+	cls        *critic.Critic
+	adv        *classify.Advisor
+	scrub      *scrub.Scrubber
+	bl         *blacklist.Blacklist
+	ts         *analyze.TrendScout
+	eng        *engine.Engine
+	router     *mux.Router
+	tmpl       *template.Template
+	web        http.Server
+	mimeTypes  map[string]string
 }
 
 // Create returns a new web Server.
@@ -239,6 +240,11 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 		srv.handleAjaxSearch,
 	)
 
+	srv.router.HandleFunc(
+		"/ajax/toggle_hide_boring",
+		srv.handleAjaxToggleHideBoring,
+	)
+
 	return srv, nil
 } // func Create(addr string) (*Server, error)
 
@@ -301,9 +307,10 @@ func (srv *Server) handleMain(w http.ResponseWriter, r *http.Request) {
 		tmpl *template.Template
 		data = tmplDataIndex{
 			tmplDataBase: tmplDataBase{
-				Title: "Main",
-				Debug: common.Debug,
-				URL:   r.URL.String(),
+				Title:      "Main",
+				Debug:      common.Debug,
+				URL:        r.URL.String(),
+				HideBoring: srv.hideBoring,
 			},
 		}
 	)
@@ -349,9 +356,10 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 		bookmarks []*model.Bookmark
 		data      = tmplDataNews{
 			tmplDataBase: tmplDataBase{
-				Title: "News",
-				Debug: common.Debug,
-				URL:   r.URL.String(),
+				Title:      "News",
+				Debug:      common.Debug,
+				URL:        r.URL.String(),
+				HideBoring: srv.hideBoring,
 			},
 		}
 	)
@@ -978,9 +986,10 @@ func (srv *Server) performSearch(db *database.Database, w http.ResponseWriter, r
 	var data = tmplDataSearch{
 		tmplDataNews: tmplDataNews{
 			tmplDataBase: tmplDataBase{
-				Title: "Search",
-				Debug: common.Debug,
-				URL:   r.RequestURI,
+				Title:      "Search",
+				Debug:      common.Debug,
+				URL:        r.RequestURI,
+				HideBoring: srv.hideBoring,
 			},
 		},
 		IsResult: true,
@@ -1098,9 +1107,10 @@ func (srv *Server) handleBookmarks(w http.ResponseWriter, r *http.Request) {
 		tmpl *template.Template
 		data = tmplDataBookmarks{
 			tmplDataBase: tmplDataBase{
-				Title: "Bookmarks",
-				Debug: common.Debug,
-				URL:   r.RequestURI,
+				Title:      "Bookmarks",
+				Debug:      common.Debug,
+				URL:        r.RequestURI,
+				HideBoring: srv.hideBoring,
 			},
 		}
 	)
@@ -1173,9 +1183,10 @@ func (srv *Server) handleHistogram(w http.ResponseWriter, r *http.Request) {
 		now, begin, end time.Time
 		data            = tmplDataHistogram{
 			tmplDataBase: tmplDataBase{
-				Title: "Histogram",
-				Debug: common.Debug,
-				URL:   r.RequestURI,
+				Title:      "Histogram",
+				Debug:      common.Debug,
+				URL:        r.RequestURI,
+				HideBoring: srv.hideBoring,
 			},
 		}
 	)
@@ -1275,9 +1286,10 @@ func (srv *Server) handleDelta(w http.ResponseWriter, r *http.Request) {
 		now, begin, end time.Time
 		data            = tmplDataDelta{
 			tmplDataBase: tmplDataBase{
-				Title: "Histogram",
-				Debug: common.Debug,
-				URL:   r.RequestURI,
+				Title:      "Histogram",
+				Debug:      common.Debug,
+				URL:        r.RequestURI,
+				HideBoring: srv.hideBoring,
 			},
 		}
 	)
@@ -1379,9 +1391,10 @@ func (srv *Server) handleTrendAnalysis(w http.ResponseWriter, r *http.Request) {
 		dayCnt, icnt int64
 		data         = tmplDataTrend{
 			tmplDataBase: tmplDataBase{
-				Title: "Trend",
-				Debug: common.Debug,
-				URL:   r.RequestURI,
+				Title:      "Trend",
+				Debug:      common.Debug,
+				URL:        r.RequestURI,
+				HideBoring: srv.hideBoring,
 			},
 		}
 	)
@@ -1542,9 +1555,10 @@ func (srv *Server) handleTagsByPeriod(w http.ResponseWriter, r *http.Request) {
 		now, begin, end time.Time
 		data            = tmplDataTagsByPeriod{
 			tmplDataBase: tmplDataBase{
-				Title: "Tags by Period",
-				Debug: common.Debug,
-				URL:   r.RequestURI,
+				Title:      "Tags by Period",
+				Debug:      common.Debug,
+				URL:        r.RequestURI,
+				HideBoring: srv.hideBoring,
 			},
 		}
 	)
@@ -2633,9 +2647,10 @@ func (srv *Server) handleAjaxSearch(w http.ResponseWriter, r *http.Request) {
 
 	data = tmplDataNews{
 		tmplDataBase: tmplDataBase{
-			Title: "Search",
-			Debug: common.Debug,
-			URL:   r.RequestURI,
+			Title:      "Search",
+			Debug:      common.Debug,
+			URL:        r.RequestURI,
+			HideBoring: srv.hideBoring,
 		},
 	}
 
@@ -2709,6 +2724,55 @@ SEND:
 	w.WriteHeader(200)
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Server) handleAjaxSearch(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleAjaxToggleHideBoring(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s\n", r.RequestURI)
+	var (
+		err error
+		res = ajaxData{
+			Timestamp: time.Now(),
+		}
+		state      bool
+		msg, fData string
+		buf        []byte
+	)
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Failed to parse form data: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	fData = r.FormValue("status")
+
+	if state, err = strconv.ParseBool(fData); err != nil {
+		msg = fmt.Sprintf("Cannot parse state of toggle switch %q: %s",
+			fData,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	srv.hideBoring = state
+	res.Status = true
+	res.Message = "ACK"
+
+	if buf, err = json.Marshal(&res); err != nil {
+		var msg = fmt.Sprintf("Failed to serialize payload for AJAX response: %s",
+			err.Error())
+		srv.log.Printf("[CANTHAPPEN] %s\n", msg)
+		buf = errJSON(msg)
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Server) handleAjaxToggleShowBoring(w http.ResponseWriter, r *http.Request)
 
 func (srv *Server) handleBeacon(w http.ResponseWriter, r *http.Request) {
 	var (

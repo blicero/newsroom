@@ -1,17 +1,19 @@
 {{ define "items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-05-05 11:31:02 krylon> */}}
+{{/* Time-stamp: <2026-05-29 12:29:06 krylon> */}}
 {{ $feeds := .Feeds }}
 {{ $tags := .Tags }}
 {{ $tagMap := .TagMap }}
 {{ $itemTags := .ItemTags }}
 {{ $advice := .TagAdvice }}
 {{ $bookmarks := .Bookmarks }}
+{{ $hideBoring := .HideBoring }}
 
 {{ range .Items }}
 {{ $item := . }}
 <tr id="item_row_{{ .ID }}"
-  {{- if .IsBoring }}class="boring"{{ end }}>
+  class="item{{ if .IsBoring }} boring{{ end }}"
+  {{ if (and $hideBoring .IsBoring) }}hidden{{ end -}}>
   <td>
     <div>
       {{ fmt_time_minute .Timestamp }}

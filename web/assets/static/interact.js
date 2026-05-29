@@ -1,4 +1,4 @@
-// Time-stamp: <2026-05-16 14:54:59 krylon>
+// Time-stamp: <2026-05-29 12:43:40 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -110,13 +110,6 @@ function beaconToggle() {
         beaconDiv.classList.remove('error')
     }
 } // function beaconToggle()
-
-function toggle_hide_boring() {
-    const state = !settings.news.hideBoring
-    settings.news.hideBoring = state
-    saveSetting('news', 'hideBoring', state)
-    $("#toggle_hide_boring")[0].checked = state
-} // function toggle_hide_boring()
 
 /*
   The ‘content’ attribute of Window objects is deprecated.  Please use ‘window.top’ instead. interact.js:125:8
@@ -236,6 +229,9 @@ function rate_item(item_id, rating) {
                                    const row_id = `#item_row_${item_id}`
                                    const row = $(row_id)[0]
                                    row.classList.add("boring")
+                                   if (settings.news.hideBoring) {
+                                       row.hidden = true
+                                   }
                                    break
                                case 2:
                                    icon = 'face-glasses'
@@ -951,29 +947,6 @@ function search_reset() {
     search_tags = {}
 } // function search_reset()
 
-// function search_tag_add() {
-//     const sel_id = '#tag_menu'
-//     const tag_id = $(sel_id)[0].value
-
-//     search_tag_list[parseInt(tag_id)] = true
-
-//     const tag_cb_id = '#tag_p'
-//     const tag_cb = $(tag_cb_id)[0]
-//     tag_cb.checked = true
-
-//     const tag_disp = `
-// <span id="tag_${tag_id}">
-//   ${tags[tag_id]}
-//   &nbsp;
-//   <img src="/static/delete.png"
-//        onclick="search_tag_remove(${tag_id})" />
-// </span>
-// `
-//     const tag_cell_id = '#search_tags'
-//     const tag_cell = $(tag_cell_id)[0]
-//     tag_cell.innerHTML += tag_disp
-// } // function search_tag_add()
-
 function search_tag_remove(tag_id) {
     const span_id = `tag_${tag_id}`
     const span = $(span_id)[0]
@@ -1297,3 +1270,35 @@ function toggle_refresh() {
         alert(msg)
     })
 } // function toggle_refresh()
+
+function toggle_hide_boring() {
+    const url = '/ajax/toggle_hide_boring'
+    const switch_id = "#hide-switch"
+    const rswitch = $(switch_id)[0]
+    const status = rswitch.checked
+
+    settings.news.hideBoring = status
+    saveSetting("news", "hideBoring", status)
+
+    $.post(
+        url,
+        { 'status': status },
+        (res) => {
+            if (res.status) {
+                if (status) {
+                    $("tr.boring").hide()
+                } else {
+                    $("tr.boring").show()
+                }
+            } else {
+                rswitch.checked = !rswitch.checked
+            }
+        },
+        'json'
+    ).fail((reply, status, xhr) => {
+        const msg = `Error hiding/displaying boring items: ${status} - ${reply}`
+        msg_add(msg, 'ERROR')
+        console.log(msg)
+        alert(msg)
+    })
+} // function toggle_hide_boring()

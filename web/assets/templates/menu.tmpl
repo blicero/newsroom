@@ -1,5 +1,5 @@
 {{ define "menu" }}
-{{/* Time-stamp: <2026-05-27 14:15:02 krylon> */}}
+{{/* Time-stamp: <2026-05-29 12:37:36 krylon> */}}
 <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color: #D4D4D4">
   <div class="container-fluid">
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -164,8 +164,28 @@
               Suspend Refresh
             </label>
           </div>
+
+          <script>
+           $(document).ready(() => {
+                   $("#hide-switch")[0].checked = settings.news.hideBoring
+           })
+          </script>
+
+          <div class="form-check form-switch">
+            <input
+              id="hide-switch"
+              class="form-check-input"
+              type="checkbox"
+              role="switch"
+              onchange="toggle_hide_boring();"
+              {{ if .HideBoring }}checked{{ end -}}>
+            <label for="hide-switch" class="form-check-label">
+              Hide Boring
+            </label>
+          </div>
+
         </li>
-          
+
       </ul>
     </div>
   </div>
