@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-27 16:10:08 krylon>
+# Time-stamp: <2026-05-29 12:54:06 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,13 +14,13 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-27 Mi 16:10]
+   #+CAPTION: Clock summary at [2026-05-29 Fr 12:54]
    | Headline                                         | Time      |           |          |       |      |
    |--------------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Total time*                                     | *5d 4:52* |           |          |       |      |
+   | *Total time*                                     | *5d 5:44* |           |          |       |      |
    |--------------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Newsroom [51/52]*                               | *5d 4:52* |           |          |       |      |
-   | \_  /Components [50/50]/                         |           | /5d 4:09/ |          |       |      |
+   | *Newsroom [51/52]*                               | *5d 5:44* |           |          |       |      |
+   | \_  /Components [50/50]/                         |           | /5d 5:01/ |          |       |      |
    | \_    Model [3/3]                                |           |           |     4:39 |       |      |
    | \_      Plant a tree!                            |           |           |          |  0:25 |      |
    | \_      Strip HTML                               |           |           |          |  1:57 |      |
@@ -40,8 +40,8 @@
    | \_    Classifier [0/0]                           |           |           |     2:26 |       |      |
    | \_    Rating Guesser aka Critic [1/1]            |           |           |     9:40 |       |      |
    | \_      Testing                                  |           |           |          |  2:31 |      |
-   | \_    Web [28/29]                                |           |           | 2d 16:40 |       |      |
-   | \_      Hide boring items [0/0]                  |           |           |          |  4:37 |      |
+   | \_    Web [28/29]                                |           |           | 2d 17:32 |       |      |
+   | \_      Hide boring items [0/0]                  |           |           |          |  5:29 |      |
    | \_      Menu [1/1]                               |           |           |          |  0:07 |      |
    | \_        Submenu for Analysis                   |           |           |          |       | 0:07 |
    | \_      Blacklist [2/2]                          |           |           |          |  3:19 |      |
@@ -334,6 +334,7 @@
      :VISIBILITY: all
      :END:
      :LOGBOOK:
+     CLOCK: [2026-05-29 Fr 12:02]--[2026-05-29 Fr 12:54] =>  0:52
      CLOCK: [2026-05-27 Mi 11:38]--[2026-05-27 Mi 14:15] =>  2:37
      CLOCK: [2026-05-26 Di 13:33]--[2026-05-26 Di 15:33] =>  2:00
      :END:
