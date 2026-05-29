@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-29 12:54:06 krylon>
+# Time-stamp: <2026-05-29 12:58:59 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,20 +7,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [51/52]
+* Newsroom [52/53]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-29 Fr 12:54]
+   #+CAPTION: Clock summary at [2026-05-29 Fr 12:58]
    | Headline                                         | Time      |           |          |       |      |
    |--------------------------------------------------+-----------+-----------+----------+-------+------|
    | *Total time*                                     | *5d 5:44* |           |          |       |      |
    |--------------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Newsroom [51/52]*                               | *5d 5:44* |           |          |       |      |
-   | \_  /Components [50/50]/                         |           | /5d 5:01/ |          |       |      |
+   | *Newsroom [52/53]*                               | *5d 5:44* |           |          |       |      |
+   | \_  /Components [51/51]/                         |           | /5d 5:01/ |          |       |      |
    | \_    Model [3/3]                                |           |           |     4:39 |       |      |
    | \_      Plant a tree!                            |           |           |          |  0:25 |      |
    | \_      Strip HTML                               |           |           |          |  1:57 |      |
@@ -40,7 +40,7 @@
    | \_    Classifier [0/0]                           |           |           |     2:26 |       |      |
    | \_    Rating Guesser aka Critic [1/1]            |           |           |     9:40 |       |      |
    | \_      Testing                                  |           |           |          |  2:31 |      |
-   | \_    Web [28/29]                                |           |           | 2d 17:32 |       |      |
+   | \_    Web [29/29]                                |           |           | 2d 17:32 |       |      |
    | \_      Hide boring items [0/0]                  |           |           |          |  5:29 |      |
    | \_      Menu [1/1]                               |           |           |          |  0:07 |      |
    | \_        Submenu for Analysis                   |           |           |          |       | 0:07 |
@@ -84,7 +84,7 @@
    | \_      Profiler                                 |           |           |          |  0:24 |      |
    | \_    Analysis paralysis [0/0]                   |           |           |     0:01 |       |      |
    #+END:
-** Components [50/50]
+** Components [51/51]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -317,7 +317,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [28/29]
+*** Web [29/29]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -328,7 +328,8 @@
     CLOCK: [2026-03-12 Do 14:50]--[2026-03-12 Do 17:26] =>  2:36
     CLOCK: [2026-03-12 Do 14:16]--[2026-03-12 Do 14:40] =>  0:24
     :END:
-**** TODO Hide boring items [0/0]
+**** DONE Hide boring items [0/0]
+     CLOSED: [2026-05-29 Fr 12:58]
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
      :VISIBILITY: all
