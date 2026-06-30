@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 18. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-13 12:23:02 krylon>
+// Time-stamp: <2026-06-30 10:40:35 krylon>
 
 package cache
 
@@ -20,7 +20,8 @@ import (
 	"go.etcd.io/bbolt"
 )
 
-const timeout = time.Minute * 120
+// Timeout is the duration to keep cached Items around.
+var Timeout = time.Minute * 120
 
 type cacheItem[T any] struct {
 	Key     string
@@ -84,7 +85,7 @@ func (c *Cache[T]) Store(key string, val *T) error {
 	citem = cacheItem[T]{
 		Key:     key,
 		Val:     val,
-		Expires: time.Now().Add(timeout),
+		Expires: time.Now().Add(Timeout),
 	}
 
 	keybuf = []byte(key)
