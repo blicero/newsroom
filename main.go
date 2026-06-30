@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-13 13:39:30 krylon>
+// Time-stamp: <2026-06-30 11:50:08 krylon>
 
 package main
 
@@ -16,20 +16,25 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/blicero/newsroom/cache"
 	"github.com/blicero/newsroom/common"
+	"github.com/blicero/newsroom/config"
 	"github.com/blicero/newsroom/engine"
+	"github.com/blicero/newsroom/logdomain"
 	"github.com/blicero/newsroom/web"
+	"github.com/hashicorp/logutils"
 )
 
 func main() {
 	var (
-		err     error
-		eng     *engine.Engine
-		srv     *web.Server
-		ticker  *time.Ticker
-		addr    string
-		profOut string
-		sigQ    = make(chan os.Signal, 1)
+		err              error
+		eng              *engine.Engine
+		srv              *web.Server
+		ticker           *time.Ticker
+		addr             string
+		profOut, baseDir string
+		cfg              *config.Config
+		sigQ             = make(chan os.Signal, 1)
 	)
 
 	fmt.Printf("%s %s, built on %s\n",
@@ -39,7 +44,42 @@ func main() {
 
 	flag.StringVar(&addr, "addr", fmt.Sprintf("[::1]:%d", common.WebPort), "The IP address for the web UI to listen on")
 	flag.StringVar(&profOut, "prof", "", "if non-empty, write profiling information to the named file")
+	flag.StringVar(&baseDir, "base", common.BaseDir, "directory where application-specific files live")
 	flag.Parse()
+
+	if baseDir != common.BaseDir {
+		if err = common.SetBaseDir(baseDir); err != nil {
+			fmt.Fprintf(
+				os.Stderr,
+				"Failed to set BaseDir to %q: %s\n",
+				baseDir,
+				err.Error(),
+			)
+			os.Exit(1)
+		}
+	} else if cfg, err = config.Read(common.CfgPath); err != nil {
+		fmt.Fprintf(
+			os.Stderr,
+			"Failed to read config from %s: %s\n",
+			common.CfgPath,
+			err.Error())
+		os.Exit(1)
+	}
+
+	common.PackageLevels[logdomain.Database] = logutils.LogLevel(cfg.Loglevel.Database)
+	common.PackageLevels[logdomain.DBPool] = logutils.LogLevel(cfg.Loglevel.DBPool)
+	common.PackageLevels[logdomain.Engine] = logutils.LogLevel(cfg.Loglevel.Engine)
+	common.PackageLevels[logdomain.Cache] = logutils.LogLevel(cfg.Loglevel.Cache)
+	common.PackageLevels[logdomain.Critic] = logutils.LogLevel(cfg.Loglevel.Critic)
+	common.PackageLevels[logdomain.Classifier] = logutils.LogLevel(cfg.Loglevel.Classifier)
+	common.PackageLevels[logdomain.Scrub] = logutils.LogLevel(cfg.Loglevel.Scrub)
+	common.PackageLevels[logdomain.Web] = logutils.LogLevel(cfg.Loglevel.Web)
+	common.PackageLevels[logdomain.Blacklist] = logutils.LogLevel(cfg.Loglevel.Blacklist)
+	common.PackageLevels[logdomain.Analyze] = logutils.LogLevel(cfg.Loglevel.Analyze)
+	common.PackageLevels[logdomain.Main] = logutils.LogLevel(cfg.Loglevel.Main)
+
+	common.Debug = cfg.Global.Debug
+	cache.Timeout = cfg.Global.CacheTimeout
 
 	if profOut != "" {
 		var profH *os.File
