@@ -50,6 +50,9 @@ const (
 	WebPort                  = 4200
 )
 
+// Debug controls whether to perform additional sanity checks and such.
+var Debug = true
+
 // LogLevels are the names of the log levels supported by the logger.
 var LogLevels = []logutils.LogLevel{
 	"TRACE",
