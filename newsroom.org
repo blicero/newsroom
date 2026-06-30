@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-05-29 12:58:59 krylon>
+# Time-stamp: <2026-06-29 22:36:41 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,20 +7,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [52/53]
+* Newsroom [52/54]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-05-29 Fr 12:58]
+   #+CAPTION: Clock summary at [2026-06-29 Mo 22:36]
    | Headline                                         | Time      |           |          |       |      |
    |--------------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Total time*                                     | *5d 5:44* |           |          |       |      |
+   | *Total time*                                     | *5d 7:10* |           |          |       |      |
    |--------------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Newsroom [52/53]*                               | *5d 5:44* |           |          |       |      |
-   | \_  /Components [51/51]/                         |           | /5d 5:01/ |          |       |      |
+   | *Newsroom [52/54]*                               | *5d 7:10* |           |          |       |      |
+   | \_  /Components [51/52]/                         |           | /5d 6:27/ |          |       |      |
    | \_    Model [3/3]                                |           |           |     4:39 |       |      |
    | \_      Plant a tree!                            |           |           |          |  0:25 |      |
    | \_      Strip HTML                               |           |           |          |  1:57 |      |
@@ -40,8 +40,8 @@
    | \_    Classifier [0/0]                           |           |           |     2:26 |       |      |
    | \_    Rating Guesser aka Critic [1/1]            |           |           |     9:40 |       |      |
    | \_      Testing                                  |           |           |          |  2:31 |      |
-   | \_    Web [29/29]                                |           |           | 2d 17:32 |       |      |
-   | \_      Hide boring items [0/0]                  |           |           |          |  5:29 |      |
+   | \_    Web [29/30]                                |           |           | 2d 17:32 |       |      |
+   | \_      Hide boring items [0/1]                  |           |           |          |  5:29 |      |
    | \_      Menu [1/1]                               |           |           |          |  0:07 |      |
    | \_        Submenu for Analysis                   |           |           |          |       | 0:07 |
    | \_      Blacklist [2/2]                          |           |           |          |  3:19 |      |
@@ -79,12 +79,13 @@
    | \_        Synonyms                               |           |           |          |       | 0:21 |
    | \_    build script [1/1]                         |           |           |     0:05 |       |      |
    | \_      Run nilaway sequentially                 |           |           |          |  0:05 |      |
+   | \_    Settings [0/0]                             |           |           |     1:26 |       |      |
    | \_  /Features [1/2]/                             |           | /0:43/    |          |       |      |
    | \_    Performance [1/1]                          |           |           |     0:42 |       |      |
    | \_      Profiler                                 |           |           |          |  0:24 |      |
    | \_    Analysis paralysis [0/0]                   |           |           |     0:01 |       |      |
    #+END:
-** Components [51/51]
+** Components [51/52]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -317,7 +318,7 @@
      in this iteration is to make it more efficient. It should give acceptable
      performance on a Raspberry Pi Model 2, because that is what it is going
      to run on in my humble home.
-*** Web [29/29]
+*** Web [29/30]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -328,7 +329,7 @@
     CLOCK: [2026-03-12 Do 14:50]--[2026-03-12 Do 17:26] =>  2:36
     CLOCK: [2026-03-12 Do 14:16]--[2026-03-12 Do 14:40] =>  0:24
     :END:
-**** DONE Hide boring items [0/0]
+**** DONE Hide boring items [0/1]
      CLOSED: [2026-05-29 Fr 12:58]
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
@@ -339,6 +340,7 @@
      CLOCK: [2026-05-27 Mi 11:38]--[2026-05-27 Mi 14:15] =>  2:37
      CLOCK: [2026-05-26 Di 13:33]--[2026-05-26 Di 15:33] =>  2:00
      :END:
+***** TODO Hide items the Critic thinks are boring
 **** Settings [0/0]
      I would like to make some parameters configurable.
      - For the news view, the number of items that are displayed by default. I
@@ -675,6 +677,16 @@
      :END:
      Nilaway consumes *huge* quantities of RAM, I would like to not run it in
      parallel.
+*** Settings [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
+    :LOGBOOK:
+    CLOCK: [2026-05-29 Fr 13:25]--[2026-05-29 Fr 14:51] =>  1:26
+    :END:
+    I want to have some settings the user can define either in a text file or
+    the web interface, and to have them persist restarts of the Server.
 ** Features [1/2]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
