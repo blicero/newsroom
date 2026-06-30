@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-18 14:05:14 krylon>
+// Time-stamp: <2026-06-30 12:40:00 krylon>
 
 package database
 
@@ -26,6 +26,7 @@ SELECT
     last_refresh,
     active
 FROM feed
+ORDER BY name
 `,
 	query.FeedGetDue: `
 SELECT
