@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-06-30 12:01:55 krylon>
+# Time-stamp: <2026-06-30 13:26:08 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,13 +14,13 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-06-30 Di 12:01]
+   #+CAPTION: Clock summary at [2026-06-30 Di 13:26]
    | Headline                                         | Time      |           |          |       |      |
    |--------------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Total time*                                     | *5d 8:42* |           |          |       |      |
+   | *Total time*                                     | *5d 9:30* |           |          |       |      |
    |--------------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Newsroom [52/54]*                               | *5d 8:42* |           |          |       |      |
-   | \_  /Components [51/52]/                         |           | /5d 7:59/ |          |       |      |
+   | *Newsroom [52/54]*                               | *5d 9:30* |           |          |       |      |
+   | \_  /Components [51/52]/                         |           | /5d 8:47/ |          |       |      |
    | \_    Model [3/3]                                |           |           |     4:39 |       |      |
    | \_      Plant a tree!                            |           |           |          |  0:25 |      |
    | \_      Strip HTML                               |           |           |          |  1:57 |      |
@@ -40,7 +40,7 @@
    | \_    Classifier [0/0]                           |           |           |     2:26 |       |      |
    | \_    Rating Guesser aka Critic [1/1]            |           |           |     9:40 |       |      |
    | \_      Testing                                  |           |           |          |  2:31 |      |
-   | \_    Web [29/30]                                |           |           | 2d 19:04 |       |      |
+   | \_    Web [29/30]                                |           |           | 2d 19:52 |       |      |
    | \_      Hide boring items [0/1]                  |           |           |          |  5:29 |      |
    | \_      Settings [0/0]                           |           |           |          |  1:32 |      |
    | \_      Menu [1/1]                               |           |           |          |  0:07 |      |
@@ -49,7 +49,7 @@
    | \_        View and edit Blacklist                |           |           |          |       | 2:25 |
    | \_        Use Blacklist                          |           |           |          |       | 0:54 |
    | \_      Subscribe to Feeds                       |           |           |          |  3:03 |      |
-   | \_      Manage Feeds                             |           |           |          |  2:45 |      |
+   | \_      Manage Feeds [0/0]                       |           |           |          |  3:33 |      |
    | \_      View for Tags                            |           |           |          |  4:02 |      |
    | \_      Manage Tags [4/4]                        |           |           |          | 12:30 |      |
    | \_        Create and edit Tags                   |           |           |          |       | 3:09 |
@@ -385,9 +385,14 @@
      CLOCK: [2026-04-02 Do 14:49]--[2026-04-02 Do 15:50] =>  1:01
      CLOCK: [2026-04-01 Mi 14:02]--[2026-04-01 Mi 14:11] =>  0:09
      :END:
-**** DONE Manage Feeds
+**** DONE Manage Feeds [0/0]
      CLOSED: [2026-04-07 Di 13:16]
+     :PROPERTIES:
+     :COOKIE_DATA: todo recursive
+     :VISIBILITY: all
+     :END:
      :LOGBOOK:
+     CLOCK: [2026-06-30 Di 12:38]--[2026-06-30 Di 13:26] =>  0:48
      CLOCK: [2026-04-04 Sa 16:52]--[2026-04-04 Sa 19:37] =>  2:45
      :END:
 **** DONE View for Tags
