@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-05 12:09:53 krylon>
+// Time-stamp: <2026-07-01 11:05:40 krylon>
 
 package logdomain
 
@@ -22,6 +22,7 @@ const (
 	Web
 	Blacklist
 	Analyze
+	Cluster
 	Main
 )
 
@@ -38,6 +39,7 @@ func All() []ID {
 		Web,
 		Blacklist,
 		Analyze,
+		Cluster,
 		Main,
 	}
 } // func All() []ID
