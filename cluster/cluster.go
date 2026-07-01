@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 07. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-07-01 11:24:58 krylon>
+// Time-stamp: <2026-07-01 11:32:50 krylon>
 
 // Package cluster uses Latent Semantic Analysis (LSA) to find related Items.
 // At least that is the idea.
@@ -17,6 +17,7 @@ import (
 	"github.com/blicero/newsroom/database"
 	"github.com/blicero/newsroom/logdomain"
 	"github.com/blicero/newsroom/model"
+	"github.com/james-bowman/nlp"
 )
 
 // When looking for related Items, processing ALL Items in the
@@ -66,6 +67,7 @@ func (s *Scout) FindCluster(item *model.Item) (*SemanticCluster, error) {
 		begin, end time.Time
 		items      []*model.Item
 		clu        *SemanticCluster
+		pipe       *nlp.Pipeline
 	)
 
 	begin = item.Timestamp.Add(-clusterPeriod)
@@ -77,6 +79,12 @@ func (s *Scout) FindCluster(item *model.Item) (*SemanticCluster, error) {
 			end.Format(common.TimestampFormatMinute),
 			err.Error())
 	}
+
+	pipe = nlp.NewPipeline(
+		nlp.NewCountVectoriser(),
+		nlp.NewTfidfTransformer(),
+		nlp.NewTruncatedSVD(100),
+	)
 
 	return nil, krylib.ErrNotImplemented
 } // func (s *Scout) FindCluster(item *model.Item) (*SemanticCluster, error)
