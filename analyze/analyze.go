@@ -2,13 +2,12 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 05. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-13 12:24:23 krylon>
+// Time-stamp: <2026-07-01 11:43:52 krylon>
 
 // Package analyze provides analysis of the news Items.
 package analyze
 
 import (
-	"embed"
 	"fmt"
 	"log"
 	"regexp"
@@ -25,10 +24,8 @@ import (
 	"github.com/blicero/newsroom/logdomain"
 	"github.com/blicero/newsroom/model"
 	"github.com/blicero/newsroom/model/rating"
+	"github.com/blicero/newsroom/stopwords"
 )
-
-//go:embed corpus
-var corpus embed.FS
 
 const (
 	sepPat    = `[^A-Za-zÄÖÜßäöü]+`
@@ -281,7 +278,7 @@ func (ts *TrendScout) AnalyzePeriod(p *Period, cnt int) (WordList, error) {
 				continue
 			}
 
-			if ts.char.MatchString(w) && !stopwords[lng][l] {
+			if ts.char.MatchString(w) && !stopwords.StopWords[lng][l] {
 				histogram[w] += score
 				if tagMap[l] && tmap[l] {
 					histogram[w] += 0.25
