@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-06-30 13:26:08 krylon>
+# Time-stamp: <2026-07-01 11:37:09 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -290,6 +290,30 @@
     CLOCK: [2026-04-10 Fr 12:38]--[2026-04-10 Fr 13:06] =>  0:28
     CLOCK: [2026-04-09 Do 14:53]--[2026-04-09 Do 15:49] =>  0:56
     :END:
+*** Latent Semantic Analysis [0/2]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
+    I would like to to use some NLP techniques to do more analysis on the news
+    Items. For starters, I would like to find "clusters", i.e. groups of
+    related articles.
+**** TODO Clustering [0/1]
+     :LOGBOOK:
+     CLOCK: [2026-07-01 Mi 10:54]--[2026-07-01 Mi 11:37] =>  0:43
+     :END:
+     I am going to start with James Bowman's [[https://pkg.go.dev/github.com/james-bowman/nlp?utm_source=godoc][nlp]] package. Let's hope I can do
+     something useful with it.
+     As this appears to be potentially *VERY* CPU-heavy, I will start by only
+     doing this work on demand, by adding a button to each Item to show me
+     similar or related Items.
+***** TODO Stopwords
+      :LOGBOOK:
+      CLOCK: [2026-07-01 Mi 11:37]
+      :END:
+      So, I already did create a list of stopwords for Trend analysis, I
+      should refactor that into a package of its own, so I can use it for both
+      purposes.
 *** Rating Guesser aka Critic [1/1]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
