@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 02. 2021 by Benjamin Walkenhorst
 // (c) 2021 Benjamin Walkenhorst
-// Time-stamp: <2026-06-30 11:13:52 krylon>
+// Time-stamp: <2026-06-30 17:56:57 krylon>
 
 //go:build ignore
 
@@ -429,7 +429,11 @@ func worker(n int, op string, pkgq <-chan string, errq chan<- error, wg *sync.Wa
 				cmd = exec.Command("go", op, "-v", "-timeout", "30m", "-race", pkg)
 			}
 		case "nilaway":
-			cmd = exec.Command(op, "-include-pkgs=github.com/blicero/newsroom", pkg)
+			cmd = exec.Command(
+				op,
+				"-pretty-print=false",
+				"-include-pkgs=github.com/blicero/newsroom",
+				pkg)
 		default:
 			cmd = exec.Command("go", op, "-v", pkg)
 		}
