@@ -1,0 +1,132 @@
+{{ define "items" }}
+{{/* Created on 12. 03. 2026 */}}
+{{/* Time-stamp: <2026-05-29 12:29:06 krylon> */}}
+{{ $feeds := .Feeds }}
+{{ $tags := .Tags }}
+{{ $tagMap := .TagMap }}
+{{ $itemTags := .ItemTags }}
+{{ $advice := .TagAdvice }}
+{{ $bookmarks := .Bookmarks }}
+{{ $hideBoring := .HideBoring }}
+
+{{ range .Items }}
+{{ $item := . }}
+<tr id="item_row_{{ .ID }}"
+  class="item{{ if .IsBoring }} boring{{ end }}"
+  {{ if (and $hideBoring .IsBoring) }}hidden{{ end -}}>
+  <td>
+    <div>
+      {{ fmt_time_minute .Timestamp }}
+    </div>
+    <div id="bm_box_{{ .ID }}">
+    {{ if notnil (index $bookmarks .ID) }}
+    <button
+      id="bm_add_{{ .ID }}"
+      type="button"
+      class="btn btn-outline-secondary btn-sm"
+      onclick="bookmark_add({{ .ID }});">
+      Later?
+    </button>
+    {{ else }}
+    <button
+      id="bm_del_{{ .ID }}"
+      type="button"
+      class="btn btn-outline-success btn-sm"
+      onclick="bookmark_finish({{ .ID }});">
+      Finished?
+    </button>
+    {{ end }}
+    </div>
+  </td>
+  <td>
+    <a href="/feed/{{ .FeedID }}">
+      {{ (index $feeds .FeedID).Name }}
+    </a>
+  </td>
+  <td>
+    <a href="{{ .URL }}" target="_blank">
+      {{ .Title }}
+    </a>
+  </td>
+  <td id="item_rating_{{ .ID }}"> {{/* Rating */}}
+    {{ if (not .IsRated) }}
+    <small><i>({{ .EffectiveRating }})</i></small><br />
+    <button type="button"
+      class="btn btn-primary btn-sm"
+      onclick="rate_item({{ .ID }}, 2);">
+      Interesting
+    </button>
+    <button type="button"
+      class="btn btn-secondary btn-sm"
+      onclick="rate_item({{ .ID }}, 1);">
+      Boring
+    </button>
+    {{ else if .IsBoring }}
+    <img src="/static/face-tired.png" onclick="unrate_item({{ .ID }});" />
+    {{ else }}
+    <img src="/static/face-glasses.png" onclick="unrate_item({{ .ID }});" />
+    {{ end }}
+  </td>
+  <td> {{/* Tags */}}
+    {{ $myTags := index $itemTags .ID }}
+    <div id="item_tags_{{ $item.ID }}">
+      {{ range $id, $ok := $myTags }}
+      {{ $tag := index $tagMap $id }}
+      <span id="tag_link_{{ $item.ID }}_{{ $tag.ID }}">
+        <a href="/tag/{{ $tag.ID }}">{{ $tag.Name }}</a>
+        <img src="/static/delete.png"
+          onclick="tag_link_remove({{ $tag.ID }}, {{ $item.ID }});" />
+      </span>
+      {{ end }}
+    </div>
+    <div id="item_tag_avice_{{ $item.ID }}" class="tag_advice">
+      {{ $adv := index $advice $item.ID }}
+      {{ range $idx, $score := $adv }}
+      {{ $tag := index $tagMap $score.TagID }}
+      {{ with $tag }}
+      {{ $id := tag_advice_id $tag.ID $item.ID }}
+      <span id="{{ $id }}">
+        {{ $tag.Name }} ({{ fmt_float $score.Match }})
+        &nbsp;
+        <img
+          src="/static/cs-xlet-running.png"
+          width="24"
+          height="24"
+          onclick="attach_tag({{ .ID }}, {{ $item.ID }}, '#{{ $id }}');" />
+      </span>
+      &nbsp;
+      {{ end }}
+      {{ end }}
+    </div>
+    <div>
+      <select id="tag_menu_{{ .ID }}">
+        <option value="0">--</option>
+        {{ range $tags }}
+        <option
+          {{ if (index $myTags .ID) }}disabled{{ end }}
+          value="{{ .ID }}">
+          {{- nbsp (twice .Level) }}{{ .Name -}}
+        </option>
+        {{ end }}
+      </select>
+      <button
+        type="button"
+        class="btn btn-success btn-sm"
+        onclick="tag_link_create({{ $item.ID }});">Add</button>
+    </div>
+  </td>
+  <td>
+    <button class="btn btn-primary btn-sm"
+      data-bs-toggle="collapse"
+      href="#collapse_item_{{ .ID }}"
+      aria-expanded="false"
+      aria-controls="#collapse_item_{{ .ID }}">
+      Description
+    </button>
+    <div class="news-body collapse" id="collapse_item_{{ .ID }}">
+      {{ .Body }}
+    </div>
+  </td>
+</tr>
+{{ end }}
+{{ end }}
