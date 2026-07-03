@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-07-01 11:37:09 krylon>
+# Time-stamp: <2026-07-03 10:50:17 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -14,77 +14,80 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-06-30 Di 13:26]
-   | Headline                                         | Time      |           |          |       |      |
-   |--------------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Total time*                                     | *5d 9:30* |           |          |       |      |
-   |--------------------------------------------------+-----------+-----------+----------+-------+------|
-   | *Newsroom [52/54]*                               | *5d 9:30* |           |          |       |      |
-   | \_  /Components [51/52]/                         |           | /5d 8:47/ |          |       |      |
-   | \_    Model [3/3]                                |           |           |     4:39 |       |      |
-   | \_      Plant a tree!                            |           |           |          |  0:25 |      |
-   | \_      Strip HTML                               |           |           |          |  1:57 |      |
-   | \_      Sanitize HTML                            |           |           |          |  1:26 |      |
-   | \_    Database [3/3]                             |           |           |    17:12 |       |      |
-   | \_      Bookmarks                                |           |           |          |  1:22 |      |
-   | \_      Tags                                     |           |           |          |  1:37 |      |
-   | \_        Tags form a hierarchy                  |           |           |          |       | 0:10 |
-   | \_      TagLinks                                 |           |           |          |  2:23 |      |
-   | \_      Search [1/1]                             |           |           |          |  8:07 |      |
-   | \_        Search by Tags hierarchically          |           |           |          |       | 2:28 |
-   | \_    Engine [1/1]                               |           |           |     4:16 |       |      |
-   | \_    Blacklist [3/3]                            |           |           |     3:35 |       |      |
-   | \_      Save and Sort Blacklist periodically     |           |           |          |  0:02 |      |
-   | \_    Cache [2/2]                                |           |           |     3:20 |       |      |
-   | \_      Evict expired values                     |           |           |          |  0:27 |      |
-   | \_    Classifier [0/0]                           |           |           |     2:26 |       |      |
-   | \_    Rating Guesser aka Critic [1/1]            |           |           |     9:40 |       |      |
-   | \_      Testing                                  |           |           |          |  2:31 |      |
-   | \_    Web [29/30]                                |           |           | 2d 19:52 |       |      |
-   | \_      Hide boring items [0/1]                  |           |           |          |  5:29 |      |
-   | \_      Settings [0/0]                           |           |           |          |  1:32 |      |
-   | \_      Menu [1/1]                               |           |           |          |  0:07 |      |
-   | \_        Submenu for Analysis                   |           |           |          |       | 0:07 |
-   | \_      Blacklist [2/2]                          |           |           |          |  3:19 |      |
-   | \_        View and edit Blacklist                |           |           |          |       | 2:25 |
-   | \_        Use Blacklist                          |           |           |          |       | 0:54 |
-   | \_      Subscribe to Feeds                       |           |           |          |  3:03 |      |
-   | \_      Manage Feeds [0/0]                       |           |           |          |  3:33 |      |
-   | \_      View for Tags                            |           |           |          |  4:02 |      |
-   | \_      Manage Tags [4/4]                        |           |           |          | 12:30 |      |
-   | \_        Create and edit Tags                   |           |           |          |       | 3:09 |
-   | \_        Tag Items                              |           |           |          |       | 5:07 |
-   | \_        Suggest Tags                           |           |           |          |       | 4:11 |
-   | \_      Integrate Classifier                     |           |           |          |  2:37 |      |
-   | \_        Retrain Classifier                     |           |           |          |       | 0:54 |
-   | \_      Rate Items                               |           |           |          |  5:14 |      |
-   | \_      Resize images                            |           |           |          |  0:17 |      |
-   | \_      Search [3/3]                             |           |           |          | 13:23 |      |
-   | \_        The curious case of the missing...     |           |           |          |       | 0:41 |
-   | \_        Nicer UI for picking Tags              |           |           |          |       | 4:52 |
-   | \_        Smoother UX                            |           |           |          |       | 0:39 |
-   | \_      Suspend refresh                          |           |           |          |  1:32 |      |
-   | \_      Bookmarks                                |           |           |          |  2:03 |      |
-   | \_      Analysis [5/5]                           |           |           |          |  4:50 |      |
-   | \_        Tags [0/0]                             |           |           |          |       | 1:30 |
-   | \_        Caching                                |           |           |          |       | 0:16 |
-   | \_        Choose time window                     |           |           |          |       | 0:08 |
-   | \_        Add links for words that are Tags      |           |           |          |       | 0:20 |
-   | \_        Trend analysis over longer periods,... |           |           |          |       | 2:21 |
-   | \_    Trendy [8/8]                               |           |           |    14:16 |       |      |
-   | \_      Trend analysis [0/0]                     |           |           |          |  0:54 |      |
-   | \_      Changes                                  |           |           |          |  4:06 |      |
-   | \_      Frequent words [5/5]                     |           |           |          |  9:15 |      |
-   | \_        Embedded Stopwords                     |           |           |          |       | 2:25 |
-   | \_        Use weights for Items marked as...     |           |           |          |       | 0:36 |
-   | \_        Synonyms                               |           |           |          |       | 0:21 |
-   | \_    build script [1/1]                         |           |           |     0:05 |       |      |
-   | \_      Run nilaway sequentially                 |           |           |          |  0:05 |      |
-   | \_    Settings [0/0]                             |           |           |     1:26 |       |      |
-   | \_  /Features [1/2]/                             |           | /0:43/    |          |       |      |
-   | \_    Performance [1/1]                          |           |           |     0:42 |       |      |
-   | \_      Profiler                                 |           |           |          |  0:24 |      |
-   | \_    Analysis paralysis [0/0]                   |           |           |     0:01 |       |      |
+   #+CAPTION: Clock summary at [2026-07-03 Fr 10:49]
+   | Headline                                         | Time       |           |          |       |      |
+   |--------------------------------------------------+------------+-----------+----------+-------+------|
+   | *Total time*                                     | *5d 10:41* |           |          |       |      |
+   |--------------------------------------------------+------------+-----------+----------+-------+------|
+   | *Newsroom [52/54]*                               | *5d 10:41* |           |          |       |      |
+   | \_  /Components [51/52]/                         |            | /5d 9:58/ |          |       |      |
+   | \_    Model [3/3]                                |            |           |     4:39 |       |      |
+   | \_      Plant a tree!                            |            |           |          |  0:25 |      |
+   | \_      Strip HTML                               |            |           |          |  1:57 |      |
+   | \_      Sanitize HTML                            |            |           |          |  1:26 |      |
+   | \_    Database [3/3]                             |            |           |    17:12 |       |      |
+   | \_      Bookmarks                                |            |           |          |  1:22 |      |
+   | \_      Tags                                     |            |           |          |  1:37 |      |
+   | \_        Tags form a hierarchy                  |            |           |          |       | 0:10 |
+   | \_      TagLinks                                 |            |           |          |  2:23 |      |
+   | \_      Search [1/1]                             |            |           |          |  8:07 |      |
+   | \_        Search by Tags hierarchically          |            |           |          |       | 2:28 |
+   | \_    Engine [1/1]                               |            |           |     4:16 |       |      |
+   | \_    Blacklist [3/3]                            |            |           |     3:35 |       |      |
+   | \_      Save and Sort Blacklist periodically     |            |           |          |  0:02 |      |
+   | \_    Cache [2/2]                                |            |           |     3:20 |       |      |
+   | \_      Evict expired values                     |            |           |          |  0:27 |      |
+   | \_    Classifier [0/0]                           |            |           |     2:26 |       |      |
+   | \_    Latent Semantic Analysis [0/2]             |            |           |     1:11 |       |      |
+   | \_      Clustering [0/1]                         |            |           |          |  1:11 |      |
+   | \_        Stopwords                              |            |           |          |       | 0:28 |
+   | \_    Rating Guesser aka Critic [1/1]            |            |           |     9:40 |       |      |
+   | \_      Testing                                  |            |           |          |  2:31 |      |
+   | \_    Web [29/30]                                |            |           | 2d 19:52 |       |      |
+   | \_      Hide boring items [0/1]                  |            |           |          |  5:29 |      |
+   | \_      Settings [0/0]                           |            |           |          |  1:32 |      |
+   | \_      Menu [1/1]                               |            |           |          |  0:07 |      |
+   | \_        Submenu for Analysis                   |            |           |          |       | 0:07 |
+   | \_      Blacklist [2/2]                          |            |           |          |  3:19 |      |
+   | \_        View and edit Blacklist                |            |           |          |       | 2:25 |
+   | \_        Use Blacklist                          |            |           |          |       | 0:54 |
+   | \_      Subscribe to Feeds                       |            |           |          |  3:03 |      |
+   | \_      Manage Feeds [0/0]                       |            |           |          |  3:33 |      |
+   | \_      View for Tags                            |            |           |          |  4:02 |      |
+   | \_      Manage Tags [4/4]                        |            |           |          | 12:30 |      |
+   | \_        Create and edit Tags                   |            |           |          |       | 3:09 |
+   | \_        Tag Items                              |            |           |          |       | 5:07 |
+   | \_        Suggest Tags                           |            |           |          |       | 4:11 |
+   | \_      Integrate Classifier                     |            |           |          |  2:37 |      |
+   | \_        Retrain Classifier                     |            |           |          |       | 0:54 |
+   | \_      Rate Items                               |            |           |          |  5:14 |      |
+   | \_      Resize images                            |            |           |          |  0:17 |      |
+   | \_      Search [3/3]                             |            |           |          | 13:23 |      |
+   | \_        The curious case of the missing...     |            |           |          |       | 0:41 |
+   | \_        Nicer UI for picking Tags              |            |           |          |       | 4:52 |
+   | \_        Smoother UX                            |            |           |          |       | 0:39 |
+   | \_      Suspend refresh                          |            |           |          |  1:32 |      |
+   | \_      Bookmarks                                |            |           |          |  2:03 |      |
+   | \_      Analysis [5/5]                           |            |           |          |  4:50 |      |
+   | \_        Tags [0/0]                             |            |           |          |       | 1:30 |
+   | \_        Caching                                |            |           |          |       | 0:16 |
+   | \_        Choose time window                     |            |           |          |       | 0:08 |
+   | \_        Add links for words that are Tags      |            |           |          |       | 0:20 |
+   | \_        Trend analysis over longer periods,... |            |           |          |       | 2:21 |
+   | \_    Trendy [8/8]                               |            |           |    14:16 |       |      |
+   | \_      Trend analysis [0/0]                     |            |           |          |  0:54 |      |
+   | \_      Changes                                  |            |           |          |  4:06 |      |
+   | \_      Frequent words [5/5]                     |            |           |          |  9:15 |      |
+   | \_        Embedded Stopwords                     |            |           |          |       | 2:25 |
+   | \_        Use weights for Items marked as...     |            |           |          |       | 0:36 |
+   | \_        Synonyms                               |            |           |          |       | 0:21 |
+   | \_    build script [1/1]                         |            |           |     0:05 |       |      |
+   | \_      Run nilaway sequentially                 |            |           |          |  0:05 |      |
+   | \_    Settings [0/0]                             |            |           |     1:26 |       |      |
+   | \_  /Features [1/2]/                             |            | /0:43/    |          |       |      |
+   | \_    Performance [1/1]                          |            |           |     0:42 |       |      |
+   | \_      Profiler                                 |            |           |          |  0:24 |      |
+   | \_    Analysis paralysis [0/0]                   |            |           |     0:01 |       |      |
    #+END:
 ** Components [51/52]
    :PROPERTIES:
@@ -290,7 +293,7 @@
     CLOCK: [2026-04-10 Fr 12:38]--[2026-04-10 Fr 13:06] =>  0:28
     CLOCK: [2026-04-09 Do 14:53]--[2026-04-09 Do 15:49] =>  0:56
     :END:
-*** Latent Semantic Analysis [0/2]
+*** Latent Semantic Analysis [1/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -298,8 +301,9 @@
     I would like to to use some NLP techniques to do more analysis on the news
     Items. For starters, I would like to find "clusters", i.e. groups of
     related articles.
-**** TODO Clustering [0/1]
+**** TODO Clustering [1/1]
      :LOGBOOK:
+     CLOCK: [2026-07-03 Fr 10:49]
      CLOCK: [2026-07-01 Mi 10:54]--[2026-07-01 Mi 11:37] =>  0:43
      :END:
      I am going to start with James Bowman's [[https://pkg.go.dev/github.com/james-bowman/nlp?utm_source=godoc][nlp]] package. Let's hope I can do
@@ -307,9 +311,10 @@
      As this appears to be potentially *VERY* CPU-heavy, I will start by only
      doing this work on demand, by adding a button to each Item to show me
      similar or related Items.
-***** TODO Stopwords
+***** DONE Stopwords
+      CLOSED: [2026-07-03 Fr 10:50]
       :LOGBOOK:
-      CLOCK: [2026-07-01 Mi 11:37]
+      CLOCK: [2026-07-01 Mi 11:37]--[2026-07-01 Mi 12:05] =>  0:28
       :END:
       So, I already did create a list of stopwords for Trend analysis, I
       should refactor that into a package of its own, so I can use it for both
