@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-06-30 11:50:08 krylon>
+// Time-stamp: <2026-07-03 11:41:25 krylon>
 
 package main
 
@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/blicero/newsroom/cache"
+	"github.com/blicero/newsroom/cluster"
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/config"
 	"github.com/blicero/newsroom/engine"
@@ -42,10 +43,7 @@ func main() {
 		common.Version,
 		common.BuildStamp.Format(common.TimestampFormat))
 
-	flag.StringVar(&addr, "addr", fmt.Sprintf("[::1]:%d", common.WebPort), "The IP address for the web UI to listen on")
-	flag.StringVar(&profOut, "prof", "", "if non-empty, write profiling information to the named file")
-	flag.StringVar(&baseDir, "base", common.BaseDir, "directory where application-specific files live")
-	flag.Parse()
+	baseDir = common.BaseDir
 
 	if baseDir != common.BaseDir {
 		if err = common.SetBaseDir(baseDir); err != nil {
@@ -66,6 +64,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	addr = cfg.Web.Address
+
 	common.PackageLevels[logdomain.Database] = logutils.LogLevel(cfg.Loglevel.Database)
 	common.PackageLevels[logdomain.DBPool] = logutils.LogLevel(cfg.Loglevel.DBPool)
 	common.PackageLevels[logdomain.Engine] = logutils.LogLevel(cfg.Loglevel.Engine)
@@ -80,6 +80,12 @@ func main() {
 
 	common.Debug = cfg.Global.Debug
 	cache.Timeout = cfg.Global.CacheTimeout
+	cluster.Period = cfg.Cluster.Period
+
+	flag.StringVar(&addr, "addr", fmt.Sprintf("[::1]:%d", common.WebPort), "The IP address for the web UI to listen on")
+	flag.StringVar(&profOut, "prof", "", "if non-empty, write profiling information to the named file")
+	flag.StringVar(&baseDir, "base", common.BaseDir, "directory where application-specific files live")
+	flag.Parse()
 
 	if profOut != "" {
 		var profH *os.File

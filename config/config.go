@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 29. 05. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-06-30 11:28:26 krylon>
+// Time-stamp: <2026-07-03 11:34:42 krylon>
 
 // Package config defines settings that can be modified by a user.
 package config
@@ -35,6 +35,9 @@ Log = "newsroom.log"
 Database = "newsroom.db"
 Cache = "cache.d"
 Blacklist = "blacklist.db"
+
+[Cluster]
+Period = "48h"
 
 [Loglevel]
 Database = "DEBUG"
@@ -143,6 +146,25 @@ func (l *Loglevel) Equal(other any) bool {
 		l.Main == l2.Main
 }
 
+// Cluster controls how to look for related articles.
+type Cluster struct {
+	Period time.Duration
+}
+
+// Equal returns true if the receiver is equal to the argument.
+func (c *Cluster) Equal(other any) bool {
+	var (
+		c2 *Cluster
+		ok bool
+	)
+
+	if c2, ok = other.(*Cluster); !ok {
+		return false
+	}
+
+	return c2.Period == c.Period
+} // func (c *Cluster) Equal(other any) bool
+
 // Global contains settings that don't fit anywhere else.
 type Global struct {
 	Debug        bool
@@ -169,6 +191,7 @@ type Config struct {
 	Global   Global
 	Web      Web
 	Path     Path
+	Cluster  Cluster
 	Loglevel Loglevel
 }
 
@@ -186,7 +209,8 @@ func (c *Config) Equal(other any) bool {
 	return c.Global.Equal(&c2.Global) &&
 		c.Web.Equal(&c2.Web) &&
 		c.Path.Equal(&c2.Path) &&
-		c.Loglevel.Equal(&c2.Loglevel)
+		c.Loglevel.Equal(&c2.Loglevel) &&
+		c.Cluster.Equal(&c2.Cluster)
 } // func (c *Config) Equal(other any) bool
 
 // Read attempts to read the configuration from the given file.

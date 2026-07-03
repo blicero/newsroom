@@ -1,4 +1,4 @@
-# Time-stamp: <2026-06-30 11:32:59 krylon>
+# Time-stamp: <2026-07-03 11:34:47 krylon>
 # Wer das liest, ist doof.
 
 [Global]
@@ -11,6 +11,9 @@ HideBoring = true
 HideProbablyBoring = true
 ItemsPerPage = 50
 TrendDays = 14
+
+[Cluster]
+Period = "72h"
 
 [Path]
 Base = "~/.newsroom.d"

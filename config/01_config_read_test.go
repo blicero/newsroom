@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 15. 06. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-06-30 11:32:08 krylon>
+// Time-stamp: <2026-07-03 11:33:16 krylon>
 
 package config
 
@@ -29,6 +29,9 @@ func TestReadNoConfig(t *testing.T) {
 				HideProbablyBoring: false,
 				ItemsPerPage:       100,
 				TrendDays:          7,
+			},
+			Cluster: Cluster{
+				Period: time.Hour * 24 * 2,
 			},
 			Path: Path{
 				Base:      "~/.newsroom.d",
@@ -82,6 +85,9 @@ func TestReadExampleConfig(t *testing.T) {
 				HideProbablyBoring: true,
 				ItemsPerPage:       50,
 				TrendDays:          14,
+			},
+			Cluster: Cluster{
+				Period: time.Hour * 72,
 			},
 			Path: Path{
 				Base:      "~/.newsroom.d",

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 07. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-07-02 11:58:30 krylon>
+// Time-stamp: <2026-07-03 11:36:09 krylon>
 
 // Package cluster uses Latent Semantic Analysis (LSA) to find related Items.
 // At least that is the idea.
@@ -32,7 +32,7 @@ import (
 // For starters, I will look into Items that were added within, say, a
 // week of the one we are starting with.
 
-const clusterPeriod = time.Hour * 24 * 7
+var Period = time.Hour * 24 * 7
 
 // Match represents a related Document.
 type Match struct {
@@ -84,8 +84,8 @@ func (s *Scout) FindCluster(item *model.Item) (*SemanticCluster, error) {
 		stripped   []string
 	)
 
-	begin = item.Timestamp.Add(-clusterPeriod)
-	end = item.Timestamp.Add(clusterPeriod)
+	begin = item.Timestamp.Add(-Period)
+	end = item.Timestamp.Add(Period)
 
 	if items, err = s.db.ItemGetByPeriod(begin, end); err != nil {
 		s.log.Printf("[ERROR] Failed to find Items by Period [%s - %s]: %s\n",
