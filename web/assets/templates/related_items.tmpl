@@ -1,77 +1,82 @@
 {{ define "related_items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-07-02 11:56:09 krylon> */}}
+{{/* Time-stamp: <2026-07-03 11:56:39 krylon> */}}
 {{ $feeds := .Feeds }}
 {{ $tags := .Tags }}
 {{ $tagMap := .TagMap }}
 {{ $itemTags := .ItemTags }}
-{{ $advice := .TagAdvice }}
+{{/* {{ $advice := .TagAdvice }} */}}
 {{ $bookmarks := .Bookmarks }}
 {{ $hideBoring := .HideBoring }}
 
-{{ range .Items }}
-{{ $item := . }}
-<tr id="item_row_{{ .ID }}"
-  class="item{{ if .IsBoring }} boring{{ end }}"
-  {{ if (and $hideBoring .IsBoring) }}hidden{{ end -}}>
+{{ range .Items.Related }}
+{{ $item := .Item }}
+<tr id="item_row_{{ $item.ID }}"
+  class="item{{ if $item.IsBoring }} boring{{ end }}"
+  {{ if (and $hideBoring $item.IsBoring) }}hidden{{ end -}}>
   <td>
     {{ fmt_float .Similarity }}
   </td>
   <td>
     <div>
-      {{ fmt_time_minute .Timestamp }}
+      {{ fmt_time_minute $item.Timestamp }}
     </div>
-    <div id="bm_box_{{ .ID }}">
-    {{ if notnil (index $bookmarks .ID) }}
+    <div id="bm_box_{{ $item.ID }}">
+    {{ if notnil (index $bookmarks $item.ID) }}
     <button
-      id="bm_add_{{ .ID }}"
+      id="bm_add_{{ $item.ID }}"
       type="button"
       class="btn btn-outline-secondary btn-sm"
-      onclick="bookmark_add({{ .ID }});">
+      onclick="bookmark_add({{ $item.ID }});">
       Later?
     </button>
     {{ else }}
     <button
-      id="bm_del_{{ .ID }}"
+      id="bm_del_{{ $item.ID }}"
       type="button"
       class="btn btn-outline-success btn-sm"
-      onclick="bookmark_finish({{ .ID }});">
+      onclick="bookmark_finish({{ $item.ID }});">
       Finished?
     </button>
     {{ end }}
     </div>
   </td>
   <td>
-    <a href="/feed/{{ .FeedID }}">
-      {{ (index $feeds .FeedID).Name }}
+    <a href="/feed/{{ $item.FeedID }}">
+      {{ $feed := index $feeds $item.FeedID }}
+      {{ with $feed }}
+      {{ .Name }}
+      {{ else }}
+      ???
+      {{ end }}
     </a>
   </td>
   <td>
-    <a href="{{ .URL }}" target="_blank">
-      {{ .Title }}
+    <a href="{{ $item.URL }}" target="_blank">
+      {{ $item.Title }}
     </a>
   </td>
-  <td id="item_rating_{{ .ID }}"> {{/* Rating */}}
-    {{ if (not .IsRated) }}
-    <small><i>({{ .EffectiveRating }})</i></small><br />
+  <td id="item_rating_{{ $item.ID }}"> {{/* Rating */}}
+    {{ if (not $item.IsRated) }}
+    <small><i>({{ $item.EffectiveRating }})</i></small><br />
     <button type="button"
       class="btn btn-primary btn-sm"
-      onclick="rate_item({{ .ID }}, 2);">
+      onclick="rate_item({{ $item.ID }}, 2);">
       Interesting
     </button>
     <button type="button"
       class="btn btn-secondary btn-sm"
-      onclick="rate_item({{ .ID }}, 1);">
+      onclick="rate_item({{ $item.ID }}, 1);">
       Boring
     </button>
-    {{ else if .IsBoring }}
-    <img src="/static/face-tired.png" onclick="unrate_item({{ .ID }});" />
+    {{ else if $item.IsBoring }}
+    <img src="/static/face-tired.png" onclick="unrate_item({{ $item.ID }});" />
     {{ else }}
-    <img src="/static/face-glasses.png" onclick="unrate_item({{ .ID }});" />
+    <img src="/static/face-glasses.png" onclick="unrate_item({{ $item.ID }});" />
     {{ end }}
   </td>
   <td> {{/* Tags */}}
-    {{ $myTags := index $itemTags .ID }}
+    {{ $myTags := index $itemTags $item.ID }}
     <div id="item_tags_{{ $item.ID }}">
       {{ range $id, $ok := $myTags }}
       {{ $tag := index $tagMap $id }}
@@ -83,26 +88,10 @@
       {{ end }}
     </div>
     <div id="item_tag_avice_{{ $item.ID }}" class="tag_advice">
-      {{ $adv := index $advice $item.ID }}
-      {{ range $idx, $score := $adv }}
-      {{ $tag := index $tagMap $score.TagID }}
-      {{ with $tag }}
-      {{ $id := tag_advice_id $tag.ID $item.ID }}
-      <span id="{{ $id }}">
-        {{ $tag.Name }} ({{ fmt_float $score.Match }})
-        &nbsp;
-        <img
-          src="/static/cs-xlet-running.png"
-          width="24"
-          height="24"
-          onclick="attach_tag({{ .ID }}, {{ $item.ID }}, '#{{ $id }}');" />
-      </span>
-      &nbsp;
-      {{ end }}
-      {{ end }}
+
     </div>
     <div>
-      <select id="tag_menu_{{ .ID }}">
+      <select id="tag_menu_{{ $item.ID }}">
         <option value="0">--</option>
         {{ range $tags }}
         <option
@@ -121,13 +110,13 @@
   <td>
     <button class="btn btn-primary btn-sm"
       data-bs-toggle="collapse"
-      href="#collapse_item_{{ .ID }}"
+      href="#collapse_item_{{ $item.ID }}"
       aria-expanded="false"
-      aria-controls="#collapse_item_{{ .ID }}">
+      aria-controls="#collapse_item_{{ $item.ID }}">
       Description
     </button>
-    <div class="news-body collapse" id="collapse_item_{{ .ID }}">
-      {{ .Body }}
+    <div class="news-body collapse" id="collapse_item_{{ $item.ID }}">
+      {{ $item.Body }}
     </div>
   </td>
 </tr>

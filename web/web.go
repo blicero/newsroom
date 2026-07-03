@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-07-02 13:23:51 krylon>
+// Time-stamp: <2026-07-03 12:00:21 krylon>
 
 package web
 
@@ -183,6 +183,7 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 	srv.router.HandleFunc("/analysis/trend/{days:(?:\\d+)}/{icnt:(?:\\d+)$}", srv.handleTrendAnalysis)
 	srv.router.HandleFunc("/analysis/chart/{days:(?:\\d+)}/{icnt:(?:\\d+)$}", srv.handleTrendChart)
 	srv.router.HandleFunc("/analysis/tags/{days:(?:\\d+)}/{offset:(?:\\d+)$}", srv.handleTagsByPeriod)
+	srv.router.HandleFunc("/related/{id:(?:\\d+)$}", srv.handleRelatedItems)
 
 	// AJAX Handlers
 	srv.router.HandleFunc(
@@ -1661,7 +1662,7 @@ func (srv *Server) handleRelatedItems(w http.ResponseWriter, r *http.Request) {
 		r.RequestURI,
 		r.RemoteAddr)
 
-	const tmplName = "related_items"
+	const tmplName = "related"
 
 	var (
 		err        error
@@ -1711,6 +1712,12 @@ func (srv *Server) handleRelatedItems(w http.ResponseWriter, r *http.Request) {
 		srv.log.Printf("[ERROR] %s\n", msg)
 		srv.sendErrorMessage(w, msg)
 		return
+	} else if item == nil {
+		msg = fmt.Sprintf("Item %d was not found in database",
+			itemID)
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
 	}
 
 	var scout *cluster.Scout
@@ -1739,6 +1746,12 @@ func (srv *Server) handleRelatedItems(w http.ResponseWriter, r *http.Request) {
 		srv.log.Printf("[ERROR] %s\n", msg)
 		srv.sendErrorMessage(w, msg)
 		return
+	} else if feeds, err = db.FeedGetAll(); err != nil {
+		msg = fmt.Sprintf("Cannot load Feeds: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
 	}
 
 	data.Bookmarks = make(map[int64]*model.Bookmark, len(bookmarks))
@@ -1761,16 +1774,17 @@ func (srv *Server) handleRelatedItems(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	// data.Items = slices.DeleteFunc(data.Items, func(item *model.Item) bool {
-	// 	if srv.bl.Match(item) {
-	// 		srv.bl.Sort()
-	// 		blHit++
-	// 		return true
-	// 	}
-	// 	return false
-	// })
+	data.Items.Related = slices.DeleteFunc(data.Items.Related, func(match cluster.Match) bool {
+		if srv.bl.Match(match.Item) {
+			srv.bl.Sort()
+			blHit++
+			return true
+		}
+		return false
+	})
 
-	for _, item := range data.Items {
+	for _, match := range data.Items.Related {
+		var item = match.Item
 		if err = srv.scrub.Scrub(item); err != nil {
 			srv.log.Printf("[ERROR] Failed to scrub Item %d (%s): %s\n",
 				item.ID,
@@ -1798,7 +1812,7 @@ func (srv *Server) handleRelatedItems(w http.ResponseWriter, r *http.Request) {
 			srv.log.Printf("[ERROR] %s\n", msg)
 			srv.sendErrorMessage(w, msg)
 			return
-		} else if data.TagAdvice[item.ID], err = srv.adv.Score(item); err != nil {
+		} /*else if data.TagAdvice[item.ID], err = srv.adv.Score(item); err != nil {
 			msg = fmt.Sprintf("Failed to calculate Tag Advice for Item %q (%d): %s",
 				item.Title,
 				item.ID,
@@ -1806,7 +1820,7 @@ func (srv *Server) handleRelatedItems(w http.ResponseWriter, r *http.Request) {
 			srv.log.Printf("[ERROR] %s\n", msg)
 			srv.sendErrorMessage(w, msg)
 			return
-		}
+		}*/
 
 		// data.ItemTags[item.ID] = make(map[int64]bool, len(itemTags))
 		var itags = make(map[int64]bool, len(itemTags))
@@ -1817,7 +1831,6 @@ func (srv *Server) handleRelatedItems(w http.ResponseWriter, r *http.Request) {
 		data.ItemTags[item.ID] = itags
 	}
 
-	data.MaxPage = data.TotalCount / data.Count
 	data.Feeds = make(map[int64]*model.Feed, len(feeds))
 
 	for _, feed := range feeds {
