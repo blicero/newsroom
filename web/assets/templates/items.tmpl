@@ -1,6 +1,6 @@
 {{ define "items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-05-29 12:29:06 krylon> */}}
+{{/* Time-stamp: <2026-07-02 12:43:55 krylon> */}}
 {{ $feeds := .Feeds }}
 {{ $tags := .Tags }}
 {{ $tagMap := .TagMap }}
@@ -46,6 +46,10 @@
   <td>
     <a href="{{ .URL }}" target="_blank">
       {{ .Title }}
+    </a>
+    &nbsp;
+    <a href="/related/{{ .ID }}">
+      <img src="/static/search.png" />
     </a>
   </td>
   <td id="item_rating_{{ .ID }}"> {{/* Rating */}}

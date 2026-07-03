@@ -1,0 +1,40 @@
+{{ define "related" }}
+{{/* Created on 02. 07. 2026 */}}
+{{/* Time-stamp: <2026-07-02 11:50:52 krylon> */}}
+<!DOCTYPE html>
+<html>
+  {{ template "head" . }}
+
+  <body>
+    {{ template "intro" . }}
+
+    <script>
+     $(document).ready(() => {
+             scale_images()
+     })
+    </script>
+
+    <div>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Similarity</th>
+            <th>Time</th>
+            <th>Feed</th>
+            <th>Headline</th>
+            <th>Rating</th>
+            <th>Tags</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+
+        <tbody class="items">
+          {{ template "related_items" . }}
+        </tbody>
+      </table>
+    </div>
+
+    {{ template "footer" . }}
+  </body>
+</html>
+{{ end }}

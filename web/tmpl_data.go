@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 06. 05. 2020 by Benjamin Walkenhorst
 // (c) 2020 Benjamin Walkenhorst
-// Time-stamp: <2026-05-27 11:57:29 krylon>
+// Time-stamp: <2026-07-02 13:12:56 krylon>
 //
 // This file contains data structures to be passed to HTML templates.
 
@@ -14,6 +14,7 @@ import (
 	"github.com/blicero/newsroom/analyze"
 	"github.com/blicero/newsroom/blacklist"
 	"github.com/blicero/newsroom/classify"
+	"github.com/blicero/newsroom/cluster"
 	"github.com/blicero/newsroom/database"
 	"github.com/blicero/newsroom/model"
 )
@@ -56,6 +57,18 @@ func (tdn *tmplDataNews) FirstPage() bool {
 func (tdn *tmplDataNews) LastPage() bool {
 	return tdn.PageNo >= tdn.MaxPage
 } // func (tdn *tmplDataNews) LastPage() bool
+
+type tmplDataRelated struct {
+	tmplDataBase
+	Count      int64
+	TotalCount int64
+	Feeds      map[int64]*model.Feed
+	Items      *cluster.SemanticCluster
+	Tags       []*model.Tag
+	TagMap     map[int64]*model.Tag
+	ItemTags   map[int64]map[int64]bool
+	Bookmarks  map[int64]*model.Bookmark
+}
 
 type tmplDataTags struct {
 	tmplDataBase

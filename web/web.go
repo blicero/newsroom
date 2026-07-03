@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-29 12:33:25 krylon>
+// Time-stamp: <2026-07-02 13:23:51 krylon>
 
 package web
 
@@ -32,6 +32,7 @@ import (
 	"github.com/blicero/newsroom/analyze"
 	"github.com/blicero/newsroom/blacklist"
 	"github.com/blicero/newsroom/classify"
+	"github.com/blicero/newsroom/cluster"
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/critic"
 	"github.com/blicero/newsroom/database"
@@ -1654,6 +1655,183 @@ func (srv *Server) handleTagsByPeriod(w http.ResponseWriter, r *http.Request) {
 		srv.sendErrorMessage(w, msg)
 	}
 } // func (srv *Server) handleTagsByPeriod(w http.ResponseWriter, r *http.Request)
+
+func (srv *Server) handleRelatedItems(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handling request for %s from %s\n",
+		r.RequestURI,
+		r.RemoteAddr)
+
+	const tmplName = "related_items"
+
+	var (
+		err        error
+		msg, idstr string
+		itemID     int64
+		item       *model.Item
+		db         *database.Database
+		tmpl       *template.Template
+		feeds      []*model.Feed
+		vars       map[string]string
+		bookmarks  []*model.Bookmark
+		data       = tmplDataRelated{
+			tmplDataBase: tmplDataBase{
+				Title:      "Related",
+				Debug:      common.Debug,
+				URL:        r.URL.String(),
+				HideBoring: srv.hideBoring,
+			},
+		}
+	)
+
+	vars = mux.Vars(r)
+
+	idstr = vars["id"]
+
+	if itemID, err = strconv.ParseInt(idstr, 10, 64); err != nil {
+		msg = fmt.Sprintf("Cannot parse ID %q: %s",
+			idstr,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if tmpl = srv.tmpl.Lookup(tmplName); tmpl == nil {
+		msg = fmt.Sprintf("Could not find template %q", tmplName)
+		srv.log.Println("[CRITICAL] " + msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	db = srv.pool.Get()
+	defer srv.pool.Put(db)
+
+	if item, err = db.ItemGetByID(itemID); err != nil {
+		msg = fmt.Sprintf("Cannot look up Item %d in database: %s",
+			itemID,
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	var scout *cluster.Scout
+
+	if scout, err = cluster.NewScout(); err != nil {
+		msg = fmt.Sprintf("Failed to create Scout: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if data.Items, err = scout.FindCluster(item); err != nil {
+		msg = fmt.Sprintf("Failed to find related articles: %s\n",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if data.Tags, err = db.TagGetSorted(); err != nil {
+		msg = fmt.Sprintf("Failed to load all Tags: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	} else if bookmarks, err = db.BookmarkGetAll(); err != nil {
+		msg = fmt.Sprintf("Failed to load Bookmarks: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		srv.sendErrorMessage(w, msg)
+		return
+	}
+
+	data.Bookmarks = make(map[int64]*model.Bookmark, len(bookmarks))
+	for _, bookmark := range bookmarks {
+		data.Bookmarks[bookmark.ID] = bookmark
+	}
+
+	// data.TagAdvice = make(map[int64]classify.SuggList, len(data.Items.Related))
+	data.ItemTags = make(map[int64]map[int64]bool, len(data.Items.Related))
+	data.TagMap = make(map[int64]*model.Tag, len(data.Tags))
+	for _, tag := range data.Tags {
+		data.TagMap[tag.ID] = tag
+	}
+
+	var blHit int
+
+	defer func() {
+		if blHit > 0 {
+			srv.bl.Save()
+		}
+	}()
+
+	// data.Items = slices.DeleteFunc(data.Items, func(item *model.Item) bool {
+	// 	if srv.bl.Match(item) {
+	// 		srv.bl.Sort()
+	// 		blHit++
+	// 		return true
+	// 	}
+	// 	return false
+	// })
+
+	for _, item := range data.Items {
+		if err = srv.scrub.Scrub(item); err != nil {
+			srv.log.Printf("[ERROR] Failed to scrub Item %d (%s): %s\n",
+				item.ID,
+				item.Title,
+				err.Error())
+		}
+
+		if !item.IsRated() {
+			if item.GuessedRating, err = srv.cls.Classify(item); err != nil {
+				srv.log.Printf("[ERROR] Failed to classify Item %d (%s): %s\n",
+					item.ID,
+					item.Title,
+					err.Error())
+				item.GuessedRating = rating.Unrated
+			}
+		}
+
+		var itemTags []*model.Tag
+
+		if itemTags, err = db.TagLinkGetByItem(item); err != nil {
+			msg = fmt.Sprintf("Failed to load Tags for Item %q (%d): %s",
+				item.Title,
+				item.ID,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		} else if data.TagAdvice[item.ID], err = srv.adv.Score(item); err != nil {
+			msg = fmt.Sprintf("Failed to calculate Tag Advice for Item %q (%d): %s",
+				item.Title,
+				item.ID,
+				err.Error())
+			srv.log.Printf("[ERROR] %s\n", msg)
+			srv.sendErrorMessage(w, msg)
+			return
+		}
+
+		// data.ItemTags[item.ID] = make(map[int64]bool, len(itemTags))
+		var itags = make(map[int64]bool, len(itemTags))
+		for _, tag := range itemTags {
+			itags[tag.ID] = true
+		}
+
+		data.ItemTags[item.ID] = itags
+	}
+
+	data.MaxPage = data.TotalCount / data.Count
+	data.Feeds = make(map[int64]*model.Feed, len(feeds))
+
+	for _, feed := range feeds {
+		data.Feeds[feed.ID] = feed
+	}
+
+	w.Header().Set("Cache-Control", noCache)
+	if err = tmpl.Execute(w, &data); err != nil {
+		msg = fmt.Sprintf("Error rendering template %q: %s",
+			tmplName,
+			err.Error())
+		srv.sendErrorMessage(w, msg)
+	}
+} // func (srv *Server) handleRelatedItems(w http.ResponseWriter, r *http.Request)
 
 //////////////////////////////////////////////////////////////////////////////
 /// Handle AJAX //////////////////////////////////////////////////////////////

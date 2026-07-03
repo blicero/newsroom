@@ -1,6 +1,6 @@
-{{ define "items" }}
+{{ define "related_items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-05-29 12:29:06 krylon> */}}
+{{/* Time-stamp: <2026-07-02 11:56:09 krylon> */}}
 {{ $feeds := .Feeds }}
 {{ $tags := .Tags }}
 {{ $tagMap := .TagMap }}
@@ -14,6 +14,9 @@
 <tr id="item_row_{{ .ID }}"
   class="item{{ if .IsBoring }} boring{{ end }}"
   {{ if (and $hideBoring .IsBoring) }}hidden{{ end -}}>
+  <td>
+    {{ fmt_float .Similarity }}
+  </td>
   <td>
     <div>
       {{ fmt_time_minute .Timestamp }}
