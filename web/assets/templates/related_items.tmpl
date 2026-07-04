@@ -1,6 +1,6 @@
 {{ define "related_items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-07-03 11:56:39 krylon> */}}
+{{/* Time-stamp: <2026-07-03 12:21:14 krylon> */}}
 {{ $feeds := .Feeds }}
 {{ $tags := .Tags }}
 {{ $tagMap := .TagMap }}
@@ -14,9 +14,6 @@
 <tr id="item_row_{{ $item.ID }}"
   class="item{{ if $item.IsBoring }} boring{{ end }}"
   {{ if (and $hideBoring $item.IsBoring) }}hidden{{ end -}}>
-  <td>
-    {{ fmt_float .Similarity }}
-  </td>
   <td>
     <div>
       {{ fmt_time_minute $item.Timestamp }}
@@ -75,37 +72,8 @@
     <img src="/static/face-glasses.png" onclick="unrate_item({{ $item.ID }});" />
     {{ end }}
   </td>
-  <td> {{/* Tags */}}
-    {{ $myTags := index $itemTags $item.ID }}
-    <div id="item_tags_{{ $item.ID }}">
-      {{ range $id, $ok := $myTags }}
-      {{ $tag := index $tagMap $id }}
-      <span id="tag_link_{{ $item.ID }}_{{ $tag.ID }}">
-        <a href="/tag/{{ $tag.ID }}">{{ $tag.Name }}</a>
-        <img src="/static/delete.png"
-          onclick="tag_link_remove({{ $tag.ID }}, {{ $item.ID }});" />
-      </span>
-      {{ end }}
-    </div>
-    <div id="item_tag_avice_{{ $item.ID }}" class="tag_advice">
-
-    </div>
-    <div>
-      <select id="tag_menu_{{ $item.ID }}">
-        <option value="0">--</option>
-        {{ range $tags }}
-        <option
-          {{ if (index $myTags .ID) }}disabled{{ end }}
-          value="{{ .ID }}">
-          {{- nbsp (twice .Level) }}{{ .Name -}}
-        </option>
-        {{ end }}
-      </select>
-      <button
-        type="button"
-        class="btn btn-success btn-sm"
-        onclick="tag_link_create({{ $item.ID }});">Add</button>
-    </div>
+  <td>
+    {{ fmt_float .Similarity }}
   </td>
   <td>
     <button class="btn btn-primary btn-sm"
