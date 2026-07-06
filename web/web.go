@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-07-03 12:00:21 krylon>
+// Time-stamp: <2026-07-04 11:34:55 krylon>
 
 package web
 
@@ -45,7 +45,7 @@ import (
 )
 
 const (
-	cacheControl = "max-age=3600, public"
+	cacheControl = "max-age=120, public"
 	noCache      = "no-store, max-age=0"
 	tmplFolder   = "assets/templates"
 )
@@ -508,7 +508,7 @@ func (srv *Server) handleNews(w http.ResponseWriter, r *http.Request) {
 		data.Feeds[feed.ID] = feed
 	}
 
-	w.Header().Set("Cache-Control", noCache)
+	w.Header().Set("Cache-Control", cacheControl)
 	if err = tmpl.Execute(w, &data); err != nil {
 		msg = fmt.Sprintf("Error rendering template %q: %s",
 			tmplName,
