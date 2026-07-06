@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 07. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-07-03 11:36:09 krylon>
+// Time-stamp: <2026-07-04 12:07:24 krylon>
 
 // Package cluster uses Latent Semantic Analysis (LSA) to find related Items.
 // At least that is the idea.
@@ -115,7 +115,7 @@ func (s *Scout) FindCluster(item *model.Item) (*SemanticCluster, error) {
 	pipe = nlp.NewPipeline(
 		nlp.NewCountVectoriser(stop...),
 		nlp.NewTfidfTransformer(),
-		nlp.NewTruncatedSVD(4),
+		nlp.NewLatentDirichletAllocation(16),
 	)
 
 	// First we train the model
@@ -164,6 +164,11 @@ func (s *Scout) calcCosine(query mat.Matrix, tdmat mat.Matrix, corpus []*model.I
 		queryVec := query.(mat.ColViewer).ColView(0)
 		docVec := tdmat.(mat.ColViewer).ColView(i)
 		similarity := pairwise.CosineSimilarity(queryVec, docVec)
+
+		if similarity < 0.5 {
+			continue
+		}
+
 		s.log.Printf("[DEBUG] Comparing '%s' = %.1f\n", corpus[i].Title, similarity)
 		var match = Match{
 			Item:       corpus[i],
