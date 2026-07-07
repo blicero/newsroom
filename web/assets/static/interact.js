@@ -1,4 +1,4 @@
-// Time-stamp: <2026-05-29 12:43:40 krylon>
+// Time-stamp: <2026-07-07 12:03:17 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2015-2020 Benjamin Walkenhorst <krylon@gmx.net>
 //
@@ -1275,21 +1275,44 @@ function toggle_hide_boring() {
     const url = '/ajax/toggle_hide_boring'
     const switch_id = "#hide-switch"
     const rswitch = $(switch_id)[0]
-    const status = rswitch.checked
+    let level = rswitch.checked ? 1 : 0
 
-    settings.news.hideBoring = status
-    saveSetting("news", "hideBoring", status)
+    settings.news.hideBoring = (level > 0)
+    saveSetting("news", "hideBoring", (level > 0))
+
+    if (level > 0) {
+        const mswitch_id = '#hide-maybe-switch'
+        const mswitch = $(mswitch_id)[0]
+        if (mswitch.checked) {
+            level++
+        }
+    }
 
     $.post(
         url,
-        { 'status': status },
+        { 'level': level },
         (res) => {
             if (res.status) {
-                if (status) {
-                    $("tr.boring").hide()
-                } else {
+                switch (level) {
+                case 0:
                     $("tr.boring").show()
+                    break
+                case 1:
+                    $("tr.boring").hide()
+                case 2:
+                    $("tr.probably-boring").hide()
+                    break
+                default:
+                    const msg = `Invalid level ${level}`
+                    msg_add(msg, 'ERROR')
+                    alert(msg)
                 }
+                
+                // if (status) {
+                //     $("tr.boring").hide()
+                // } else {
+                //     $("tr.boring").show()
+                // }
             } else {
                 rswitch.checked = !rswitch.checked
             }
@@ -1302,3 +1325,4 @@ function toggle_hide_boring() {
         alert(msg)
     })
 } // function toggle_hide_boring()
+

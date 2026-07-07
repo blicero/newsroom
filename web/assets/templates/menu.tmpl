@@ -1,5 +1,5 @@
 {{ define "menu" }}
-{{/* Time-stamp: <2026-06-12 13:29:25 krylon> */}}
+{{/* Time-stamp: <2026-07-07 12:03:39 krylon> */}}
 <nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background-color: #D4D4D4">
   <div class="container-fluid">
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -151,6 +151,48 @@
         </li>
         */}}
 
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle"
+            href="#"
+            id="hide_boring_menu_toggle"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+            Hide Boring
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="hide_boring_menu_toggle">
+            <li class="dropdown-item">
+              <div class="form-check form-switch">
+                <input
+                  id="hide-switch"
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  onchange="toggle_hide_boring();"
+                  {{ if .HideBoring }}checked{{ end -}}>
+                <label for="hide-switch" class="form-check-label">
+                  Hide Boring
+                </label>
+              </div>
+            </li>
+
+            <li class="dropdown-item">
+              <div class="form-check form-switch" >
+                <input
+                  id="hide-maybe-switch"
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  onchange="toggle_hide_boring();"
+                  {{ if .HideMaybeBoring }}checked{{ end -}}>
+                <label for="hide-maybe-switch" class="form-check-label">
+                  Hide <i>maybe</i> boring
+                </label>
+              </div>
+            </li>
+          </ul>
+        </li>
+
         <li class="nav-item">
           <div class="form-check form-switch">
             <input
@@ -170,23 +212,9 @@
                    $("#hide-switch")[0].checked = settings.news.hideBoring
            })
           </script>
-
-          <div class="form-check form-switch">
-            <input
-              id="hide-switch"
-              class="form-check-input"
-              type="checkbox"
-              role="switch"
-              onchange="toggle_hide_boring();"
-              {{ if .HideBoring }}checked{{ end -}}>
-            <label for="hide-switch" class="form-check-label">
-              Hide Boring
-            </label>
-          </div>
-
         </li>
 
-      </ul>
+          </ul>
     </div>
   </div>
 </nav>

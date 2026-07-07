@@ -1,4 +1,4 @@
-// Time-stamp: <2025-11-26 17:49:40 krylon>
+// Time-stamp: <2026-07-07 11:07:31 krylon>
 // -*- mode: javascript; coding: utf-8; -*-
 // Copyright 2020 Benjamin Walkenhorst <krylon@gmx.net>
 
@@ -18,6 +18,7 @@ let settings = {
 
     "news": {
         "hideBoring": false,
+        "hideMaybeboring": false,
         "pageSize": 100,
     }
 };
@@ -53,6 +54,11 @@ function initSettings() {
     item = JSON.parse(localStorage.getItem("news.hideBoring"))
     if (typeof(item) == "boolean") {
         settings.news.hideBoring = item
+    }
+
+    item = JSON.parse(localStorage.getItem("news.hideMaybeboring"))
+    if (typeof(item) == "boolean") {
+        settings.news.hideMaybeBoring = item
     }
 
     item = JSON.parse(localStorage.getItem("news.pageSize"))

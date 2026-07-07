@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-05-04 13:22:41 krylon>
+// Time-stamp: <2026-07-07 11:38:25 krylon>
 
 // Package model defines data types that are used throughout the application.
 package model
@@ -66,6 +66,13 @@ func (i *Item) IsRated() bool {
 func (i *Item) IsBoring() bool {
 	return i.Rating == rating.Boring
 } // func (i *Item) IsBoring() bool
+
+// IsProbablyBoring returns true if the Item has been rated as Boring
+// or if the Critic thinks it is more Boring than Interesting.
+func (i *Item) IsProbablyBoring() bool {
+	return i.Rating == rating.Boring ||
+		i.GuessedRating == rating.Boring
+} // func (i *Item) IsProbablyBoring() bool
 
 // EffectiveRating returns an Item's guessed Rating if it is unrated,
 // otherwise the Item's Rating.

@@ -1,6 +1,6 @@
 {{ define "items" }}
 {{/* Created on 12. 03. 2026 */}}
-{{/* Time-stamp: <2026-07-07 11:01:11 krylon> */}}
+{{/* Time-stamp: <2026-07-07 12:59:13 krylon> */}}
 {{ $feeds := .Feeds }}
 {{ $tags := .Tags }}
 {{ $tagMap := .TagMap }}
@@ -12,8 +12,13 @@
 {{ range .Items }}
 {{ $item := . }}
 <tr id="item_row_{{ .ID }}"
-  class="item{{ if .IsBoring }} boring{{ end }}"
-  {{ if (and $hideBoring .IsBoring) }}hidden{{ end -}}>
+  class="item {{ if .IsBoring }}boring{{ end }}
+  {{ if .IsProbablyBoring }}probably-boring{{ end }}"
+  {{ if (or (and (gt $hideBoring 0) .IsBoring)
+            (and (gt $hideBoring 1) .IsProbablyBoring)) }}
+  hidden
+  {{ end }}
+  >
   <td>
     <div>
       {{ fmt_time_minute .Timestamp }}

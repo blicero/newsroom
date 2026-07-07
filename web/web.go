@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-07-07 11:01:39 krylon>
+// Time-stamp: <2026-07-07 12:27:12 krylon>
 
 package web
 
@@ -55,7 +55,7 @@ var assets embed.FS
 // Server provides a web-based UI
 type Server struct {
 	addr       string
-	hideBoring bool
+	hideBoring int64
 	log        *log.Logger
 	pool       *database.Pool // nolint: unused
 	lock       sync.RWMutex   // nolint: unused
@@ -168,7 +168,7 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 	srv.router.NotFoundHandler = http.HandlerFunc(srv.handleNotFound)
 	srv.router.HandleFunc("/favicon.ico", srv.handleFavIco)
 	srv.router.HandleFunc("/static/{file}", srv.handleStaticFile)
-	srv.router.HandleFunc("/{index:(?i:index|main|start)$}", srv.handleMain)
+	srv.router.HandleFunc("/{index:(?i:index|home|main|start)$}", srv.handleMain)
 	srv.router.HandleFunc("/news/{pageno:(?:\\d+)}/{cnt:(?:\\d+)$}", srv.handleNews)
 	srv.router.HandleFunc("/feed/all", srv.handleSubscriptions)
 	srv.router.HandleFunc("/tag/all", srv.handleTagsView)
@@ -182,6 +182,10 @@ func Create(addr string, eng *engine.Engine) (*Server, error) {
 	srv.router.HandleFunc("/analysis/trend/{days:(?:\\d+)}/{icnt:(?:\\d+)$}", srv.handleTrendAnalysis)
 	srv.router.HandleFunc("/analysis/chart/{days:(?:\\d+)}/{icnt:(?:\\d+)$}", srv.handleTrendChart)
 	srv.router.HandleFunc("/analysis/tags/{days:(?:\\d+)}/{offset:(?:\\d+)$}", srv.handleTagsByPeriod)
+
+	srv.router.HandleFunc("/recent", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/news/0/100", http.StatusFound)
+	})
 
 	// AJAX Handlers
 	srv.router.HandleFunc(
@@ -2732,8 +2736,8 @@ func (srv *Server) handleAjaxToggleHideBoring(w http.ResponseWriter, r *http.Req
 		res = ajaxData{
 			Timestamp: time.Now(),
 		}
-		state      bool
 		msg, fData string
+		level      int64
 		buf        []byte
 	)
 
@@ -2745,18 +2749,24 @@ func (srv *Server) handleAjaxToggleHideBoring(w http.ResponseWriter, r *http.Req
 		goto SEND
 	}
 
-	fData = r.FormValue("status")
+	fData = r.FormValue("level")
 
-	if state, err = strconv.ParseBool(fData); err != nil {
+	if level, err = strconv.ParseInt(fData, 10, 64); err != nil {
 		msg = fmt.Sprintf("Cannot parse state of toggle switch %q: %s",
 			fData,
 			err.Error())
 		srv.log.Printf("[ERROR] %s\n", msg)
 		buf = errJSON(msg)
 		goto SEND
+	} else if level < 0 || level > 2 {
+		msg = fmt.Sprintf("Invalid value for level: %d (must be 0 <= level <= 2)",
+			level)
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
 	}
 
-	srv.hideBoring = state
+	srv.hideBoring = level
 	res.Status = true
 	res.Message = "ACK"
 
