@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-06-30 11:59:58 krylon>
+// Time-stamp: <2026-07-07 13:05:24 krylon>
 
 package common
 
@@ -36,7 +36,7 @@ import (
 // application.
 const (
 	AppName                  = "Newsroom"
-	Version                  = "0.11.0"
+	Version                  = "0.12.0"
 	TimestampFormatMinute    = "2006-01-02 15:04"
 	TimestampFormat          = "2006-01-02 15:04:05"
 	TimestampFormatSubSecond = "2006-01-02 15:04:05.0000 MST"
