@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 03. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-07-03 11:41:25 krylon>
+// Time-stamp: <2026-07-07 12:33:41 krylon>
 
 package main
 
@@ -17,7 +17,6 @@ import (
 	"time"
 
 	"github.com/blicero/newsroom/cache"
-	"github.com/blicero/newsroom/cluster"
 	"github.com/blicero/newsroom/common"
 	"github.com/blicero/newsroom/config"
 	"github.com/blicero/newsroom/engine"
@@ -80,7 +79,6 @@ func main() {
 
 	common.Debug = cfg.Global.Debug
 	cache.Timeout = cfg.Global.CacheTimeout
-	cluster.Period = cfg.Cluster.Period
 
 	flag.StringVar(&addr, "addr", fmt.Sprintf("[::1]:%d", common.WebPort), "The IP address for the web UI to listen on")
 	flag.StringVar(&profOut, "prof", "", "if non-empty, write profiling information to the named file")
