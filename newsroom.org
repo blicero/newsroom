@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-07-06 14:45:58 krylon>
+# Time-stamp: <2026-07-07 11:03:40 krylon>
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
 #+TAGS: optimize(o) refactor(r) cleanup(c)
@@ -7,7 +7,7 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Newsroom [52/54]
+* Newsroom [54/56]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
@@ -89,7 +89,7 @@
    | \_      Profiler                                 |            |            |          |  0:24 |      |
    | \_    Analysis paralysis [0/0]                   |            |            |     0:01 |       |      |
    #+END:
-** Components [51/52]
+** Components [53/54]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -293,7 +293,7 @@
     CLOCK: [2026-04-10 Fr 12:38]--[2026-04-10 Fr 13:06] =>  0:28
     CLOCK: [2026-04-09 Do 14:53]--[2026-04-09 Do 15:49] =>  0:56
     :END:
-*** Latent Semantic Analysis [1/2]
+*** Latent Semantic Analysis [2/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -301,7 +301,8 @@
     I would like to to use some NLP techniques to do more analysis on the news
     Items. For starters, I would like to find "clusters", i.e. groups of
     related articles.
-**** TODO Clustering [1/1]
+**** CANCELLED Clustering [1/1]
+     CLOSED: [2026-07-07 Di 11:02]
      :LOGBOOK:
      CLOCK: [2026-07-06 Mo 13:14]--[2026-07-06 Mo 13:36] =>  0:22
      CLOCK: [2026-07-06 Mo 10:46]--[2026-07-06 Mo 12:00] =>  1:14
@@ -313,6 +314,8 @@
      As this appears to be potentially *VERY* CPU-heavy, I will start by only
      doing this work on demand, by adding a button to each Item to show me
      similar or related Items.
+     [2026-07-07 Di 11:03] I declare this experiment a failure, maybe I'll try
+     again sometime.
 ***** DONE Stopwords
       CLOSED: [2026-07-03 Fr 10:50]
       :LOGBOOK:
