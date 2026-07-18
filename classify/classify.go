@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 09. 04. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-06-30 18:01:46 krylon>
+// Time-stamp: <2026-07-18 15:17:22 krylon>
 
 // Package classify suggests Tags that are likely to be a match for news Items.
 package classify
@@ -317,7 +317,9 @@ func (ad *Advisor) Score(item *model.Item) (SuggList, error) {
 		tmap[tag.ID] = true
 	}
 
-	lng = ad.lngMap[item.FeedID]
+	if lng = ad.lngMap[item.FeedID]; lng == "" {
+		lng = "en"
+	}
 
 	if s = ad.advisors[lng]; s == nil {
 		err = fmt.Errorf("No Classifier was found for languange %s",
